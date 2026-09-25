@@ -9,10 +9,10 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
     public static $files = array (
         '606a39d89246991a373564698c2d8383' => __DIR__ . '/..' . '/symfony/polyfill-php85/bootstrap.php',
         '9d2b9fc6db0f153a0a149fefb182415e' => __DIR__ . '/..' . '/symfony/polyfill-php84/bootstrap.php',
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '2c2415ec15363ede1bff13a287462ba1' => __DIR__ . '/..' . '/symfony/polyfill-php86/bootstrap.php',
         '23f09fe3194f8c2f70923f90d6702129' => __DIR__ . '/..' . '/illuminate/collections/functions.php',
         '60799491728b879e74601d83e38b2cad' => __DIR__ . '/..' . '/illuminate/collections/helpers.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '19e6faa27d773988183e0f384143fcad' => __DIR__ . '/..' . '/illuminate/reflection/helpers.php',
         '662a729f963d39afe703c9d9b7ab4a8c' => __DIR__ . '/..' . '/symfony/polyfill-php83/bootstrap.php',
@@ -23,17 +23,20 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         '5897ea0ac4cccf14d323035e65887801' => __DIR__ . '/..' . '/symfony/polyfill-php82/bootstrap.php',
+        '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         '06a34129a50df3d9257ee706cf3c875b' => __DIR__ . '/..' . '/illuminate/filesystem/functions.php',
-        '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
+        '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         'ef65a1626449d89d0811cf9befce46f0' => __DIR__ . '/..' . '/illuminate/events/functions.php',
-        '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
-        '09f6b20656683369174dd6fa83b7e5fb' => __DIR__ . '/..' . '/symfony/polyfill-uuid/bootstrap.php',
         '47e1160838b5e5a10346ac4084b58c23' => __DIR__ . '/..' . '/laravel/prompts/src/helpers.php',
         '35a6ad97d21e794e7e22a17d806652e4' => __DIR__ . '/..' . '/nunomaduro/termwind/src/Functions.php',
+        '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
+        '09f6b20656683369174dd6fa83b7e5fb' => __DIR__ . '/..' . '/symfony/polyfill-uuid/bootstrap.php',
+        'e39a8b23c42d4e1452234d762b03835a' => __DIR__ . '/..' . '/ramsey/uuid/src/functions.php',
+        '0754989a10baadda533479884b399278' => __DIR__ . '/..' . '/resend/resend-php/src/Resend.php',
+        '377b22b161c09ed6e5152de788ca020a' => __DIR__ . '/..' . '/spatie/laravel-permission/src/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -83,6 +86,7 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
             'Symfony\\Component\\PropertyAccess\\' => 33,
             'Symfony\\Component\\Process\\' => 26,
             'Symfony\\Component\\Mime\\' => 23,
+            'Symfony\\Component\\Mailer\\' => 25,
             'Symfony\\Component\\HttpKernel\\' => 29,
             'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\Finder\\' => 25,
@@ -91,6 +95,16 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Clock\\' => 24,
             'SpomkyLabs\\Pki\\' => 15,
+            'Spatie\\Translatable\\' => 20,
+            'Spatie\\Permission\\' => 18,
+            'Spatie\\LaravelPackageTools\\' => 27,
+        ),
+        'R' =>
+        array (
+            'Resend\\Laravel\\' => 15,
+            'Resend\\' => 7,
+            'Ramsey\\Uuid\\' => 12,
+            'Ramsey\\Collection\\' => 18,
         ),
         'P' =>
         array (
@@ -119,6 +133,7 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
             'Illuminate\\Support\\' => 19,
             'Illuminate\\Session\\' => 19,
             'Illuminate\\Routing\\' => 19,
+            'Illuminate\\Queue\\' => 17,
             'Illuminate\\Pipeline\\' => 20,
             'Illuminate\\Http\\' => 16,
             'Illuminate\\Filesystem\\' => 22,
@@ -128,6 +143,7 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
             'Illuminate\\Container\\' => 21,
             'Illuminate\\Console\\' => 19,
             'Illuminate\\Bus\\' => 15,
+            'Illuminate\\Auth\\' => 16,
         ),
         'G' =>
         array (
@@ -140,10 +156,15 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         array (
             'Fruitcake\\Cors\\' => 15,
         ),
+        'E' =>
+        array (
+            'Egulias\\EmailValidator\\' => 23,
+        ),
         'D' =>
         array (
             'Doctrine\\Inflector\\' => 19,
             'Doctrine\\Deprecations\\' => 22,
+            'Doctrine\\Common\\Lexer\\' => 22,
             'DASPRiD\\Enum\\' => 13,
         ),
         'C' =>
@@ -291,6 +312,10 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         array (
             0 => __DIR__ . '/..' . '/symfony/mime',
         ),
+        'Symfony\\Component\\Mailer\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/mailer',
+        ),
         'Symfony\\Component\\HttpKernel\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/http-kernel',
@@ -322,6 +347,34 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         'SpomkyLabs\\Pki\\' =>
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/pki-framework/src',
+        ),
+        'Spatie\\Translatable\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/spatie/laravel-translatable/src',
+        ),
+        'Spatie\\Permission\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/spatie/laravel-permission/src',
+        ),
+        'Spatie\\LaravelPackageTools\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/spatie/laravel-package-tools/src',
+        ),
+        'Resend\\Laravel\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/resend/resend-laravel/src',
+        ),
+        'Resend\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/resend/resend-php/src',
+        ),
+        'Ramsey\\Uuid\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/ramsey/uuid/src',
+        ),
+        'Ramsey\\Collection\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/ramsey/collection/src',
         ),
         'Psr\\SimpleCache\\' =>
         array (
@@ -404,6 +457,10 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         array (
             0 => __DIR__ . '/..' . '/illuminate/routing',
         ),
+        'Illuminate\\Queue\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/illuminate/queue',
+        ),
         'Illuminate\\Pipeline\\' =>
         array (
             0 => __DIR__ . '/..' . '/illuminate/pipeline',
@@ -440,6 +497,10 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         array (
             0 => __DIR__ . '/..' . '/illuminate/bus',
         ),
+        'Illuminate\\Auth\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/illuminate/auth',
+        ),
         'GuzzleHttp\\UriTemplate\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/uri-template/src',
@@ -460,6 +521,10 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         array (
             0 => __DIR__ . '/..' . '/fruitcake/php-cors/src',
         ),
+        'Egulias\\EmailValidator\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/egulias/email-validator/src',
+        ),
         'Doctrine\\Inflector\\' =>
         array (
             0 => __DIR__ . '/..' . '/doctrine/inflector/src',
@@ -467,6 +532,10 @@ class ComposerStaticInit19b21fff8d5a641822e8695dec1c544a
         'Doctrine\\Deprecations\\' =>
         array (
             0 => __DIR__ . '/..' . '/doctrine/deprecations/src',
+        ),
+        'Doctrine\\Common\\Lexer\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/lexer/src',
         ),
         'DASPRiD\\Enum\\' =>
         array (
