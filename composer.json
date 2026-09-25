@@ -1,0 +1,6 @@
+{
+    "require": {
+        "laravel/sanctum": "^4.3",
+        "laravel/fortify": "^1.40"
+    }
+}
