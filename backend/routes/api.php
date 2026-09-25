@@ -30,3 +30,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::delete('/loans/{loan}',      [LoanController::class, 'destroy']);
     Route::apiResource('users', UserController::class);
 });
+
+
+Route::get('/health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
+
+Route::get('/books', [BookController::class, 'index']);
+Route::get('/books/{book:slug}', [BookController::class, 'show']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/sponsors', [SponsorController::class, 'index']);
