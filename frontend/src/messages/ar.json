@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "catalog": "الكتالوج",
+    "categories": "الفئات",
+    "history": "التاريخ",
+    "contact": "اتصل بنا",
+    "login": "تسجيل الدخول",
+    "register": "التسجيل",
+    "account": "حسابي",
+    "search": "ابحث عن كتاب..."
+  },
+  "home": {
+    "hero_title": "اغرق في بحر الحكايات! 📖",
+    "hero_subtitle": "آلاف الكتب تنتظرك في مكتبة الهدائكي",
+    "hero_cta": "استكشف الكتالوج",
+    "popular": "الأكثر قراءة هذا الشهر",
+    "categories": "استكشف حسب الموضوع",
+    "sponsors": "شركاؤنا",
+    "new_books": "وصل حديثاً"
+  },
+  "book": {
+    "available": "متوفر",
+    "unavailable": "مُعار",
+    "borrow": "طلب / إعارة",
+    "favorite": "أضف إلى المفضلة",
+    "reviews": "تقييمات",
+    "pages": "صفحات",
+    "language": "اللغة",
+    "stock": "في المخزون",
+    "themes": "المواضيع"
+  },
+  "catalog": {
+    "title": "الكتالوج",
+    "results": "{count} كتاب موجود",
+    "no_results": "لم يتم العثور على كتب",
+    "filters": "الفلاتر"
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "send": "إرسال"
+  },
+  "footer": {
+    "rights": "جميع الحقوق محفوظة",
+    "links": "روابط سريعة",
+    "contact": "اتصل"
+  }
+}
