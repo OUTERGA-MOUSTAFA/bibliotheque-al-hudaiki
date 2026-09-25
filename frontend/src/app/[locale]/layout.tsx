@@ -3,6 +3,8 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Inter, Cairo } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import '../globals.css';
+
 import Providers from '@/components/providers/Providers';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
