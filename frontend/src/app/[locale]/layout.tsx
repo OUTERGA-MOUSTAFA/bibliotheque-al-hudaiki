@@ -1,8 +1,8 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Inter, Cairo } from 'next/font/google';
 import { notFound } from 'next/navigation';
-import { locales } from '@/i18n';
+import { routing } from '@/i18n/routing';
 import Providers from '@/components/providers/Providers';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-latin' });
 const cairo = Cairo({ subsets: ['arabic'], variable: '--font-arabic' });
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 export default async function LocaleLayout({
@@ -22,7 +22,13 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!locales.includes(locale as any)) notFound();
+
+  if (!routing.locales.includes(locale as any)) {
+    notFound();
+  }
+
+  // ⚠️ HADI HIYA L'MOCHKIL — KHASS TKUN HNA
+  setRequestLocale(locale);
 
   const messages = await getMessages();
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
