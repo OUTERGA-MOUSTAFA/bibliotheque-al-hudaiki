@@ -2,101 +2,137 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePathname } from '@/navigation';
-import { Label } from '@/components/ui/label';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { X } from 'lucide-react';
 import type { Category } from '@/types';
 
 export default function BookFilters({ categories }: { categories: Category[] }) {
+  const t = useTranslations('catalog');
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(params.toString());
-    if (value) newParams.set(key, value);
+    if (value && value !== 'all') newParams.set(key, value);
     else newParams.delete(key);
-    newParams.delete('page'); // reset pagination
+    newParams.delete('page');
     router.push(`${pathname}?${newParams.toString()}`);
   };
 
   const clearAll = () => router.push(pathname);
 
+  const hasFilters =
+    params.has('q') ||
+    params.has('categorie') ||
+    params.has('langue') ||
+    params.has('disponible') ||
+    params.has('tri');
+
   return (
     <div className="space-y-6 sticky top-20">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-stone-900">Filtres</h2>
-        <Button variant="ghost" size="sm" onClick={clearAll}>
-          Effacer
-        </Button>
+        <h2 className={`font-bold text-lg text-stone-900 ${locale === 'ar' ? 'font-arabic-tech' : ''}`}>
+          {t('filters')}
+        </h2>
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-1"
+          >
+            <X size={14} />
+            {t('clear_filters')}
+          </Button>
+        )}
       </div>
 
       {/* Catégorie */}
-      <div>
-        <Label className="mb-2 block">Catégorie</Label>
-        <select
-          value={params.get('categorie') || ''}
-          onChange={(e) => updateFilter('categorie', e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      <div className="space-y-2">
+        <Label className="text-stone-700">{t('category_filter')}</Label>
+        <Select
+          value={params.get('categorie') || 'all'}
+          onValueChange={(v) => updateFilter('categorie', v)}
         >
-          <option value="">Toutes</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.nom}</option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('availability_options.all')}</SelectItem>
+            {categories.map((c) => (
+              <SelectItem key={c.id} value={String(c.id)}>
+                {c.nom}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Langue */}
-      <div>
-        <Label className="mb-2 block">Langue</Label>
-        <select
-          value={params.get('langue') || ''}
-          onChange={(e) => updateFilter('langue', e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      <div className="space-y-2">
+        <Label className="text-stone-700">{t('language_filter')}</Label>
+        <Select
+          value={params.get('langue') || 'all'}
+          onValueChange={(v) => updateFilter('langue', v)}
         >
-          <option value="">Toutes</option>
-          <option value="fr">Français</option>
-          <option value="ar">العربية</option>
-          <option value="en">English</option>
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('availability_options.all')}</SelectItem>
+            <SelectItem value="ar">العربية</SelectItem>
+            <SelectItem value="fr">Français</SelectItem>
+            <SelectItem value="en">English</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Disponibilité */}
-      <div>
-        <Label className="mb-2 block">Disponibilité</Label>
-        <div className="space-y-2">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="disponible"
-              checked={params.get('disponible') === '' || !params.get('disponible')}
-              onChange={() => updateFilter('disponible', '')}
-            />
-            <span className="text-sm">Tous</span>
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="disponible"
-              checked={params.get('disponible') === 'true'}
-              onChange={() => updateFilter('disponible', 'true')}
-            />
-            <span className="text-sm">Disponible</span>
-          </label>
-        </div>
+      <div className="space-y-2">
+        <Label className="text-stone-700">{t('availability')}</Label>
+        <Select
+          value={params.get('disponible') || 'all'}
+          onValueChange={(v) => updateFilter('disponible', v)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('availability_options.all')}</SelectItem>
+            <SelectItem value="true">{t('availability_options.available')}</SelectItem>
+            <SelectItem value="false">{t('availability_options.borrowed')}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Tri */}
-      <div>
-        <Label className="mb-2 block">Trier par</Label>
-        <select
+      <div className="space-y-2">
+        <Label className="text-stone-700">{t('sort')}</Label>
+        <Select
           value={params.get('tri') || 'recent'}
-          onChange={(e) => updateFilter('tri', e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          onValueChange={(v) => updateFilter('tri', v)}
         >
-          <option value="recent">Nouveautés</option>
-          <option value="populaire">Popularité</option>
-          <option value="alpha">Alphabétique</option>
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">{t('sort_options.recent')}</SelectItem>
+            <SelectItem value="populaire">{t('sort_options.popular')}</SelectItem>
+            <SelectItem value="alpha">{t('sort_options.alpha')}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
