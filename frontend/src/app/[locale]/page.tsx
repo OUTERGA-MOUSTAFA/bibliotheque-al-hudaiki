@@ -1,3 +1,4 @@
+// src/app/[locale]/page.tsx
 import { fetchBooks, fetchCategories, fetchSponsors } from '@/lib/api';
 import Hero from '@/components/home/Hero';
 import PopularCarousel from '@/components/home/PopularCarousel';
