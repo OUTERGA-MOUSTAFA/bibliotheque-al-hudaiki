@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-// Schedule::command('loans:notify-late')->dailyAt('09:00');
+Schedule::command('loans:notify-late')->dailyAt('09:00');
