@@ -1,151 +1,126 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ============================================
-   DESIGN TOKENS
+   DESIGN TOKENS — Tailwind v4 @theme
    ============================================ */
-:root {
-  /* Brand */
-  --brand-primary: #059669;
-  --brand-light:   #10b981;
-  --brand-dark:    #047857;
+@theme {
+  /* ===== BRAND (Emerald refined) ===== */
+  --color-brand-50:  #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
 
-  /* Gold (Kids) */
-  --gold:          #f59e0b;
-  --gold-dark:     #d97706;
+  /* ===== GOLD (Kids/Warm) ===== */
+  --color-gold-50:  #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-200: #fde68a;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+  --color-gold-700: #b45309;
+  --color-gold-800: #92400e;
+  --color-gold-900: #78350f;
 
-  /* Coral (Playful) */
-  --coral:         #f43f5e;
+  /* ===== CORAL (Playful) ===== */
+  --color-coral-50:  #fff1f2;
+  --color-coral-100: #ffe4e6;
+  --color-coral-200: #fecdd3;
+  --color-coral-300: #fda4af;
+  --color-coral-400: #fb7185;
+  --color-coral-500: #f43f5e;
+  --color-coral-600: #e11d48;
+  --color-coral-700: #be123c;
+  --color-coral-800: #9f1239;
+  --color-coral-900: #881337;
 
-  /* Sky (Students) */
-  --sky:           #0ea5e9;
+  /* ===== SKY (Students) ===== */
+  --color-sky-50:  #f0f9ff;
+  --color-sky-100: #e0f2fe;
+  --color-sky-200: #bae6fd;
+  --color-sky-300: #7dd3fc;
+  --color-sky-400: #38bdf8;
+  --color-sky-500: #0ea5e9;
+  --color-sky-600: #0284c7;
+  --color-sky-700: #0369a1;
+  --color-sky-800: #075985;
+  --color-sky-900: #0c4a6e;
 
-  /* Neutrals */
-  --bg-cream:      #faf8f5;
-  --bg-sand:       #f5f1e8;
-  --text-ink:      #1c1917;
-  --text-muted:    #57534e;
-  --border-soft:   #e7e5e4;
+  /* ===== CUSTOM NEUTRALS ===== */
+  --color-cream: #faf8f5;
+  --color-sand:  #f5f1e8;
+  --color-ink:   #1c1917;
+  --color-night: #0c0a09;
 
-  /* Shadow */
-  --shadow-soft:   0 4px 20px -4px rgba(28, 25, 23, 0.08);
+  /* ===== FONTS ===== */
+  --font-latin: var(--font-latin), system-ui, sans-serif;
+  --font-arabic: var(--font-arabic), system-ui, sans-serif;
+  --font-arabic-alt: var(--font-arabic-alt), system-ui, sans-serif;
+  --font-arabic-tech: var(--font-arabic-tech), system-ui, sans-serif;
+
+  /* ===== SHADOWS ===== */
+  --shadow-soft: 0 4px 20px -4px rgb(28 25 23 / 0.08);
+  --shadow-soft-lg: 0 10px 40px -8px rgb(28 25 23 / 0.12);
+  --shadow-brand-glow: 0 8px 24px -6px rgb(5 150 105 / 0.35);
+  --shadow-gold-glow: 0 8px 24px -6px rgb(245 158 11 / 0.35);
 }
 
 /* ============================================
-   BASE
+   BASE STYLES
    ============================================ */
+* {
+  border-color: #e7e5e4;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--bg-cream);
-  color: var(--text-ink);
+  background-color: #faf8f5;
+  color: #1c1917;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ============================================
-   TYPOGRAPHY — Arabic
-   ============================================ */
-html[dir='rtl'] {
-  font-family: var(--font-arabic), system-ui, sans-serif;
+/* Arabic typography */
+html[dir="rtl"] {
+  font-family: var(--font-arabic, system-ui, sans-serif);
 }
 
-html[dir='rtl'] h1,
-html[dir='rtl'] h2,
-html[dir='rtl'] h3,
-html[dir='rtl'] h4 {
-  font-family: var(--font-arabic-tech);
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4 {
+  font-family: var(--font-arabic-tech, var(--font-arabic), system-ui, sans-serif);
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: -0.01em;
 }
 
-html[dir='rtl'] p,
-html[dir='rtl'] li {
+html[dir="rtl"] p,
+html[dir="rtl"] li {
   line-height: 1.9;
 }
 
-/* ============================================
-   SECTION PATTERNS
-   ============================================ */
-
-/* Hero — Dark premium */
-.section-hero {
-  background: linear-gradient(135deg, #0c0a09 0%, #064e3b 50%, #0c0a09 100%);
-  color: #fafaf9;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Cream section — la majorité */
-.section-cream {
-  background-color: #faf8f5;
-}
-
-/* Sand section — alternance */
-.section-sand {
-  background-color: #f5f1e8;
-}
-
-/* Dark section — footer, CTA */
-.section-dark {
-  background-color: #0c0a09;
-  color: #fafaf9;
+/* Latin typography */
+html[dir="ltr"] {
+  font-family: var(--font-latin, system-ui, sans-serif);
 }
 
 /* ============================================
-   DECORATIVE ELEMENTS
-   ============================================ */
-
-/* Gold divider */
-.divider-gold {
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-  border-radius: 2px;
-}
-
-/* Emerald divider */
-.divider-brand {
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(90deg, #10b981, #059669);
-  border-radius: 2px;
-}
-
-/* Soft glow ring */
-.ring-brand-glow {
-  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
-}
-
-/* ============================================
-   CATEGORY COLOR SYSTEM
-   ============================================ */
-.cat-emerald { --cat-color: #10b981; --cat-bg: #ecfdf5; }
-.cat-gold    { --cat-color: #f59e0b; --cat-bg: #fffbeb; }
-.cat-coral   { --cat-color: #f43f5e; --cat-bg: #fff1f2; }
-.cat-sky     { --cat-color: #0ea5e9; --cat-bg: #f0f9ff; }
-.cat-violet  { --cat-color: #8b5cf6; --cat-bg: #f5f3ff; }
-.cat-rose    { --cat-color: #e11d48; --cat-bg: #fff1f2; }
-
-.category-pill {
-  background-color: var(--cat-bg);
-  color: var(--cat-color);
-  border: 1px solid color-mix(in srgb, var(--cat-color) 20%, transparent);
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* ============================================
-   SCROLLBAR (subtle)
+   SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -161,18 +136,26 @@ html[dir='rtl'] li {
   background: #a8a29e;
 }
 
-.dark {
-  --bg-cream: #0c0a09;
-  --bg-sand:  #1c1917;
-  --text-ink: #fafaf9;
-  --text-muted: #a8a29e;
-  --border-soft: #292524;
+/* ============================================
+   HELPERS
+   ============================================ */
+.divider-gold {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  border-radius: 2px;
 }
 
-.dark body {
-  background-color: var(--bg-cream);
-  color: var(--text-ink);
+.divider-brand {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 2px;
 }
 
-.dark .section-cream { background-color: #0c0a09; }
-.dark .section-sand  { background-color: #1c1917; }
+/* Disable default focus rings, use custom */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}

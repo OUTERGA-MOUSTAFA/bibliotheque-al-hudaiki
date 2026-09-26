@@ -2,13 +2,16 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePathname } from '@/navigation';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { X, SlidersHorizontal } from 'lucide-react';
 import type { Category } from '@/types';
 
-export default function BookFilters({ categories }: { categories: Category[] }) {
+interface BookFiltersProps {
+  categories?: Category[];
+}
+
+export default function BookFilters({ categories = [] }: BookFiltersProps) {
   const t = useTranslations('catalog');
-  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -37,7 +40,6 @@ export default function BookFilters({ categories }: { categories: Category[] }) 
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-100">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center">
@@ -81,86 +83,24 @@ export default function BookFilters({ categories }: { categories: Category[] }) 
 
         {/* Langue */}
         <FilterGroup label={t('language_filter')}>
-          <RadioOption
-            name="langue"
-            value="all"
-            current={currentLang}
-            onChange={(v) => updateFilter('langue', v)}
-            label="الكل"
-          />
-          <RadioOption
-            name="langue"
-            value="ar"
-            current={currentLang}
-            onChange={(v) => updateFilter('langue', v)}
-            label="العربية"
-          />
-          <RadioOption
-            name="langue"
-            value="fr"
-            current={currentLang}
-            onChange={(v) => updateFilter('langue', v)}
-            label="Français"
-          />
-          <RadioOption
-            name="langue"
-            value="en"
-            current={currentLang}
-            onChange={(v) => updateFilter('langue', v)}
-            label="English"
-          />
+          <RadioOption name="langue" value="all" current={currentLang} onChange={(v) => updateFilter('langue', v)} label="الكل" />
+          <RadioOption name="langue" value="ar" current={currentLang} onChange={(v) => updateFilter('langue', v)} label="العربية" />
+          <RadioOption name="langue" value="fr" current={currentLang} onChange={(v) => updateFilter('langue', v)} label="Français" />
+          <RadioOption name="langue" value="en" current={currentLang} onChange={(v) => updateFilter('langue', v)} label="English" />
         </FilterGroup>
 
         {/* Disponibilité */}
         <FilterGroup label={t('availability')}>
-          <RadioOption
-            name="disponible"
-            value="all"
-            current={currentAvail}
-            onChange={(v) => updateFilter('disponible', v)}
-            label={t('availability_options.all')}
-          />
-          <RadioOption
-            name="disponible"
-            value="true"
-            current={currentAvail}
-            onChange={(v) => updateFilter('disponible', v)}
-            label={t('availability_options.available')}
-            dot="bg-brand-500"
-          />
-          <RadioOption
-            name="disponible"
-            value="false"
-            current={currentAvail}
-            onChange={(v) => updateFilter('disponible', v)}
-            label={t('availability_options.borrowed')}
-            dot="bg-coral-500"
-          />
+          <RadioOption name="disponible" value="all" current={currentAvail} onChange={(v) => updateFilter('disponible', v)} label={t('availability_options.all')} />
+          <RadioOption name="disponible" value="true" current={currentAvail} onChange={(v) => updateFilter('disponible', v)} label={t('availability_options.available')} dot="bg-brand-500" />
+          <RadioOption name="disponible" value="false" current={currentAvail} onChange={(v) => updateFilter('disponible', v)} label={t('availability_options.borrowed')} dot="bg-coral-500" />
         </FilterGroup>
 
         {/* Tri */}
         <FilterGroup label={t('sort')}>
-          <RadioOption
-            name="tri"
-            value="recent"
-            current={currentTri}
-            onChange={(v) => updateFilter('tri', v)}
-            label={t('sort_options.recent')}
-          />
-          <RadioOption
-            name="tri"
-            value="populaire"
-            current={currentTri}
-            onChange={(v) => updateFilter('tri', v)}
-            label={t('sort_options.popular')}
-          />
-          <RadioOption
-            name="tri"
-            value="alpha"
-            current={currentTri}
-            onChange={(v) => updateFilter('tri', v)}
-            label={t('sort_options.alpha')}
-          />
+          <RadioOption name="tri" value="recent" current={currentTri} onChange={(v) => updateFilter('tri', v)} label={t('sort_options.recent')} />
+          <RadioOption name="tri" value="populaire" current={currentTri} onChange={(v) => updateFilter('tri', v)} label={t('sort_options.popular')} />
+          <RadioOption name="tri" value="alpha" current={currentTri} onChange={(v) => updateFilter('tri', v)} label={t('sort_options.alpha')} />
         </FilterGroup>
       </div>
     </div>
