@@ -3,103 +3,176 @@
 @tailwind utilities;
 
 /* ============================================
-   BASE
+   DESIGN TOKENS
    ============================================ */
 :root {
-  --background: 250 250 249;    /* stone-50 */
-  --foreground: 28 25 23;        /* stone-900 */
+  /* Brand */
+  --brand-primary: #059669;
+  --brand-light:   #10b981;
+  --brand-dark:    #047857;
+
+  /* Gold (Kids) */
+  --gold:          #f59e0b;
+  --gold-dark:     #d97706;
+
+  /* Coral (Playful) */
+  --coral:         #f43f5e;
+
+  /* Sky (Students) */
+  --sky:           #0ea5e9;
+
+  /* Neutrals */
+  --bg-cream:      #faf8f5;
+  --bg-sand:       #f5f1e8;
+  --text-ink:      #1c1917;
+  --text-muted:    #57534e;
+  --border-soft:   #e7e5e4;
+
+  /* Shadow */
+  --shadow-soft:   0 4px 20px -4px rgba(28, 25, 23, 0.08);
 }
 
-/* Arabic typography settings */
-html[dir="rtl"] {
+/* ============================================
+   BASE
+   ============================================ */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-cream);
+  color: var(--text-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   TYPOGRAPHY — Arabic
+   ============================================ */
+html[dir='rtl'] {
   font-family: var(--font-arabic), system-ui, sans-serif;
-  letter-spacing: 0;             /* RTL machi kay7taj letter-spacing */
 }
 
-html[dir="rtl"] h1,
-html[dir="rtl"] h2,
-html[dir="rtl"] h3,
-html[dir="rtl"] h4 {
+html[dir='rtl'] h1,
+html[dir='rtl'] h2,
+html[dir='rtl'] h3,
+html[dir='rtl'] h4 {
+  font-family: var(--font-arabic-tech);
   font-weight: 700;
-  line-height: 1.4;              /* Arabic kay7taj line-height kbar */
+  line-height: 1.4;
   letter-spacing: -0.01em;
 }
 
-html[dir="rtl"] p,
-html[dir="rtl"] li {
-  line-height: 1.9;              /* Arabic reading comfort */
+html[dir='rtl'] p,
+html[dir='rtl'] li {
+  line-height: 1.9;
 }
-
-/* Arabic heading — كيما ف ليماج */
-.arabic-heading {
-  font-family: var(--font-arabic-tech);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-}
-
-/* Dark section — كيما ف ليماج */
-.dark-section {
-  background-color: #0a0a0a;
-  color: #fafaf9;
-}
-
-.dark-section .arabic-title {
-  font-family: var(--font-arabic-tech);
-  font-size: 3rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #ffffff;
-  direction: rtl;
-}
-
-/* ف globals.css */
 
 /* ============================================
-   ARABIC COLOR PALETTE
+   SECTION PATTERNS
    ============================================ */
 
-/* Emerald (لون أساسي — كيف ما ف ليماج) */
-:root {
-  --brand-emerald: #10b981;
-  --brand-emerald-dark: #047857;
-  --brand-emerald-light: #34d399;
-
-  /* Dark backgrounds */
-  --dark-bg: #0a0a0a;
-  --dark-bg-soft: #171717;
-  --dark-border: #262626;
-
-  /* Arabic typography */
-  --arabic-weight-heading: 700;
-  --arabic-weight-body: 400;
-  --arabic-line-height: 1.9;
+/* Hero — Dark premium */
+.section-hero {
+  background: linear-gradient(135deg, #0c0a09 0%, #064e3b 50%, #0c0a09 100%);
+  color: #fafaf9;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Section dark — كيف ما ف ليماج */
+/* Cream section — la majorité */
+.section-cream {
+  background-color: #faf8f5;
+}
+
+/* Sand section — alternance */
+.section-sand {
+  background-color: #f5f1e8;
+}
+
+/* Dark section — footer, CTA */
 .section-dark {
-  background-color: var(--dark-bg);
+  background-color: #0c0a09;
   color: #fafaf9;
 }
 
-.section-dark h1,
-.section-dark h2,
-.section-dark h3 {
-  color: #ffffff;
-  font-weight: var(--arabic-weight-heading);
+/* ============================================
+   DECORATIVE ELEMENTS
+   ============================================ */
+
+/* Gold divider */
+.divider-gold {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  border-radius: 2px;
 }
 
-/* Typography Arabic heading */
-[dir="rtl"] h1,
-[dir="rtl"] h2 {
-  font-family: var(--font-arabic-tech);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+/* Emerald divider */
+.divider-brand {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 2px;
 }
 
-/* Numbers in Arabic — use Latin numerals */
-[dir="rtl"] .num {
-  font-family: var(--font-latin);
-  direction: ltr;
-  display: inline-block;
+/* Soft glow ring */
+.ring-brand-glow {
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
 }
+
+/* ============================================
+   CATEGORY COLOR SYSTEM
+   ============================================ */
+.cat-emerald { --cat-color: #10b981; --cat-bg: #ecfdf5; }
+.cat-gold    { --cat-color: #f59e0b; --cat-bg: #fffbeb; }
+.cat-coral   { --cat-color: #f43f5e; --cat-bg: #fff1f2; }
+.cat-sky     { --cat-color: #0ea5e9; --cat-bg: #f0f9ff; }
+.cat-violet  { --cat-color: #8b5cf6; --cat-bg: #f5f3ff; }
+.cat-rose    { --cat-color: #e11d48; --cat-bg: #fff1f2; }
+
+.category-pill {
+  background-color: var(--cat-bg);
+  color: var(--cat-color);
+  border: 1px solid color-mix(in srgb, var(--cat-color) 20%, transparent);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ============================================
+   SCROLLBAR (subtle)
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f1e8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+.dark {
+  --bg-cream: #0c0a09;
+  --bg-sand:  #1c1917;
+  --text-ink: #fafaf9;
+  --text-muted: #a8a29e;
+  --border-soft: #292524;
+}
+
+.dark body {
+  background-color: var(--bg-cream);
+  color: var(--text-ink);
+}
+
+.dark .section-cream { background-color: #0c0a09; }
+.dark .section-sand  { background-color: #1c1917; }
