@@ -7,6 +7,7 @@ import Providers from '@/components/providers/Providers';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import '../globals.css';
+import { Link, usePathname, useRouter } from '@/navigation';
 
 // Latin (FR/EN)
 const inter = Inter({
