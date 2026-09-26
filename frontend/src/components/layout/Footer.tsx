@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
-import { Mail, MapPin, BookOpen, Facebook, Instagram } from 'lucide-react';
+import { Mail, MapPin, BookOpen, Globe, Send } from 'lucide-react';   // 👈 BEDDEL
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -26,13 +26,23 @@ export default function Footer() {
               {t('about_text')}
             </p>
 
-            {/* Social */}
+            {/* Social — b icônes alternatives */}
             <div className="flex gap-3 mt-6">
-              <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-600 flex items-center justify-center transition">
-                <Facebook size={16} className="text-stone-300" />
+              <a
+                href="https://portfolio-wwhz.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-600 flex items-center justify-center transition"
+                aria-label="Website"
+              >
+                <Globe size={16} className="text-stone-300" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-600 flex items-center justify-center transition">
-                <Instagram size={16} className="text-stone-300" />
+              <a
+                href="mailto:outergamoustafa@gmail.com"
+                className="w-9 h-9 rounded-lg bg-white/5 hover:bg-brand-600 flex items-center justify-center transition"
+                aria-label="Email"
+              >
+                <Send size={16} className="text-stone-300" />
               </a>
             </div>
           </div>
