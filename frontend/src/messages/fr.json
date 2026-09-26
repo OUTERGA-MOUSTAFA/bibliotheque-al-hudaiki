@@ -1,4 +1,28 @@
 {
+  "catalog": {
+    "title": "Catalogue",
+    "subtitle": "Parcourez notre collection complète de livres",
+    "results": "{count} livres",
+    "no_results": "Aucun livre trouvé",
+    "no_results_hint": "Essayez de modifier vos critères de recherche",
+    "filters": "Filtres",
+    "clear_filters": "Effacer",
+    "sort": "Trier par",
+    "sort_options": {
+      "popular": "Popularité",
+      "recent": "Nouveautés",
+      "alpha": "Alphabétique"
+    },
+    "availability": "Disponibilité",
+    "availability_options": {
+      "all": "Tous",
+      "available": "Disponible",
+      "borrowed": "Emprunté"
+    },
+    "language_filter": "Langue",
+    "category_filter": "Catégorie"
+  },
+
   "nav": {
     "home": "Accueil",
     "catalog": "Catalogue",
@@ -47,36 +71,7 @@
     "editor": "Éditeur",
     "no_reviews": "Aucun avis pour le moment"
   },
-  "catalog": {
-    "title": "Catalogue",
-    "subtitle": "Parcourez notre collection complète",
-    "results": "{count} livres",
-    "no_results": "Aucun livre trouvé",
-    "no_results_hint": "Essayez de modifier vos critères de recherche",
-    "filters": "Filtres",
-    "clear_filters": "Effacer tous les filtres",
-    "apply": "Appliquer",
-    "sort": "Trier par",
-    "sort_options": {
-      "popular": "Popularité",
-      "recent": "Nouveautés",
-      "alpha": "Alphabétique",
-      "oldest": "Plus anciens"
-    },
-    "availability": "Disponibilité",
-    "availability_options": {
-      "all": "Tous",
-      "available": "Disponible",
-      "borrowed": "Emprunté"
-    },
-    "language_filter": "Langue",
-    "category_filter": "Catégorie",
-    "pagination": {
-      "previous": "Précédent",
-      "next": "Suivant",
-      "page": "Page {current} sur {total}"
-    }
-  },
+  
   "contact": {
     "title": "Contactez-nous",
     "subtitle": "Nous sommes là pour répondre à vos questions",

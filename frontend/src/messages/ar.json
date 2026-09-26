@@ -1,4 +1,27 @@
 {
+  "catalog": {
+    "title": "الفهرس",
+    "subtitle": "تصفح مجموعتنا الكاملة من الكتب",
+    "results": "{count} كتاب",
+    "no_results": "لا توجد كتب",
+    "no_results_hint": "جرّب تغيير معايير البحث أو مسح الفلاتر",
+    "filters": "التصفية",
+    "clear_filters": "مسح الفلاتر",
+    "sort": "ترتيب حسب",
+    "sort_options": {
+      "popular": "الأكثر شعبية",
+      "recent": "الأحدث",
+      "alpha": "أبجدياً"
+    },
+    "availability": "التوفر",
+    "availability_options": {
+      "all": "الكل",
+      "available": "متوفر",
+      "borrowed": "مُعار"
+    },
+    "language_filter": "اللغة",
+    "category_filter": "التصنيف"
+  },
   "nav": {
     "home": "الرئيسية",
     "catalog": "الفهرس",
@@ -46,36 +69,6 @@
     "author": "المؤلف",
     "editor": "الناشر",
     "no_reviews": "لا توجد تقييمات بعد"
-  },
-  "catalog": {
-    "title": "الفهرس",
-    "subtitle": "تصفح مجموعتنا الكاملة",
-    "results": "{count} كتاب",
-    "no_results": "لم يتم العثور على أي كتاب",
-    "no_results_hint": "جرّب تغيير معايير البحث",
-    "filters": "التصفية",
-    "clear_filters": "مسح جميع الفلاتر",
-    "apply": "تطبيق",
-    "sort": "ترتيب حسب",
-    "sort_options": {
-      "popular": "الأكثر شعبية",
-      "recent": "الأحدث",
-      "alpha": "أبجدياً",
-      "oldest": "الأقدم"
-    },
-    "availability": "التوفر",
-    "availability_options": {
-      "all": "الكل",
-      "available": "متوفر",
-      "borrowed": "مُعار"
-    },
-    "language_filter": "اللغة",
-    "category_filter": "التصنيف",
-    "pagination": {
-      "previous": "السابق",
-      "next": "التالي",
-      "page": "الصفحة {current} من {total}"
-    }
   },
   "contact": {
     "title": "اتصل بنا",

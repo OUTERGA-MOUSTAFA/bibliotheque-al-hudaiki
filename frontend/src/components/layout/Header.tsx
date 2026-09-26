@@ -31,13 +31,15 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shadow-brand-glow group-hover:scale-105 transition">
-              <BookOpen className="text-white" size={18} strokeWidth={2.5} />
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-brand-glow group-hover:scale-105 transition">
+              <BookOpen className="text-white" size={20} strokeWidth={2.5} />
             </div>
-            <div className="hidden sm:flex flex-col leading-tight">
+            <div className="hidden sm:flex flex-col leading-none">
               <span className="font-bold text-stone-900 text-sm">مكتبة الهدائكي</span>
-              <span className="text-[10px] text-brand-700 font-semibold tracking-wide">AL HUDAIKI LIBRARY</span>
+              <span className="text-[9px] text-brand-600 font-semibold tracking-[0.1em] mt-0.5">
+                AL HUDAIGY
+              </span>
             </div>
           </Link>
 
@@ -68,21 +70,19 @@ export default function Header() {
             <div className="flex items-center bg-stone-100 rounded-full p-0.5">
               <button
                 onClick={() => switchLocale('fr')}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                  locale === 'fr'
+                className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'fr'
                     ? 'bg-brand-600 text-white shadow-sm'
                     : 'text-stone-500 hover:text-stone-700'
-                }`}
+                  }`}
               >
                 FR
               </button>
               <button
                 onClick={() => switchLocale('ar')}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                  locale === 'ar'
+                className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'ar'
                     ? 'bg-brand-600 text-white shadow-sm'
                     : 'text-stone-500 hover:text-stone-700'
-                }`}
+                  }`}
               >
                 ع
               </button>

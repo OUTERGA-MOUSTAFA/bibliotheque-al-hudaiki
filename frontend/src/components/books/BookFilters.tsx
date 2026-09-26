@@ -3,16 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePathname } from '@/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, SlidersHorizontal } from 'lucide-react';
 import type { Category } from '@/types';
 
 export default function BookFilters({ categories }: { categories: Category[] }) {
@@ -32,108 +23,205 @@ export default function BookFilters({ categories }: { categories: Category[] }) 
 
   const clearAll = () => router.push(pathname);
 
+  const currentCat = params.get('categorie') || 'all';
+  const currentLang = params.get('langue') || 'all';
+  const currentAvail = params.get('disponible') || 'all';
+  const currentTri = params.get('tri') || 'recent';
+
   const hasFilters =
-    params.has('q') ||
-    params.has('categorie') ||
-    params.has('langue') ||
-    params.has('disponible') ||
-    params.has('tri');
+    currentCat !== 'all' ||
+    currentLang !== 'all' ||
+    currentAvail !== 'all' ||
+    currentTri !== 'recent' ||
+    params.has('q');
 
   return (
-    <div className="space-y-6 sticky top-20">
+    <div className="bg-white rounded-2xl border border-stone-200 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className={`font-bold text-lg text-stone-900 ${locale === 'ar' ? 'font-arabic-tech' : ''}`}>
-          {t('filters')}
-        </h2>
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-100">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center">
+            <SlidersHorizontal size={16} className="text-brand-600" />
+          </div>
+          <h2 className="font-bold text-stone-900">{t('filters')}</h2>
+        </div>
         {hasFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={clearAll}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-1"
+            className="text-xs font-semibold text-coral-600 hover:text-coral-700 flex items-center gap-1"
           >
-            <X size={14} />
-            {t('clear_filters')}
-          </Button>
+            <X size={12} />
+            مسح
+          </button>
         )}
       </div>
 
-      {/* Catégorie */}
-      <div className="space-y-2">
-        <Label className="text-stone-700">{t('category_filter')}</Label>
-        <Select
-          value={params.get('categorie') || 'all'}
-          onValueChange={(v) => updateFilter('categorie', v)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('availability_options.all')}</SelectItem>
-            {categories.map((c) => (
-              <SelectItem key={c.id} value={String(c.id)}>
-                {c.nom}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <div className="space-y-5">
+        {/* Catégorie */}
+        <FilterGroup label={t('category_filter')}>
+          <RadioOption
+            name="categorie"
+            value="all"
+            current={currentCat}
+            onChange={(v) => updateFilter('categorie', v)}
+            label="الكل"
+          />
+          {categories.map((c) => (
+            <RadioOption
+              key={c.id}
+              name="categorie"
+              value={String(c.id)}
+              current={currentCat}
+              onChange={(v) => updateFilter('categorie', v)}
+              label={c.nom}
+              count={c.books_count}
+            />
+          ))}
+        </FilterGroup>
 
-      {/* Langue */}
-      <div className="space-y-2">
-        <Label className="text-stone-700">{t('language_filter')}</Label>
-        <Select
-          value={params.get('langue') || 'all'}
-          onValueChange={(v) => updateFilter('langue', v)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('availability_options.all')}</SelectItem>
-            <SelectItem value="ar">العربية</SelectItem>
-            <SelectItem value="fr">Français</SelectItem>
-            <SelectItem value="en">English</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        {/* Langue */}
+        <FilterGroup label={t('language_filter')}>
+          <RadioOption
+            name="langue"
+            value="all"
+            current={currentLang}
+            onChange={(v) => updateFilter('langue', v)}
+            label="الكل"
+          />
+          <RadioOption
+            name="langue"
+            value="ar"
+            current={currentLang}
+            onChange={(v) => updateFilter('langue', v)}
+            label="العربية"
+          />
+          <RadioOption
+            name="langue"
+            value="fr"
+            current={currentLang}
+            onChange={(v) => updateFilter('langue', v)}
+            label="Français"
+          />
+          <RadioOption
+            name="langue"
+            value="en"
+            current={currentLang}
+            onChange={(v) => updateFilter('langue', v)}
+            label="English"
+          />
+        </FilterGroup>
 
-      {/* Disponibilité */}
-      <div className="space-y-2">
-        <Label className="text-stone-700">{t('availability')}</Label>
-        <Select
-          value={params.get('disponible') || 'all'}
-          onValueChange={(v) => updateFilter('disponible', v)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('availability_options.all')}</SelectItem>
-            <SelectItem value="true">{t('availability_options.available')}</SelectItem>
-            <SelectItem value="false">{t('availability_options.borrowed')}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        {/* Disponibilité */}
+        <FilterGroup label={t('availability')}>
+          <RadioOption
+            name="disponible"
+            value="all"
+            current={currentAvail}
+            onChange={(v) => updateFilter('disponible', v)}
+            label={t('availability_options.all')}
+          />
+          <RadioOption
+            name="disponible"
+            value="true"
+            current={currentAvail}
+            onChange={(v) => updateFilter('disponible', v)}
+            label={t('availability_options.available')}
+            dot="bg-brand-500"
+          />
+          <RadioOption
+            name="disponible"
+            value="false"
+            current={currentAvail}
+            onChange={(v) => updateFilter('disponible', v)}
+            label={t('availability_options.borrowed')}
+            dot="bg-coral-500"
+          />
+        </FilterGroup>
 
-      {/* Tri */}
-      <div className="space-y-2">
-        <Label className="text-stone-700">{t('sort')}</Label>
-        <Select
-          value={params.get('tri') || 'recent'}
-          onValueChange={(v) => updateFilter('tri', v)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">{t('sort_options.recent')}</SelectItem>
-            <SelectItem value="populaire">{t('sort_options.popular')}</SelectItem>
-            <SelectItem value="alpha">{t('sort_options.alpha')}</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Tri */}
+        <FilterGroup label={t('sort')}>
+          <RadioOption
+            name="tri"
+            value="recent"
+            current={currentTri}
+            onChange={(v) => updateFilter('tri', v)}
+            label={t('sort_options.recent')}
+          />
+          <RadioOption
+            name="tri"
+            value="populaire"
+            current={currentTri}
+            onChange={(v) => updateFilter('tri', v)}
+            label={t('sort_options.popular')}
+          />
+          <RadioOption
+            name="tri"
+            value="alpha"
+            current={currentTri}
+            onChange={(v) => updateFilter('tri', v)}
+            label={t('sort_options.alpha')}
+          />
+        </FilterGroup>
       </div>
     </div>
+  );
+}
+
+/* ---- Sub-components ---- */
+
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+        {label}
+      </h3>
+      <div className="space-y-1.5">{children}</div>
+    </div>
+  );
+}
+
+function RadioOption({
+  name,
+  value,
+  current,
+  onChange,
+  label,
+  count,
+  dot,
+}: {
+  name: string;
+  value: string;
+  current: string;
+  onChange: (v: string) => void;
+  label: string;
+  count?: number;
+  dot?: string;
+}) {
+  const isActive = current === value;
+
+  return (
+    <button
+      onClick={() => onChange(value)}
+      className={`
+        w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-sm text-start transition
+        ${isActive
+          ? 'bg-brand-50 text-brand-700 font-semibold'
+          : 'text-stone-600 hover:bg-stone-50'
+        }
+      `}
+    >
+      <span className="flex items-center gap-2 truncate">
+        {dot && <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />}
+        {!dot && (
+          <span className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 flex items-center justify-center ${isActive ? 'border-brand-600 bg-brand-600' : 'border-stone-300'}`}>
+            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+          </span>
+        )}
+        <span className="truncate">{label}</span>
+      </span>
+      {count !== undefined && (
+        <span className="text-xs text-stone-400 shrink-0">{count}</span>
+      )}
+    </button>
   );
 }
