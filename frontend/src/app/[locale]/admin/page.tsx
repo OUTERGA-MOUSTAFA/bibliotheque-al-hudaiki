@@ -9,21 +9,15 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Had l'API khassha tkoun mcreya f Laravel (route: /api/admin/dashboard)
     api.get('/admin/dashboard')
       .then(({ data }) => setStats(data))
-      .catch((err) => console.error(err))
+      .catch((err) => console.error("Erreur dashboard:", err))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 size={32} className="animate-spin text-brand-600" />
-      </div>
-    );
-  }
-
-  if (!stats) return <div className="text-center py-12">Erreur de chargement</div>;
+  if (loading) return <div className="flex justify-center items-center h-64"><Loader2 className="animate-spin text-brand-600" size={32} /></div>;
+  if (!stats) return <div className="text-center py-12 text-stone-500">Erreur de chargement. Vérifiez l'API.</div>;
 
   const cards = [
     { label: 'إجمالي الكتب',       value: stats.stats.total_books,   icon: BookOpen,    color: 'brand' },
@@ -74,7 +68,7 @@ export default function AdminDashboard() {
                   <span className="text-stone-500"> — {loan.book?.titre}</span>
                 </div>
                 <span className="text-xs text-stone-400">
-                  {new Date(loan.created_at).toLocaleDateString('fr-FR')}
+                  {new Date(loan.created_at).toLocaleDateString()}
                 </span>
               </div>
             ))}

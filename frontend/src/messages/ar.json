@@ -139,7 +139,11 @@
     "return_date": "تاريخ الإرجاع",
     "days_left": "الأيام المتبقية",
     "days_late": "أيام التأخير",
-    "borrowed_on": "تاريخ الإعارة"
+    "borrowed_on": "تاريخ الإعارة",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "role_reader": "قارئ",
+    "role_admin": "مدير"
   },
   "admin": {
     "dashboard": "لوحة التحكم",

@@ -14,10 +14,10 @@ export default function LoginForm() {
   const t = useTranslations('auth');
   const router = useRouter();
   const { login } = useAuth();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // 👇 State jdid l'les erreurs dial les champs
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
@@ -29,8 +29,13 @@ export default function LoginForm() {
 
     try {
       await login(email, password);
+      const data = await login(email, password);
       toast.success("Connexion réussie !");
-      router.push('/compte');
+      if (data.roles && data.roles.includes('admin')) {
+        router.push('/admin');
+      } else {
+        router.push('/compte');
+      }
       router.refresh();
     } catch (err: any) {
       // 🚨 Hna fin kaytle3 l'erreur
@@ -59,7 +64,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-soft border border-stone-200 p-8 space-y-5">
-      
+
       {/* Erreur Générale (Toast msta3mla hit l'fo9, walakin nzido hna ila bghiti) */}
       {errors.general && (
         <div className="flex items-start gap-2 p-3 bg-coral-50 border border-coral-200 rounded-xl text-sm text-coral-700">
@@ -70,14 +75,14 @@ export default function LoginForm() {
 
       <div className="space-y-2">
         <Label htmlFor="email" className={errors.email ? "text-coral-600" : ""}>{t('email')}</Label>
-        <Input 
-          id="email" 
-          type="email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className={errors.email ? "border-coral-500 focus-visible:ring-coral-500" : ""}
-          required 
-          disabled={loading} 
+          required
+          disabled={loading}
         />
         {/* 👇 Erreur dial Email ta7t l'champs */}
         {errors.email && <p className="text-xs text-coral-600 font-medium">{errors.email}</p>}
@@ -85,14 +90,14 @@ export default function LoginForm() {
 
       <div className="space-y-2">
         <Label htmlFor="password" className={errors.password ? "text-coral-600" : ""}>{t('password')}</Label>
-        <Input 
-          id="password" 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className={errors.password ? "border-coral-500 focus-visible:ring-coral-500" : ""}
-          required 
-          disabled={loading} 
+          required
+          disabled={loading}
         />
         {errors.password && <p className="text-xs text-coral-600 font-medium">{errors.password}</p>}
       </div>

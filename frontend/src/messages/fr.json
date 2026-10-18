@@ -141,7 +141,11 @@
     "return_date": "Date de retour",
     "days_left": "Jours restants",
     "days_late": "Jours de retard",
-    "borrowed_on": "Emprunté le"
+    "borrowed_on": "Emprunté le",
+    "settings": "Paramètres",
+    "role_reader": "Lecteur",
+    "role_admin": "Administrateur",
+    "logout": "Déconnexion"
   },
   "admin": {
     "dashboard": "Tableau de bord",
@@ -201,4 +205,5 @@
     "500_message": "Une erreur inattendue s'est produite",
     "network": "Impossible de contacter le serveur"
   }
+
 }

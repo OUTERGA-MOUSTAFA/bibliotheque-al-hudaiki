@@ -1,26 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react'; // 👈 Zid hadou
+import { useEffect, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link, usePathname, useRouter } from '@/navigation';
-import { Search, Menu, X, User as UserIcon, LogOut } from 'lucide-react';
+import { Search, Menu, X, User as UserIcon, LogOut, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth'; // 👈 Zid hada
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
   const t = useTranslations('nav');
+  const tAccount = useTranslations('account');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   
-  // 👇 Zidna hadou bach n7alou l'Hydration Error w n3arfou wesh connecté
   const { user, isAuthenticated, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // 👇 Had l'useEffect kat7el l'Issue li f l'te7t
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -53,7 +52,7 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Nav */}
+          {/* Nav Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-1">
             {links.map((l) => (
               <Link key={l.href} href={l.href} className="px-3 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-brand-50 hover:text-brand-700 transition">
@@ -73,18 +72,34 @@ export default function Header() {
               <button onClick={() => switchLocale('ar')} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'ar' ? 'bg-brand-600 text-white shadow-sm' : 'text-stone-500'}`}>ع</button>
             </div>
 
-            {/* 👇 HNA FIN KAYT7YED L'BUTTON W KAYTBEDDEL */}
+            {/* ========================================================= */}
+            {/* HNA FIN KAYN L'BOUTON DIAL L'ADMIN W L'USER */}
+            {/* ========================================================= */}
             {!mounted ? (
               <div className="w-24 h-8 bg-stone-200 animate-pulse rounded-full hidden md:block"></div>
             ) : isAuthenticated ? (
               <div className="hidden md:flex items-center gap-2">
+                
+                {/* 👇 L'BOUTON DIAL L'ADMIN (Kayban ghir ila kan Admin) */}
+                {user?.roles?.includes('admin') && (
+                  <Link href="/admin">
+                    <Button size="sm" className="bg-gold-500 hover:bg-gold-600 text-white rounded-full px-4 font-bold border-none">
+                      <ShieldCheck size={16} className="mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+
+                {/* L'BOUTON DIAL L'PROFILE */}
                 <Link href="/compte">
                   <Button size="sm" variant="outline" className="rounded-full px-4 border-stone-300">
                     <UserIcon size={16} className="mr-2" />
                     {user?.prenom}
                   </Button>
                 </Link>
-                <Button size="sm" variant="ghost" onClick={logout} className="text-coral-600 hover:bg-coral-50 rounded-full">
+
+                {/* L'BOUTON DIAL L'LOGOUT */}
+                <Button size="sm" variant="ghost" onClick={logout} className="text-coral-600 hover:bg-coral-50 rounded-full" title={tAccount('logout')}>
                   <LogOut size={16} />
                 </Button>
               </div>
@@ -95,33 +110,43 @@ export default function Header() {
                 </Button>
               </Link>
             )}
+            {/* ========================================================= */}
 
+            {/* Mobile Menu Toggle */}
             <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-full hover:bg-stone-100">
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Nav (Nfs l'haja hna) */}
+        {/* Mobile Nav */}
         {mobileOpen && (
-          <nav className="md:hidden border-t border-stone-200 bg-cream">
-            <div className="px-4 py-3 space-y-1">
+          <nav className="md:hidden border-t border-stone-200 bg-cream pb-4">
+            <div className="px-2 pt-2 space-y-1">
               {links.map((l) => (
                 <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-xl hover:bg-brand-50 hover:text-brand-700 text-stone-700 font-medium">
                   {l.label}
                 </Link>
               ))}
+              
               {mounted && isAuthenticated ? (
-                <>
+                <div className="pt-2 mt-2 border-t border-stone-200">
+                  {user?.roles?.includes('admin') && (
+                    <Link href="/admin" onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full mb-2 bg-gold-500 hover:bg-gold-600 text-white rounded-xl" size="lg">
+                        <ShieldCheck size={18} className="mr-2" /> Admin Dashboard
+                      </Button>
+                    </Link>
+                  )}
                   <Link href="/compte" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full mt-2 rounded-xl" size="lg" variant="outline">
+                    <Button className="w-full mb-2 rounded-xl" size="lg" variant="outline">
                       <UserIcon size={16} className="mr-2" /> {user?.prenom}
                     </Button>
                   </Link>
-                  <Button onClick={() => { logout(); setMobileOpen(false); }} className="w-full mt-2 rounded-xl bg-coral-50 text-coral-600 hover:bg-coral-100" size="lg">
-                    Déconnexion
+                  <Button onClick={() => { logout(); setMobileOpen(false); }} className="w-full rounded-xl bg-coral-50 text-coral-600 hover:bg-coral-100" size="lg">
+                    <LogOut size={16} className="mr-2" /> {tAccount('logout')}
                   </Button>
-                </>
+                </div>
               ) : (
                 <Link href="/login" onClick={() => setMobileOpen(false)}>
                   <Button className="w-full mt-2 bg-brand-600 hover:bg-brand-700 rounded-xl" size="lg">
