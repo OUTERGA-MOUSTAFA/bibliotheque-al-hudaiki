@@ -21,7 +21,7 @@ export default function AdminSidebar() {
     <aside className="w-64 bg-night text-white min-h-screen flex flex-col shrink-0">
       <div className="p-6 border-b border-white/10">
         <div className="text-[10px] font-bold text-gold-400 tracking-[0.2em]">ADMIN PANEL</div>
-        <div className="text-sm font-bold mt-1">مكتبة الهدائكي</div>
+        <div className="text-sm font-bold mt-1">مكتبة الحظيكي</div>
       </div>
 
       <div className="p-4 border-b border-white/10">

@@ -14,6 +14,7 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        // 🛡️ Validation stricte (XSS / Injection)
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
@@ -27,11 +28,8 @@ class AuthController extends Controller
             'etablissement' => 'nullable|string|max:255',
         ]);
 
-        // Calcul majorité
         $age = Carbon::parse($validated['date_naissance'])->age;
-        $isMajeur = $age >= 18;
-
-        if ($isMajeur && empty($validated['cin'])) {
+        if ($age >= 18 && empty($validated['cin'])) {
             throw ValidationException::withMessages([
                 'cin' => ['Le CIN est requis pour les personnes majeures.'],
             ]);
@@ -60,18 +58,17 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($credentials)) {
+            // Message 3am (machi "Email wrong" wla "Password wrong") bach may3rfouch l'hackers
             throw ValidationException::withMessages([
                 'email' => ['Les identifiants sont incorrects.'],
             ]);
         }
 
         $user = Auth::user();
-
-        // Vérifier statut
         if ($user->statut === 'archive') {
             Auth::logout();
             throw ValidationException::withMessages([
-                'email' => ['Votre compte a été archivé. Contactez la bibliothèque.'],
+                'email' => ['Votre compte a été archivé.'],
             ]);
         }
 
@@ -87,7 +84,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Déconnecté avec succès']);
+        return response()->json(['message' => 'Déconnecté']);
     }
 
     public function me(Request $request)
@@ -96,50 +93,5 @@ class AuthController extends Controller
             'user' => $request->user(),
             'roles' => $request->user()->getRoleNames(),
         ]);
-    }
-
-    public function updateProfile(Request $request)
-    {
-        $user = $request->user();
-
-        $validated = $request->validate([
-            'nom' => 'sometimes|string|max:255',
-            'prenom' => 'sometimes|string|max:255',
-            'adresse' => 'nullable|string|max:500',
-            'telephone' => 'nullable|string|max:20',
-            'etablissement' => 'nullable|string|max:255',
-            'photo' => 'nullable|string|url',
-        ]);
-
-        if (isset($validated['nom']) || isset($validated['prenom'])) {
-            $validated['name'] = trim(
-                ($validated['prenom'] ?? $user->prenom) . ' ' .
-                    ($validated['nom'] ?? $user->nom)
-            );
-        }
-
-        $user->update($validated);
-
-        return response()->json(['user' => $user->fresh()]);
-    }
-
-    public function changePassword(Request $request)
-    {
-        $validated = $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = $request->user();
-
-        if (!Hash::check($validated['current_password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => ['Le mot de passe actuel est incorrect.'],
-            ]);
-        }
-
-        $user->update(['password' => Hash::make($validated['password'])]);
-
-        return response()->json(['message' => 'Mot de passe changé avec succès']);
     }
 }

@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from '@/navigation';
-import { auth } from '@/lib/auth';
+import { useAuth } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react';
 
 export default function ProtectedRoute({
   children,
@@ -12,22 +13,21 @@ export default function ProtectedRoute({
   adminOnly?: boolean;
 }) {
   const router = useRouter();
+  const { user, loading, isAdmin } = useAuth();
 
   useEffect(() => {
-    if (!auth.isAuthenticated()) {
+    if (!loading && !user) {
       router.replace('/login');
-      return;
     }
-
-    if (adminOnly && !auth.isAdmin()) {
+    if (!loading && user && adminOnly && !isAdmin) {
       router.replace('/');
     }
-  }, [router, adminOnly]);
+  }, [user, loading, adminOnly, isAdmin, router]);
 
-  if (!auth.isAuthenticated()) {
+  if (loading || !user) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
+        <Loader2 className="animate-spin text-brand-600" size={32} />
       </div>
     );
   }

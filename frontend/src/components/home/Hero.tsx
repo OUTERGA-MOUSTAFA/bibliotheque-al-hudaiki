@@ -40,7 +40,7 @@ export default function Hero() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-sm font-medium mb-8 backdrop-blur-sm">
             <Sparkles size={14} />
-            <span>مكتبة الهدائكي العامة — تفراوت</span>
+            <span>مكتبة الحظيكي العامة — تفراوت</span>
           </div>
 
           {/* Title */}

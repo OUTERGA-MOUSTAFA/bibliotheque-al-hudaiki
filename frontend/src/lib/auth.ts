@@ -11,10 +11,6 @@ export interface AuthUser {
   prenom: string;
   email: string;
   statut: string;
-  photo?: string;
-  telephone?: string;
-  adresse?: string;
-  etablissement?: string;
   roles?: string[];
 }
 
@@ -47,18 +43,6 @@ export const auth = {
   isAdmin(): boolean {
     const user = this.getUser();
     return user?.roles?.includes('admin') ?? false;
-  },
-
-  async fetchMe(): Promise<AuthUser | null> {
-    try {
-      const { data } = await api.get('/me');
-      const user = { ...data.user, roles: data.roles };
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-      return user;
-    } catch {
-      this.clear();
-      return null;
-    }
   },
 
   async login(email: string, password: string) {

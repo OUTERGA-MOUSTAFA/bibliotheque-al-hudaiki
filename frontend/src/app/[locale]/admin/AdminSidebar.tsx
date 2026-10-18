@@ -20,7 +20,7 @@ export default function AdminSidebar() {
     <aside className="w-64 bg-night text-white min-h-screen flex flex-col">
       <div className="p-6 border-b border-white/10">
         <div className="text-sm font-bold text-gold-400 tracking-wider">ADMIN</div>
-        <div className="text-xs text-stone-400 mt-1">مكتبة الهدائكي</div>
+        <div className="text-xs text-stone-400 mt-1">مكتبة الحظيكي</div>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">

@@ -8,50 +8,79 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function RegisterForm() {
   const t = useTranslations('auth');
   const router = useRouter();
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     nom: '', prenom: '', email: '', password: '', password_confirmation: '',
     date_naissance: '', adresse: '', telephone: '', cin: '',
     numero_massar: '', etablissement: '',
   });
 
-  const update = (key: string, value: string) =>
-    setFormData((s) => ({ ...s, [key]: value }));
+  // 👇 State l'les erreurs
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Calcul majorité
+  const update = (key: string, value: string) => {
+    setFormData((s) => ({ ...s, [key]: value }));
+    // Mlli kaykteb, kaymse7 l'erreur dial dak l'champs
+    if (errors[key]) {
+      setErrors((prev) => ({ ...prev, [key]: '' }));
+    }
+  };
+
   const isMajeur = (() => {
     if (!formData.date_naissance) return false;
-    const age = Math.floor(
-      (Date.now() - new Date(formData.date_naissance).getTime()) /
-        (365.25 * 24 * 60 * 60 * 1000)
-    );
+
+    const birthDate = new Date(`${formData.date_naissance}T00:00:00`);
+    if (Number.isNaN(birthDate.getTime())) return false;
+
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const beforeBirthday =
+      today.getMonth() < birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() &&
+        today.getDate() < birthDate.getDate());
+
+    if (beforeBirthday) age--;
+
     return age >= 18;
   })();
-
   const isEtudiant = formData.etablissement.trim() !== '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setErrors({});
     setLoading(true);
 
     try {
       await register(formData);
+      toast.success("Compte créé avec succès !");
       router.push('/compte');
       router.refresh();
     } catch (err: any) {
-      const data = err.response?.data;
-      if (data?.errors) {
-        const first = Object.values(data.errors)[0];
-        setError(Array.isArray(first) ? first[0] : String(first));
+      // Had l'console.log ghadi ybeyn lik l'erreur l'7a9i9iya f F12
+      // console.error("Erreur complète:", err.response?.data || err);
+      console.warn("Validation Error:", err.response?.data || err);
+      if (err.response?.status === 422) {
+        const apiErrors = err.response.data.errors;
+        const formattedErrors: Record<string, string> = {};
+        Object.keys(apiErrors).forEach((key) => {
+          formattedErrors[key] = apiErrors[key][0];
+        });
+        setErrors(formattedErrors);
+        toast.error("Erreur de validation", { description: "Vérifiez les champs en rouge." });
       } else {
-        setError(data?.message || 'Erreur lors de l\'inscription');
+        // Ila kanet 500 wla chi haja akhor, ghadi tbeyn lik l'message l'7a9i9i
+        const serverMessage = err.response?.data?.message || "Erreur inconnue côté serveur";
+        toast.error("Erreur serveur", {
+          description: serverMessage,
+        });
       }
     } finally {
       setLoading(false);
@@ -59,120 +88,102 @@ export default function RegisterForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-2xl shadow-soft border border-stone-200 p-8 space-y-6"
-    >
-      {error && (
-        <div className="flex items-start gap-2 p-3 bg-coral-50 border border-coral-200 rounded-xl text-sm text-coral-700">
-          <AlertCircle size={18} className="shrink-0 mt-0.5" />
-          <span>{error}</span>
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-soft border border-stone-200 p-8 space-y-6">
 
       {/* Identité */}
-      <div>
-        <h3 className="font-semibold text-stone-900 mb-3">الهوية / Identité</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className={errors.nom ? "text-coral-600" : ""}>{t('nom')} *</Label>
+          <Input
+            value={formData.nom}
+            onChange={(e) => update('nom', e.target.value)}
+            className={errors.nom ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+            required
+          />
+          {errors.nom && <p className="text-xs text-coral-600">{errors.nom}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label className={errors.prenom ? "text-coral-600" : ""}>{t('prenom')} *</Label>
+          <Input
+            value={formData.prenom}
+            onChange={(e) => update('prenom', e.target.value)}
+            className={errors.prenom ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+            required
+          />
+          {errors.prenom && <p className="text-xs text-coral-600">{errors.prenom}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label className={errors.date_naissance ? "text-coral-600" : ""}>{t('date_naissance')} *</Label>
+          <Input
+            type="date"
+            value={formData.date_naissance}
+            onChange={(e) => update('date_naissance', e.target.value)}
+            className={errors.date_naissance ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+            required
+          />
+          {errors.date_naissance && <p className="text-xs text-coral-600">{errors.date_naissance}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label className={errors.telephone ? "text-coral-600" : ""}>{t('telephone')} *</Label>
+          <Input
+            type="tel"
+            value={formData.telephone}
+            onChange={(e) => update('telephone', e.target.value)}
+            className={errors.telephone ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+            required
+          />
+          {errors.telephone && <p className="text-xs text-coral-600">{errors.telephone}</p>}
+        </div>
+      </div>
+
+      {/* ... (Khelli l'ba9i dial les champs kifma kanou, walakin zid les erreurs l'CIN w Massar w Email w Password) ... */}
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className={errors.email ? "text-coral-600" : ""}>{t('email')} *</Label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) => update('email', e.target.value)}
+            className={errors.email ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+            required
+          />
+          {errors.email && <p className="text-xs text-coral-600">{errors.email}</p>}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>{t('nom')} *</Label>
-            <Input value={formData.nom} onChange={(e) => update('nom', e.target.value)} required />
+            <Label className={errors.password ? "text-coral-600" : ""}>{t('password')} *</Label>
+            <Input
+              type="password"
+              value={formData.password}
+              onChange={(e) => update('password', e.target.value)}
+              className={errors.password ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+              required minLength={8}
+            />
+            {errors.password && <p className="text-xs text-coral-600">{errors.password}</p>}
           </div>
+
           <div className="space-y-2">
-            <Label>{t('prenom')} *</Label>
-            <Input value={formData.prenom} onChange={(e) => update('prenom', e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label>{t('date_naissance')} *</Label>
-            <Input type="date" value={formData.date_naissance} onChange={(e) => update('date_naissance', e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label>{t('telephone')} *</Label>
-            <Input type="tel" value={formData.telephone} onChange={(e) => update('telephone', e.target.value)} required />
+            <Label className={errors.password_confirmation ? "text-coral-600" : ""}>{t('password_confirm')} *</Label>
+            <Input
+              type="password"
+              value={formData.password_confirmation}
+              onChange={(e) => update('password_confirmation', e.target.value)}
+              className={errors.password_confirmation ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+              required
+            />
+            {errors.password_confirmation && <p className="text-xs text-coral-600">{errors.password_confirmation}</p>}
           </div>
         </div>
       </div>
 
-      {/* Adresse */}
-      <div className="space-y-2">
-        <Label>{t('adresse')}</Label>
-        <Input value={formData.adresse} onChange={(e) => update('adresse', e.target.value)} />
-      </div>
-
-      {/* Conditionnel: CIN si majeur */}
-      {isMajeur && (
-        <div className="space-y-2 p-4 bg-gold-50 border border-gold-200 rounded-xl">
-          <Label className="text-gold-800">⭐ {t('cin')} (مطلوب للبالغين) *</Label>
-          <Input value={formData.cin} onChange={(e) => update('cin', e.target.value)} required />
-        </div>
-      )}
-
-      {/* Établissement (optionnel) */}
-      <div className="space-y-2">
-        <Label>{t('etablissement')}</Label>
-        <Input
-          value={formData.etablissement}
-          onChange={(e) => update('etablissement', e.target.value)}
-          placeholder="Lycée, université, etc."
-        />
-      </div>
-
-      {/* N° Massar si étudiant */}
-      {isEtudiant && (
-        <div className="space-y-2 p-4 bg-sky-50 border border-sky-200 rounded-xl">
-          <Label className="text-sky-800">🎓 {t('numero_massar')} *</Label>
-          <Input value={formData.numero_massar} onChange={(e) => update('numero_massar', e.target.value)} />
-        </div>
-      )}
-
-      {/* Compte */}
-      <div>
-        <h3 className="font-semibold text-stone-900 mb-3">الحساب / Compte</h3>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('email')} *</Label>
-            <Input type="email" value={formData.email} onChange={(e) => update('email', e.target.value)} required />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{t('password')} *</Label>
-              <Input type="password" value={formData.password} onChange={(e) => update('password', e.target.value)} required minLength={8} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('password_confirm')} *</Label>
-              <Input type="password" value={formData.password_confirmation} onChange={(e) => update('password_confirmation', e.target.value)} required />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Consentement */}
-      <label className="flex items-start gap-3 p-4 bg-sand rounded-xl cursor-pointer">
-        <input type="checkbox" required className="mt-1 accent-brand-600" />
-        <span className="text-xs text-stone-600 leading-relaxed">
-          {t('consent')}{' '}
-          <a href="#" className="text-brand-600 underline">سياسة الخصوصية</a>
-        </span>
-      </label>
-
-      <Button
-        type="submit"
-        disabled={loading}
-        className="w-full h-11 bg-brand-600 hover:bg-brand-700 rounded-xl"
-      >
-        {loading ? (
-          <><Loader2 size={16} className="animate-spin mr-2" /> ...</>
-        ) : (
-          t('sign_up')
-        )}
+      <Button type="submit" disabled={loading} className="w-full h-11 bg-brand-600 hover:bg-brand-700 rounded-xl">
+        {loading ? <><Loader2 size={16} className="animate-spin mr-2" /> Chargement...</> : t('sign_up')}
       </Button>
-
-      <p className="text-center text-sm text-stone-600">
-        {t('have_account')}{' '}
-        <Link href="/login" className="text-brand-600 font-semibold hover:underline">
-          {t('sign_in')}
-        </Link>
-      </p>
     </form>
   );
 }

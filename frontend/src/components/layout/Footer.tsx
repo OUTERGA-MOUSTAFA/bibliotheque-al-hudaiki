@@ -26,7 +26,7 @@ export default function Footer() {
                 <BookOpen className="text-white" size={20} strokeWidth={2.5} />
               </div>
               <div>
-                <div className="font-bold text-white text-base">مكتبة الهدائكي</div>
+                <div className="font-bold text-white text-base">مكتبة الحظيكي</div>
                 <div className="text-[10px] text-brand-400 tracking-[0.15em] font-semibold">
                   AL HUDAIKI LIBRARY
                 </div>
@@ -108,7 +108,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-14 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-stone-500 text-center sm:text-start">
-            © {year} مكتبة الهدائكي — جميع الحقوق محفوظة
+            © {year} مكتبة الحظيكي — جميع الحقوق محفوظة
           </p>
           <div className="flex gap-6 text-xs">
             <a href="#" className="text-stone-500 hover:text-gold-400 transition">

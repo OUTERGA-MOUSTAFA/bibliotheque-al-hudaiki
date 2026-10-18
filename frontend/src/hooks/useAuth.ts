@@ -13,7 +13,6 @@ export function useAuth() {
     const stored = auth.getUser();
     if (stored) {
       setUser(stored);
-      auth.fetchMe().then(setUser);
     }
     setLoading(false);
   }, []);
@@ -33,8 +32,7 @@ export function useAuth() {
   const logout = async () => {
     await auth.logout();
     setUser(null);
-    router.push('/');
-    router.refresh();
+     window.location.href = '/';
   };
 
   return {

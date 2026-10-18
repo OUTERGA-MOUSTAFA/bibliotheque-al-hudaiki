@@ -8,6 +8,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import '../globals.css';
 import { Link, usePathname, useRouter } from '@/navigation';
+import { Toaster } from '@/components/ui/sonner';
+
 
 // Latin (FR/EN)
 const inter = Inter({
@@ -71,6 +73,7 @@ export default async function LocaleLayout({
         ${ibmArabic.variable}
         ${isArabic ? 'font-arabic' : 'font-latin'}
       `}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-screen bg-stone-50 text-stone-900 antialiased">
         <NextIntlClientProvider messages={messages}>
@@ -80,6 +83,7 @@ export default async function LocaleLayout({
             <Footer />
           </Providers>
         </NextIntlClientProvider>
+        <Toaster position="top-center" richColors /> {/* 👈 ZID HADI */}
       </body>
     </html>
   );
