@@ -39,4 +39,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('books', BookController::class)->except(['index', 'show']);
     Route::get('/loans', [LoanController::class, 'index']);
     Route::get('/users', [AdminController::class, 'users']);
+
+    // Dans le groupe admin (middleware auth:sanctum)
+    Route::apiResource('categories', CategoryController::class);
+    Route::post('/categories/{category}/archive', [CategoryController::class, 'archive']);
 });

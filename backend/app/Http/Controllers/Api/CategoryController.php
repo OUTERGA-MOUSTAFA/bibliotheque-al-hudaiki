@@ -5,47 +5,79 @@ namespace App\Http\Controllers\Api;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // On récupère les catégories avec le nombre de livres associés
-        $categories = Category::withCount('books')->get();
-        
-        // On retourne un tableau JSON direct (plus simple à lire pour le Front)
-        return response()->json($categories);
+        // Par défaut, on ne renvoie que les catégories actives pour le public
+        // $query = Category::query();
+
+        // if ($request->input('admin') !== 'true') {
+        //     $query->where('statut', 'actif');
+        // }
+
+        // return response()->json($query->withCount('books')->get());
+
+        try {
+            // N-jbdo l'categories m3a 3adad l'ktub
+            $query = Category::withCount('books');
+
+            // Ila machi admin, n-affichiw ghir li actif
+            if ($request->input('admin') !== 'true') {
+                $query->where('statut', 'actif');
+            }
+
+            return response()->json($query->get());
+        } catch (\Exception $e) {
+            // Ila kan chi mochkil f l'Database, had l'JSON ghadi yban f l'Network tab
+            return response()->json([
+                'message' => 'Erreur DB: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $validated['slug'] = Str::slug($validated['nom']) ?: 'cat-' . time();
+        $validated['statut'] = 'actif';
+
+        $category = Category::create($validated);
+        return response()->json($category, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        $validated = $request->validate([
+            'nom' => 'sometimes|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        if (isset($validated['nom'])) {
+            $validated['slug'] = Str::slug($validated['nom']) ?: 'cat-' . time();
+        }
+
+        $category->update($validated);
+        return response()->json($category);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function archive(Category $category)
     {
-        //
+        // Archivage (Safe delete)
+        $category->update(['statut' => 'archive']);
+        return response()->json(['message' => 'Catégorie archivée']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        //
+        // Suppression définitive (à utiliser avec précaution)
+        $category->delete();
+        return response()->noContent();
     }
 }

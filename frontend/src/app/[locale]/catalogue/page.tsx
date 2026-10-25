@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { fetchCategories } from '@/lib/api';
 import { Link } from '@/navigation';
 import { BookOpen, FolderOpen } from 'lucide-react';
-
+import type { Category } from '@/types';
 // 🧠 Senior Tip: Next.js SSR pour le SEO
 export default async function CategoriesPage() {
   const t = await getTranslations('home'); // Ou 'catalog'
@@ -26,7 +26,7 @@ export default async function CategoriesPage() {
         {/* Grid des catégories */}
         {categories.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {categories.map((cat: any) => (
+            {categories.map((cat: Category) => (
               <Link
                 key={cat.id}
                 href={`/catalogue?categorie=${cat.id}`}

@@ -98,7 +98,7 @@
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => '',
+    'key' => 'base64:5XqoFe2tlSaANN9flXRVFRP/9i1jXgIaS7jwqNENEeg=',
     'previous_keys' => 
     array (
     ),
@@ -227,7 +227,7 @@
   ),
   'cache' => 
   array (
-    'default' => 'database',
+    'default' => 'file',
     'stores' => 
     array (
       'array' => 
@@ -772,7 +772,7 @@
     ),
     'from' => 
     array (
-      'address' => 'hello@example.com',
+      'address' => 'El_Hodaigy_bibliotique@email.com',
       'name' => 'Laravel',
     ),
     'markdown' => 
@@ -833,7 +833,7 @@
   ),
   'queue' => 
   array (
-    'default' => 'database',
+    'default' => 'sync',
     'connections' => 
     array (
       'sync' => 
@@ -959,7 +959,7 @@
   ),
   'session' => 
   array (
-    'driver' => 'database',
+    'driver' => 'file',
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
@@ -995,7 +995,7 @@
     array (
       0 => 'http://localhost',
     ),
-    'user_handle_secret' => '',
+    'user_handle_secret' => 'base64:5XqoFe2tlSaANN9flXRVFRP/9i1jXgIaS7jwqNENEeg=',
     'timeout' => 60000,
     'guard' => 'web',
     'middleware' => 

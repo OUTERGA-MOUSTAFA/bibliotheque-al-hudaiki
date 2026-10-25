@@ -5,6 +5,7 @@ export interface Category {
   visuel?: string;
   description?: string;
   books_count?: number;
+  statut?: 'actif' | 'archive';
 }
 
 export interface Book {

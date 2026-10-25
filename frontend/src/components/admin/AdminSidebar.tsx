@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { LayoutDashboard, BookOpen, Users, BookMarked, LogOut, Tag, Store } from 'lucide-react';
@@ -9,19 +8,14 @@ import { useAuth } from '@/hooks/useAuth';
 export default function AdminSidebar() {
   const t = useTranslations('admin');
   const pathname = usePathname();
-  const { logout, user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  // 👇 Had l'khet kat7el l'Issue dial l'Hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // 👇 Jbedna loading mn useAuth 3iwed mounted
+  const { logout, user, loading } = useAuth();
 
   const LINKS = [
-    { href: '/admin',             label: t('dashboard'), icon: LayoutDashboard },
-    { href: '/admin/books',       label: t('books'),     icon: BookOpen },
-    { href: '/admin/loans',       label: t('loans'),     icon: BookMarked },
-    { href: '/admin/users',       label: t('users'),     icon: Users },
+    { href: '/admin', label: t('dashboard'), icon: LayoutDashboard },
+    { href: '/admin/books', label: t('books'), icon: BookOpen },
+    { href: '/admin/loans', label: t('loans'), icon: BookMarked },
+    { href: '/admin/users', label: t('users'), icon: Users },
   ];
 
   return (
@@ -32,7 +26,8 @@ export default function AdminSidebar() {
       </div>
 
       <div className="p-4 border-b border-white/10 h-[72px]">
-        {!mounted ? (
+        {/* 👇 Hna khesta3mlo loading */}
+        {loading ? (
           <div className="w-full h-8 bg-white/10 animate-pulse rounded"></div>
         ) : (
           <>
@@ -51,9 +46,8 @@ export default function AdminSidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
-                isActive ? 'bg-brand-600 text-white shadow-brand-glow' : 'text-stone-300 hover:bg-white/5 hover:text-white'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${isActive ? 'bg-brand-600 text-white shadow-brand-glow' : 'text-stone-300 hover:bg-white/5 hover:text-white'
+                }`}
             >
               <Icon size={18} />
               <span>{link.label}</span>

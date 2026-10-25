@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react'; // 👈 Zid useCallback
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import Image from 'next/image';
@@ -9,21 +9,18 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { Book, Category } from '@/types';
 
 export default function AdminBooksPage() {
   const t = useTranslations('admin');
 
-  // States dial l'Liste
-  const [books, setBooks] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]); // Bach n3mro l'Select dial l'Categories
+  const [books, setBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // States dial l'Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // State dial l'Form Data
   const [formData, setFormData] = useState({
     titre: '',
     description: '',
@@ -34,36 +31,36 @@ export default function AdminBooksPage() {
     categorie_id: ''
   });
 
-  // 👇 1. Jib l'Books w l'Categories mlli t-charge l'page
-  // 👇 1. Jib l'Books w l'Categories
-  const fetchBooks = () => {
-    // 👇 7yedna setLoading(true) mn hna
+  // 👇 1. N7ETO fetchBooks f useCallback bach React y3refha mzyan
+  const fetchBooks = useCallback(() => {
     api.get('/books', { params: { per_page: 50 } })
       .then(({ data }) => setBooks(data.data || []))
       .catch((err) => {
         console.error(err);
         toast.error("Erreur de chargement des livres");
       })
-      .finally(() => setLoading(false)); // 👈 Hadi mzyana 7it kat-dir f Promise
-  };
+      .finally(() => setLoading(false));
+  }, []);
 
-  const fetchCategories = () => {
-   api.get('/categories')
-      .then(({ data }) => {
-        // 🧠 Senior Tip : On s'assure d'extraire le tableau peu importe la structure de Laravel
-        const catList = Array.isArray(data) ? data : (data.data || []);
-        setCategories(catList);
-      })
-      .catch((err) => {
-        console.error("Erreur categories:", err);
-        toast.error("Impossible de charger les catégories");
-      });
-  };
+  // 👇 2. N7ETO fetchCategories f useCallback
+  const fetchCategories = useCallback(async () => {
+    try {
+      const { data } = await api.get('/categories?admin=true');
+      const catList = Array.isArray(data) ? data : (data.data || []);
+      setCategories(catList);
+    } catch (error) {
+      console.error("Erreur API categories:", error);
+      toast.error("Impossible de charger les catégories");
+    }
+  }, []);
 
+  // 👇 3. Daba useEffect ghadi ykoun n9i 100% bla ay warning
   useEffect(() => {
     fetchBooks();
+    // 👇 Zid had l'comment nichan 9bel l'khet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchCategories();
-  }, []);
+  }, [fetchBooks, fetchCategories]);
 
   // 👇 2. L'Fonction dial l'Ajout (M3a Cloudinary Image)
   const handleAddBook = async (e: React.FormEvent) => {
@@ -93,15 +90,15 @@ export default function AdminBooksPage() {
       await api.post('/admin/books', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
+
       toast.success("Livre ajouté avec succès !");
       setIsModalOpen(false);
-      // Nfirgho l'form
+
       setFormData({ titre: '', description: '', resume: '', nombre_pages: '', langue: 'ar', stock: 1, categorie_id: '' });
-      setImageFile(null); 
-      
-      setLoading(true); // 👈 Zid hadi hna
-      fetchBooks(); 
+      setImageFile(null);
+
+      setLoading(true);
+      fetchBooks();
 
       fetchBooks(); // N3awdo n-jibdo l'books
     } catch (err: unknown) {
@@ -203,21 +200,21 @@ export default function AdminBooksPage() {
 
       {/* 👇 MODAL DIAL L'AJOUT (NOUVEAU LIVRE) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setIsModalOpen(false)} // 👈 Ferme le modal en cliquant dehors
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()} // 👈 Empêche la fermeture si on clique dedans
+          >
             <h2 className="text-2xl font-bold mb-6">{t('new_book')}</h2>
 
             <form onSubmit={handleAddBook} className="space-y-5">
-
               {/* Titre */}
               <div className="space-y-2">
-                <Label>{t('book_title')} *</Label>
-                <Input
-                  required
-                  value={formData.titre}
-                  onChange={(e) => setFormData({ ...formData, titre: e.target.value })}
-                  placeholder="Ex: Le Petit Prince..."
-                />
+                <Label>{t('book_title')}</Label>
+                <Input required value={formData.titre} onChange={(e) => setFormData({ ...formData, titre: e.target.value })} placeholder="Ex: Le Petit Prince..." />
               </div>
 
               {/* Catégorie & Langue */}
@@ -229,14 +226,14 @@ export default function AdminBooksPage() {
                     value={formData.categorie_id}
                     onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}
                   >
-                    <option value="">Sans catégorie</option>
+                    <option value="">{t('no_category')}</option>
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>{c.nom}</option>
                     ))}
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Langue</Label>
+                  <Label>{t('language')}</Label>
                   <select
                     className="w-full h-10 px-3 border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                     value={formData.langue}
@@ -253,81 +250,44 @@ export default function AdminBooksPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t('pages')}</Label>
-                  <Input
-                    type="number"
-                    value={formData.nombre_pages}
-                    onChange={(e) => setFormData({ ...formData, nombre_pages: e.target.value })}
-                  />
+                  <Input type="number" value={formData.nombre_pages} onChange={(e) => setFormData({ ...formData, nombre_pages: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t('stock')} *</Label>
-                  <Input
-                    type="number"
-                    required
-                    min={0}
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
-                  />
+                  <Label>{t('stock')}</Label>
+                  <Input type="number" required min={0} value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })} />
                 </div>
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label>{t('description')} (Max 555)</Label>
-                <textarea
-                  className="w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none"
-                  rows={2}
-                  maxLength={555}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                />
+                <Label>{t('description')}</Label>
+                <textarea className="w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none" rows={2} maxLength={555} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
               </div>
 
               {/* Résumé */}
               <div className="space-y-2">
-                <Label>{t('summary')} (Max 1200)</Label>
-                <textarea
-                  className="w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none"
-                  rows={4}
-                  maxLength={1200}
-                  value={formData.resume}
-                  onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
-                />
+                <Label>{t('summary')}</Label>
+                <textarea className="w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none" rows={4} maxLength={1200} value={formData.resume} onChange={(e) => setFormData({ ...formData, resume: e.target.value })} />
               </div>
 
-              {/* Image Upload */}
+              {/* Image */}
               <div className="space-y-2">
-                <Label>Image de couverture</Label>
-                <div className="mt-1 flex items-center gap-4">
-                  <label className="cursor-pointer bg-stone-50 hover:bg-stone-100 border-2 border-stone-200 border-dashed rounded-xl p-6 flex flex-col items-center justify-center w-full transition">
-                    <ImageIcon className="text-stone-400 mb-2" size={28} />
-                    <span className="text-sm font-medium text-stone-600">
-                      {imageFile ? imageFile.name : "Cliquez pour uploader une image (Max 5MB)"}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setImageFile(e.target.files[0]);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
+                <Label>{t('cover_image')}</Label>
+                <label className="cursor-pointer bg-stone-50 hover:bg-stone-100 border-2 border-stone-200 border-dashed rounded-xl p-6 flex flex-col items-center justify-center w-full transition mt-1">
+                  <ImageIcon className="text-stone-400 mb-2" size={28} />
+                  <span className="text-sm font-medium text-stone-600">
+                    {imageFile ? imageFile.name : t('click_upload')}
+                  </span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files && e.target.files[0]) setImageFile(e.target.files[0]); }} />
+                </label>
               </div>
 
-              {/* Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-stone-100">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                  {t('cancel')}
-                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('cancel')}</Button>
                 <Button type="submit" disabled={formLoading} className="bg-brand-600 hover:bg-brand-700 text-white min-w-[120px]">
                   {formLoading ? <Loader2 className="animate-spin" size={18} /> : t('save')}
                 </Button>
               </div>
-
             </form>
           </div>
         </div>

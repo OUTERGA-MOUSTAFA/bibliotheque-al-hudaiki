@@ -1,7 +1,7 @@
 import axios from 'axios';
-
+import type { Category } from '@/types';
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api',
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
   withCredentials: true,
 });
@@ -14,11 +14,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
-export async function fetchBooks(params: Record<string, any> = {}) {
+// 👇 Zidna had l'Type bach n7aydo l'warning dial "any"
+type BookQueryParams = Record<string, string | number | boolean | null | undefined>;
+
+export async function fetchBooks(params: BookQueryParams = {}) {
   const qs = new URLSearchParams(
-    Object.entries(params).filter(([, v]) => v != null && v !== '') as [string, string][]
+    Object.entries(params)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) // 👈 N7awlo kolchi l'string 9bel l'URLSearchParams
   ).toString();
 
   const res = await fetch(`${API_URL}/books?${qs}`, { next: { revalidate: 60 } });
@@ -32,12 +37,26 @@ export async function fetchBook(slug: string) {
   return res.json();
 }
 
-export async function fetchCategories() {
-  const res = await fetch(`${API_URL}/categories`, { next: { revalidate: 300 } });
-  return res.json();
+// 👇 HNA FIN KAN L'MOCHKIL (Laravel kayrje3 data f chi 7aja khra, 7na kanakhdo li kayn)
+export async function fetchCategories(): Promise<Category[]> {
+  try {
+    const res = await fetch(`${API_URL}/categories`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.data || []);
+  } catch (error) {
+    console.error("Erreur fetchCategories:", error);
+    return [];
+  }
 }
 
 export async function fetchSponsors() {
-  const res = await fetch(`${API_URL}/sponsors`, { next: { revalidate: 600 } });
-  return res.json();
+  try {
+    const res = await fetch(`${API_URL}/sponsors`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.data || []);
+  } catch (error) {
+    return [];
+  }
 }
