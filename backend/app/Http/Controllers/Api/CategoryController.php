@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // On récupère les catégories avec le nombre de livres associés
+        $categories = Category::withCount('books')->get();
+        
+        // On retourne un tableau JSON direct (plus simple à lire pour le Front)
+        return response()->json($categories);
     }
 
     /**

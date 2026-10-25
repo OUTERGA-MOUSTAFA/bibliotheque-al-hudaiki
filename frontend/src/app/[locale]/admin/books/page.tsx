@@ -48,9 +48,16 @@ export default function AdminBooksPage() {
   };
 
   const fetchCategories = () => {
-    api.get('/categories')
-      .then(({ data }) => setCategories(data || []))
-      .catch((err) => console.error("Erreur categories:", err));
+   api.get('/categories')
+      .then(({ data }) => {
+        // 🧠 Senior Tip : On s'assure d'extraire le tableau peu importe la structure de Laravel
+        const catList = Array.isArray(data) ? data : (data.data || []);
+        setCategories(catList);
+      })
+      .catch((err) => {
+        console.error("Erreur categories:", err);
+        toast.error("Impossible de charger les catégories");
+      });
   };
 
   useEffect(() => {
