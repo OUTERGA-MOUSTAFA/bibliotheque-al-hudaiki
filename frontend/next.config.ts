@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      // 👇 ZID HAD L'ASTOR
+      { protocol: 'https', hostname: 'covers.openlibrary.org' },
     ],
   },
 };

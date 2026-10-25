@@ -98,7 +98,7 @@
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:5XqoFe2tlSaANN9flXRVFRP/9i1jXgIaS7jwqNENEeg=',
+    'key' => '',
     'previous_keys' => 
     array (
     ),
@@ -227,7 +227,7 @@
   ),
   'cache' => 
   array (
-    'default' => 'file',
+    'default' => 'database',
     'stores' => 
     array (
       'array' => 
@@ -772,7 +772,7 @@
     ),
     'from' => 
     array (
-      'address' => 'El_Hodaigy_bibliotique@email.com',
+      'address' => 'hello@example.com',
       'name' => 'Laravel',
     ),
     'markdown' => 
@@ -833,7 +833,7 @@
   ),
   'queue' => 
   array (
-    'default' => 'sync',
+    'default' => 'database',
     'connections' => 
     array (
       'sync' => 
@@ -950,10 +950,16 @@
         'channel' => NULL,
       ),
     ),
+    'cloudinary' => 
+    array (
+      'cloud_name' => 'an4vbub2',
+      'api_key' => '561883674913746',
+      'api_secret' => '3amKo-_XwnLMYmQgOikeP1qFM9s',
+    ),
   ),
   'session' => 
   array (
-    'driver' => 'file',
+    'driver' => 'database',
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
@@ -977,7 +983,7 @@
   'cloudinary' => 
   array (
     'notification_url' => NULL,
-    'cloud_url' => 'cloudinary://:@',
+    'cloud_url' => 'cloudinary://:@an4vbub2',
     'upload_preset' => NULL,
     'upload_route' => NULL,
     'upload_action' => NULL,
@@ -989,7 +995,7 @@
     array (
       0 => 'http://localhost',
     ),
-    'user_handle_secret' => 'base64:5XqoFe2tlSaANN9flXRVFRP/9i1jXgIaS7jwqNENEeg=',
+    'user_handle_secret' => '',
     'timeout' => 60000,
     'guard' => 'web',
     'middleware' => 

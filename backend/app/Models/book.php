@@ -18,6 +18,9 @@ class Book extends Model
     protected $casts = [
         'themes' => 'array', 'personnes' => 'array',
         'lieux' => 'array', 'periodes' => 'array',
+        'note_moyenne' => 'float', // 👈 ZID HAD L'ASTOR
+        'nb_favoris' => 'integer', // 👈 ZID HAD L'ASTOR
+        'nb_emprunts' => 'integer', // 👈 ZID HAD L'ASTOR
     ];
 
     public function categorie() { return $this->belongsTo(Category::class); }

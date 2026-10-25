@@ -40,7 +40,7 @@ export default function BookCard({ book }: { book: Book }) {
         {book.note_moyenne > 0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur rounded-full px-2 py-1 text-xs">
             <Star size={11} className="text-gold-400" fill="currentColor" />
-            <span className="font-bold text-white text-[11px]">{book.note_moyenne.toFixed(1)}</span>
+            <span className="font-bold text-white text-[11px]">{Number(book.note_moyenne || 0).toFixed(1)}</span>
           </div>
         )}
       </div>
