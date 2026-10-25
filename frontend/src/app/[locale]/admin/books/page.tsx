@@ -43,15 +43,16 @@ export default function AdminBooksPage() {
   }, []);
 
   // 👇 2. N7ETO fetchCategories f useCallback
-  const fetchCategories = useCallback(async () => {
-    try {
-      const { data } = await api.get('/categories?admin=true');
-      const catList = Array.isArray(data) ? data : (data.data || []);
-      setCategories(catList);
-    } catch (error) {
-      console.error("Erreur API categories:", error);
-      toast.error("Impossible de charger les catégories");
-    }
+  const fetchCategories = useCallback(() => {
+    api.get('/categories?admin=true')
+      .then(({ data }) => {
+        const catList = Array.isArray(data) ? data : (data.data || []);
+        setCategories(catList);
+      })
+      .catch((error) => {
+        console.error("Erreur API categories:", error);
+        toast.error("Impossible de charger les catégories");
+      });
   }, []);
 
   // 👇 3. Daba useEffect ghadi ykoun n9i 100% bla ay warning

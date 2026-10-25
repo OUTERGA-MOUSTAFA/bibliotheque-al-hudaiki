@@ -41,6 +41,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('/users', [AdminController::class, 'users']);
 
     // Dans le groupe admin (middleware auth:sanctum)
+    // categories
     Route::apiResource('categories', CategoryController::class);
     Route::post('/categories/{category}/archive', [CategoryController::class, 'archive']);
+        // book
+    Route::post('/books/{book}/archive', [\App\Http\Controllers\Api\BookController::class, 'archive']);
 });
