@@ -2,7 +2,7 @@
 
 import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, BookOpen, Users, BookMarked, LogOut, Tag, Store } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, BookMarked, LogOut, Tag, Store, Archive } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminSidebar() {
@@ -16,6 +16,7 @@ export default function AdminSidebar() {
     { href: '/admin/books', label: t('books'), icon: BookOpen },
     { href: '/admin/loans', label: t('loans'), icon: BookMarked },
     { href: '/admin/users', label: t('users'), icon: Users },
+    { href: '/admin/archives',    label: 'الأرشيف (Archives)', icon: Archive },
   ];
 
   return (

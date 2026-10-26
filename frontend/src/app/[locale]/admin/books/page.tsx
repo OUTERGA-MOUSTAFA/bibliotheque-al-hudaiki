@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Book, Category } from '@/types';
-
+import BookDetailsModal from '@/components/admin/BookDetailsModal';
 export default function AdminBooksPage() {
   const t = useTranslations('admin');
 
@@ -20,6 +20,8 @@ export default function AdminBooksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
   const [formData, setFormData] = useState({
     titre: '',
@@ -162,7 +164,9 @@ export default function AdminBooksPage() {
               <tr><td colSpan={4} className="text-center py-8 text-stone-500">{t('no_books')}</td></tr>
             ) : (
               books.map((book) => (
-                <tr key={book.id} className="border-b border-stone-100 hover:bg-sand/50 transition">
+                <tr key={book.id}
+                  onClick={() => setSelectedBook(book)}
+                  className="border-b border-stone-100 hover:bg-sand/50 transition cursor-pointer">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-14 rounded bg-stone-100 overflow-hidden shrink-0">
@@ -197,8 +201,14 @@ export default function AdminBooksPage() {
             )}
           </tbody>
         </table>
-      </div>
 
+      </div>
+      <BookDetailsModal
+        book={selectedBook}
+        isOpen={!!selectedBook}
+        onClose={() => setSelectedBook(null)}
+        onRefresh={fetchBooks}
+      />
       {/* 👇 MODAL DIAL L'AJOUT (NOUVEAU LIVRE) */}
       {isModalOpen && (
         <div

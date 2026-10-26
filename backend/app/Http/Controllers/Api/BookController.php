@@ -13,23 +13,23 @@ use Cloudinary\Configuration\Configuration;
 class BookController extends Controller
 {
     // 👇 Jib l'liste dial l'ktub (L'Frontend kay-3ayet 3liha)
-        public function index(Request $request)
+    public function index(Request $request)
     {
         // Nbnaw l'query b tari9a ashal w bla ILIKE bach n-testiw
         $query = Book::with('categorie');
 
         if ($request->filled('q')) {
             $search = $request->q;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('titre', 'like', "%{$search}%")
-                  ->orWhere('resume', 'like', "%{$search}%");
+                    ->orWhere('resume', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('categorie')) {
             $query->where('categorie_id', $request->categorie);
         }
-        
+
         if ($request->filled('langue')) {
             $query->where('langue', $request->langue);
         }
@@ -44,6 +44,10 @@ class BookController extends Controller
             if ($request->tri === 'recent') $query->latest();
         } else {
             $query->latest();
+        }
+
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
         }
 
         $books = $query->paginate($request->per_page ?? 12);
@@ -153,5 +157,13 @@ class BookController extends Controller
     {
         $book->delete();
         return response()->noContent();
+    }
+
+
+    // 👇 Fonction l'Archive
+    public function restore(Book $book)
+    {
+        $book->update(['statut' => 'disponible']);
+        return response()->json(['message' => 'Livre restauré avec succès', 'book' => $book]);
     }
 }
