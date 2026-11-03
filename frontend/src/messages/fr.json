@@ -73,10 +73,7 @@
   },
   
   "contact": {
-    "title": "Contactez-nous",
-    "subtitle": "Nous sommes là pour répondre à vos questions",
     "name": "Nom complet",
-    "email": "E-mail",
     "phone": "Téléphone",
     "book": "Livre souhaité",
     "days": "Nombre de jours d'emprunt",
@@ -85,10 +82,26 @@
     "sending": "Envoi en cours...",
     "success": "Votre message a été envoyé avec succès",
     "error": "Une erreur est survenue, veuillez réessayer",
-    "address": "Adresse",
     "hours": "Horaires",
     "hours_value": "Lundi au samedi, 9h00 - 18h00",
-    "find_us": "Nous trouver"
+    "find_us": "Nous trouver",
+     "title": "Contactez-nous",
+    "subtitle": "Vous avez une question, une suggestion ou besoin d'aide ? Remplissez le formulaire ci-dessous et notre équipe vous répondra dans les plus brefs délais.",
+    "info_title": "Informations de contact",
+    "address": "Adresse",
+    "address_val": "Bibliothèque Al Hudaigy, Tafraout, Maroc",
+    "email": "Email",
+    "form_name": "Nom complet *",
+    "form_name_placeholder": "Votre nom",
+    "form_email": "E-mail *",
+    "form_email_placeholder": "vous@email.com",
+    "form_subject": "Sujet *",
+    "form_subject_placeholder": "De quoi s'agit-il ?",
+    "form_message": "Message *",
+    "form_message_placeholder": "Écrivez votre message ici...",
+    "form_submit": "Envoyer le message",
+    "form_submitting": "Envoi en cours..."
+    
   },
   "history": {
     "title": "Notre histoire",

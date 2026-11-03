@@ -72,7 +72,6 @@
   },
   "contact": {
     "title": "اتصل بنا",
-    "subtitle": "نحن هنا للإجابة على استفساراتكم",
     "name": "الاسم الكامل",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
@@ -86,7 +85,20 @@
     "address": "العنوان",
     "hours": "أوقات العمل",
     "hours_value": "من الاثنين إلى السبت، 9:00 - 18:00",
-    "find_us": "موقعنا على الخريطة"
+    "find_us": "موقعنا على الخريطة",
+    "subtitle": "هل لديك سؤال، اقتراح أو تحتاج إلى مساعدة؟ املأ النموذج أدناه وسيرد عليك فريقنا في أقرب وقت ممكن.",
+    "info_title": "معلومات الاتصال",
+    "address_val": "مكتبة الحظيكي، تفراوت، المغرب",
+    "form_name": "الاسم الكامل *",
+    "form_name_placeholder": "اسمك",
+    "form_email": "البريد الإلكتروني *",
+    "form_email_placeholder": "you@email.com",
+    "form_subject": "الموضوع *",
+    "form_subject_placeholder": "ما هو موضوع رسالتك؟",
+    "form_message": "الرسالة *",
+    "form_message_placeholder": "اكتب رسالتك هنا...",
+    "form_submit": "إرسال الرسالة",
+    "form_submitting": "جارٍ الإرسال..."
   },
   "history": {
     "title": "نبذة عن المكتبة",
