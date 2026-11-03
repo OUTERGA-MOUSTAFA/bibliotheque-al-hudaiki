@@ -1,3 +1,16 @@
+export interface AuthUser {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  statut: string;
+  date_naissance?: string; // 👈 ZID HADI HNA
+  photo?: string;
+  telephone?: string;
+  adresse?: string;
+  etablissement?: string;
+  roles?: string[];
+}
 export interface Category {
   id: number;
   nom: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react'; // 👈 Zid useMemo
 import Image from 'next/image';
 import { X, Calendar, Hash, Clock, ShieldAlert, BookOpen, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,109 +10,136 @@ import { toast } from 'sonner';
 import { useRouter } from '@/navigation';
 import type { Book } from '@/types';
 
+// 👇 Helper function l'formatage dial dates (Pure Function)
+const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('fr-FR');
+};
+
 export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { book: Book | null, isOpen: boolean, onClose: () => void, onRefresh: () => void }) {
-  const { user, isAuthenticated } = useAuth();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+    const { user, isAuthenticated } = useAuth();
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
-  if (!isOpen || !book) return null;
+    // 👇 N7sebo l'3mer b useMemo bach React ykoun farhan
+    const userAge = useMemo(() => {
+        if (!user?.date_naissance) return 0;
+        const birthDate = new Date(user.date_naissance);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }, [user?.date_naissance]);
 
-  // 🧠 N7sebo l'3mer
-  const userAge = user?.date_naissance 
-    ? Math.floor((new Date().getTime() - new Date(user.date_naissance).getTime()) / 3.15576e+10)
-    : 0;
-    
-  const isRestricted = book.age_restriction && userAge < book.age_restriction;
+    // 👇 L'dates dial l'ktab b useMemo
+    const bookCreatedAt = useMemo(() => formatDate(book?.created_at), [book?.created_at]);
+    const bookUpdatedAt = useMemo(() => formatDate(book?.updated_at), [book?.updated_at]);
 
-  const handleBorrow = async () => {
-    if (!isAuthenticated) {
-      toast.error("Veuillez vous connecter pour emprunter ce livre.");
-      router.push('/login');
-      return;
-    }
+    // 👇 L'date dial l'youm w l'retour b useMemo
+    const { todayDate, expectedReturnDate } = useMemo(() => {
+        const today = new Date();
+        const returnDate = new Date();
+        returnDate.setDate(today.getDate() + (book?.max_borrow_days || 14));
+        return {
+            todayDate: today.toLocaleDateString('fr-FR'),
+            expectedReturnDate: returnDate.toLocaleDateString('fr-FR')
+        };
+    }, [book?.max_borrow_days]);
 
-    setLoading(true);
-    try {
-      await api.post('/loans', { book_id: book.id });
-      toast.success("Livre emprunté avec succès !");
-      onRefresh();
-      onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Erreur lors de l'emprunt");
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (!isOpen || !book) return null;
 
-  const expectedReturnDate = new Date();
-  expectedReturnDate.setDate(expectedReturnDate.getDate() + (book.max_borrow_days || 14));
+    const isRestricted = book.age_restriction && userAge < book.age_restriction;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-stone-950/80 backdrop-blur-md" onClick={onClose}>
-      <div 
-        className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in zoom-in-95"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button onClick={onClose} className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-md">
-          <X size={20} />
-        </button>
+    const handleBorrow = async () => {
+        if (!isAuthenticated) {
+            toast.error("Veuillez vous connecter pour emprunter ce livre.");
+            router.push('/login');
+            return;
+        }
 
-        {/* L'Tsawira */}
-        <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-stone-100 shrink-0">
-          {book.image ? (
-            <Image src={book.image} alt={book.titre} fill className={`object-cover ${isRestricted ? 'blur-xl' : ''}`} />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-stone-300"><BookOpen size={64} /></div>
-          )}
-          {isRestricted && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/40">
-              <ShieldAlert size={48} className="text-coral-500 mb-2" />
-              <span className="font-bold text-lg">Contenu Restreint (+{book.age_restriction})</span>
-            </div>
-          )}
-        </div>
+        setLoading(true);
+        try {
+            await api.post('/loans', { book_id: book.id });
+            toast.success("Livre emprunté avec succès !");
+            onRefresh();
+            onClose();
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            toast.error(err.response?.data?.message || "Erreur lors de l'emprunt");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        {/* L'Ma3lomat */}
-        <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto">
-          <div className="mb-6">
-            <span className="text-xs font-bold text-brand-600 uppercase">{book.categorie?.nom || 'Sans catégorie'}</span>
-            <h2 className="text-3xl font-extrabold text-stone-900 mt-1">{book.titre}</h2>
-          </div>
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-stone-950/80 backdrop-blur-md" onClick={onClose}>
+            <div
+                className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in zoom-in-95"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button onClick={onClose} className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-md">
+                    <X size={20} />
+                </button>
 
-          <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-stone-600">
-            <div className="flex items-center gap-2"><Hash size={16} /> ID: <span className="font-semibold text-stone-900">{book.id}</span></div>
-            <div className="flex items-center gap-2"><BookOpen size={16} /> {book.nombre_pages || '?'} Pages</div>
-            <div className="flex items-center gap-2"><Clock size={16} /> Ajouté le: <span className="font-semibold text-stone-900">{new Date(book.created_at || Date.now()).toLocaleDateString()}</span></div>
-            <div className="flex items-center gap-2"><Calendar size={16} /> Modifié le: <span className="font-semibold text-stone-900">{new Date(book.updated_at || Date.now()).toLocaleDateString()}</span></div>
-          </div>
-
-          <div className={`mb-8 ${isRestricted ? 'blur-sm select-none' : ''}`}>
-            <h3 className="font-bold text-stone-900 text-sm mb-1">Résumé</h3>
-            <p className="text-sm text-stone-600 leading-relaxed">{book.resume || 'Aucun résumé disponible.'}</p>
-          </div>
-
-          {/* L'Zone dial l'I3ara */}
-          <div className="mt-auto bg-stone-50 border border-stone-200 rounded-2xl p-5">
-            {isRestricted ? (
-               <div className="flex items-center gap-3 text-coral-700 bg-coral-50 p-3 rounded-lg text-sm font-medium">
-                 <AlertCircle size={20} /> Désolé, vous n'avez pas l'âge requis.
-               </div>
-            ) : book.stock > 0 ? (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <div className="text-sm text-stone-500">Emprunt: <strong className="text-stone-900">{new Date().toLocaleDateString()}</strong></div>
-                  <div className="text-sm text-stone-500">Retour: <strong className="text-brand-700">{expectedReturnDate.toLocaleDateString()}</strong> <span className="text-xs">(Max {book.max_borrow_days} j)</span></div>
+                {/* L'Tsawira */}
+                <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-stone-100 shrink-0">
+                    {book.image ? (
+                        <Image src={book.image} alt={book.titre} fill className={`object-cover ${isRestricted ? 'blur-xl' : ''}`} />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-stone-300"><BookOpen size={64} /></div>
+                    )}
+                    {isRestricted && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/40">
+                            <ShieldAlert size={48} className="text-coral-500 mb-2" />
+                            <span className="font-bold text-lg">Contenu Restreint (+{book.age_restriction})</span>
+                        </div>
+                    )}
                 </div>
-                <Button onClick={handleBorrow} disabled={loading} className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-8 h-12 shadow-lg">
-                  {loading ? <Loader2 className="animate-spin" /> : "Emprunter"}
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center text-coral-600 font-bold">Ce livre est épuisé.</div>
-            )}
-          </div>
+
+                {/* L'Ma3lomat */}
+                <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto">
+                    <div className="mb-6">
+                        <span className="text-xs font-bold text-brand-600 uppercase">{book.categorie?.nom || 'Sans catégorie'}</span>
+                        <h2 className="text-3xl font-extrabold text-stone-900 mt-1">{book.titre}</h2>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-stone-600">
+                        <div className="flex items-center gap-2"><Hash size={16} /> ID: <span className="font-semibold text-stone-900">{book.id}</span></div>
+                        <div className="flex items-center gap-2"><BookOpen size={16} /> {book.nombre_pages || '?'} Pages</div>
+                        <div className="flex items-center gap-2"><Clock size={16} /> Ajouté le: <span className="font-semibold text-stone-900">{bookCreatedAt}</span></div>
+                        <div className="flex items-center gap-2"><Calendar size={16} /> Modifié le: <span className="font-semibold text-stone-900">{bookUpdatedAt}</span></div>
+                    </div>
+
+                    <div className={`mb-8 ${isRestricted ? 'blur-sm select-none' : ''}`}>
+                        <h3 className="font-bold text-stone-900 text-sm mb-1">Résumé</h3>
+                        <p className="text-sm text-stone-600 leading-relaxed">{book.resume || 'Aucun résumé disponible.'}</p>
+                    </div>
+
+                    {/* L'Zone dial l'I3ara */}
+                    <div className="mt-auto bg-stone-50 border border-stone-200 rounded-2xl p-5">
+                        {isRestricted ? (
+                            <div className="flex items-center gap-3 text-coral-700 bg-coral-50 p-3 rounded-lg text-sm font-medium">
+                                <AlertCircle size={20} /> Désolé, vous n&apos;avez pas l&apos;âge requis.
+                            </div>
+                        ) : book.stock > 0 ? (
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div>
+                                    <div className="text-sm text-stone-500">Emprunt: <strong className="text-stone-900">{todayDate}</strong></div>
+                                    <div className="text-sm text-stone-500">Retour: <strong className="text-brand-700">{expectedReturnDate}</strong> <span className="text-xs">(Max {book.max_borrow_days} j)</span></div>
+                                </div>
+                                <Button onClick={handleBorrow} disabled={loading} className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-8 h-12 shadow-lg">
+                                    {loading ? <Loader2 className="animate-spin" /> : "Emprunter"}
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="text-center text-coral-600 font-bold">Ce livre est épuisé.</div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

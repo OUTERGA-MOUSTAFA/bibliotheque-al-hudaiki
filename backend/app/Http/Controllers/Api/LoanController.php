@@ -25,8 +25,7 @@ class LoanController extends Controller
                 'date_pret' => $loan->date_pret,
                 'date_retour_prevue' => $loan->date_retour_prevue,
                 'date_retour_reelle' => $loan->date_retour_reelle,
-                'statut' => $loan->date_retour_reelle ? 'retourné' :
-                           (Carbon::parse($loan->date_retour_prevue)->isPast() ? 'en retard' : 'en cours'),
+                'statut' => $loan->date_retour_reelle ? 'retourné' : (Carbon::parse($loan->date_retour_prevue)->isPast() ? 'en retard' : 'en cours'),
                 'jours_restants' => $loan->date_retour_reelle ? null :
                     max(0, now()->diffInDays(Carbon::parse($loan->date_retour_prevue), false)),
                 'jours_retard' => $loan->date_retour_reelle ? null :
@@ -41,27 +40,37 @@ class LoanController extends Controller
     {
         $validated = $request->validate([
             'book_id' => 'required|exists:books,id',
-            'user_id' => 'required|exists:users,id',
-            'date_pret' => 'required|date',
-            'date_retour_prevue' => 'required|date|after:date_pret',
         ]);
 
-        return DB::transaction(function () use ($validated) {
+        return DB::transaction(function () use ($validated, $request) {
             $book = Book::lockForUpdate()->findOrFail($validated['book_id']);
+            $user = $request->user();
+
+            // 🛡️ Hmaya dial l'3mer
+            if ($book->age_restriction && $user->age < $book->age_restriction) {
+                abort(403, 'Vous n\'avez pas l\'âge requis pour emprunter ce livre.');
+            }
 
             if ($book->stock < 1) {
                 abort(422, 'Livre indisponible.');
             }
 
-            $loan = Loan::create($validated);
+            // 📅 N7esbo l'date dial l'retour
+            $datePret = now();
+            $dateRetour = now()->addDays($book->max_borrow_days ?? 14);
+
+            $loan = Loan::create([
+                'book_id' => $book->id,
+                'user_id' => $user->id,
+                'date_pret' => $datePret,
+                'date_retour_prevue' => $dateRetour,
+            ]);
 
             $book->decrement('stock');
             $book->increment('nb_emprunts');
-            if ($book->stock === 0) {
-                $book->update(['statut' => 'emprunte']);
-            }
+            if ($book->stock === 0) $book->update(['statut' => 'emprunte']);
 
-            return response()->json($loan->load('book', 'user'), 201);
+            return response()->json($loan, 201);
         });
     }
 

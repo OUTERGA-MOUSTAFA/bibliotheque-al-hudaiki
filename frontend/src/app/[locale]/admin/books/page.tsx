@@ -80,18 +80,12 @@ export default function AdminBooksPage() {
       if (formData.nombre_pages) data.append('nombre_pages', formData.nombre_pages);
       data.append('langue', formData.langue);
       data.append('stock', formData.stock.toString());
+      data.append('max_borrow_days', formData.max_borrow_days.toString()); // 👈 Zid hadi
+      if (formData.age_restriction) data.append('age_restriction', formData.age_restriction); // 👈 Zid hadi
 
-      // Ila khtar categorie
-      if (formData.categorie_id) {
-        data.append('categorie_id', formData.categorie_id);
-      }
+      if (formData.categorie_id) data.append('categorie_id', formData.categorie_id);
+      if (imageFile) data.append('image', imageFile);
 
-      // Ila khtar image
-      if (imageFile) {
-        data.append('image', imageFile);
-      }
-
-      // Sifet l'API
       await api.post('/admin/books', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
@@ -99,13 +93,15 @@ export default function AdminBooksPage() {
       toast.success("Livre ajouté avec succès !");
       setIsModalOpen(false);
 
-      setFormData({ titre: '', description: '', resume: '', nombre_pages: '', langue: 'ar', stock: 1, categorie_id: ''});
+      // 👇 Zid l'champs l'jdad f reset dial l'form
+      setFormData({
+        titre: '', description: '', resume: '', nombre_pages: '', langue: 'ar',
+        stock: 1, categorie_id: '', max_borrow_days: 14, age_restriction: ''
+      });
       setImageFile(null);
 
       setLoading(true);
       fetchBooks();
-
-      fetchBooks(); // N3awdo n-jibdo l'books
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || "Erreur lors de l'ajout");
