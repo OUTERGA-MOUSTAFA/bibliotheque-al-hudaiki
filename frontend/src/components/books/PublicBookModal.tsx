@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react'; // 👈 Zid useMemo
+import { useState, useMemo, useEffect } from 'react'; // 👈 Zid useEffect
 import Image from 'next/image';
 import { X, Calendar, Hash, Clock, ShieldAlert, BookOpen, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,6 @@ import { toast } from 'sonner';
 import { useRouter } from '@/navigation';
 import type { Book } from '@/types';
 
-// 👇 Helper function l'formatage dial dates (Pure Function)
 const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('fr-FR');
@@ -21,7 +20,16 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
-    // 👇 N7sebo l'3mer b useMemo bach React ykoun farhan
+    // 👇 State dial l'ikhtiyar dial l'ayyam
+    const [borrowDuration, setBorrowDuration] = useState<number>(14);
+
+    // Mlli kayt7ell l'Modal wla kaytbdel l'ktab, kan7etto l'Max dial l'Admin k'ikhtiyar par défaut
+    useEffect(() => {
+        if (book?.max_borrow_days) {
+            setBorrowDuration(book.max_borrow_days);
+        }
+    }, [book]);
+
     const userAge = useMemo(() => {
         if (!user?.date_naissance) return 0;
         const birthDate = new Date(user.date_naissance);
@@ -34,20 +42,19 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
         return age;
     }, [user?.date_naissance]);
 
-    // 👇 L'dates dial l'ktab b useMemo
     const bookCreatedAt = useMemo(() => formatDate(book?.created_at), [book?.created_at]);
     const bookUpdatedAt = useMemo(() => formatDate(book?.updated_at), [book?.updated_at]);
 
-    // 👇 L'date dial l'youm w l'retour b useMemo
+    // 👇 N7esbo l'date dial l'retour dynamiquement 3la 7sab l'ikhtiyar dial l'user
     const { todayDate, expectedReturnDate } = useMemo(() => {
         const today = new Date();
         const returnDate = new Date();
-        returnDate.setDate(today.getDate() + (book?.max_borrow_days || 14));
+        returnDate.setDate(today.getDate() + borrowDuration);
         return {
             todayDate: today.toLocaleDateString('fr-FR'),
             expectedReturnDate: returnDate.toLocaleDateString('fr-FR')
         };
-    }, [book?.max_borrow_days]);
+    }, [borrowDuration]); // 👈 Kaytbdel mlli l'user ybdel l'ayyam
 
     if (!isOpen || !book) return null;
 
@@ -62,7 +69,11 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
 
         setLoading(true);
         try {
-            await api.post('/loans', { book_id: book.id });
+            // 👇 Kansifto l'ayyam li khtar l'user l'Backend
+            await api.post('/loans', {
+                book_id: book.id,
+                borrow_duration: borrowDuration
+            });
             toast.success("Livre emprunté avec succès !");
             onRefresh();
             onClose();
@@ -84,7 +95,6 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
                     <X size={20} />
                 </button>
 
-                {/* L'Tsawira */}
                 <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-stone-100 shrink-0">
                     {book.image ? (
                         <Image src={book.image} alt={book.titre} fill className={`object-cover ${isRestricted ? 'blur-xl' : ''}`} />
@@ -99,7 +109,6 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
                     )}
                 </div>
 
-                {/* L'Ma3lomat */}
                 <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto">
                     <div className="mb-6">
                         <span className="text-xs font-bold text-brand-600 uppercase">{book.categorie?.nom || 'Sans catégorie'}</span>
@@ -125,14 +134,36 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
                                 <AlertCircle size={20} /> Désolé, vous n&apos;avez pas l&apos;âge requis.
                             </div>
                         ) : book.stock > 0 ? (
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div>
-                                    <div className="text-sm text-stone-500">Emprunt: <strong className="text-stone-900">{todayDate}</strong></div>
-                                    <div className="text-sm text-stone-500">Retour: <strong className="text-brand-700">{expectedReturnDate}</strong> <span className="text-xs">(Max {book.max_borrow_days} j)</span></div>
+                            <div className="flex flex-col gap-4">
+
+                                {/* 👇 L'Input jdid dial l'ikhtiyar dial l'ayyam */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-stone-700">Durée d&apos;emprunt :</span>
+                                    <select
+                                        value={borrowDuration}
+                                        onChange={(e) => setBorrowDuration(Number(e.target.value))}
+                                        className="border border-stone-300 rounded-lg px-3 py-1.5 text-sm font-semibold text-brand-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                    >
+                                        {/* Kan-creyiw liste mn 1 7ta l'Max li 7et l'Admin */}
+                                        {Array.from({ length: book.max_borrow_days || 14 }, (_, i) => i + 1).map((day) => (
+                                            <option key={day} value={day}>
+                                                {day} {day === 1 ? 'jour' : 'jours'}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                                <Button onClick={handleBorrow} disabled={loading} className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-8 h-12 shadow-lg">
-                                    {loading ? <Loader2 className="animate-spin" /> : "Emprunter"}
-                                </Button>
+
+                                <div className="w-full h-px bg-stone-200" />
+
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div>
+                                        <div className="text-sm text-stone-500">Emprunt: <strong className="text-stone-900">{todayDate}</strong></div>
+                                        <div className="text-sm text-stone-500">Retour: <strong className="text-brand-700">{expectedReturnDate}</strong></div>
+                                    </div>
+                                    <Button onClick={handleBorrow} disabled={loading} className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-8 h-12 shadow-lg">
+                                        {loading ? <Loader2 className="animate-spin" /> : "Emprunter"}
+                                    </Button>
+                                </div>
                             </div>
                         ) : (
                             <div className="text-center text-coral-600 font-bold">Ce livre est épuisé.</div>

@@ -11,9 +11,13 @@ export interface AuthUser {
   prenom: string;
   email: string;
   statut: string;
+  date_naissance?: string; // 👈 KHASS TKON HNA
+  photo?: string;
+  telephone?: string;
+  adresse?: string;
+  etablissement?: string;
   roles?: string[];
 }
-
 export const auth = {
   getToken(): string | null {
     if (typeof window === 'undefined') return null;

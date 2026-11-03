@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites/{book}', [FavoriteController::class, 'toggle']);
     Route::get('/my-loans', [LoanController::class, 'myLoans']);
+    Route::post('/loans', [LoanController::class, 'store']);
 });
 
 // Admin
@@ -45,7 +46,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     // categories
     Route::apiResource('categories', CategoryController::class);
     Route::post('/categories/{category}/archive', [CategoryController::class, 'archive']);
-        // book
+    // book
     Route::post('/books/{book}/archive', [\App\Http\Controllers\Api\BookController::class, 'archive']);
     Route::post('/books/{book}/restore', [\App\Http\Controllers\Api\BookController::class, 'restore']);
 });

@@ -16,15 +16,22 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
   const [emblaRef] = useEmblaCarousel(
-    { align: 'start', loop: true, direction: isArabic ? 'rtl' : 'ltr' },
+    {
+      align: 'start',
+      loop: true,
+      direction: isArabic ? 'rtl' : 'ltr',
+      containScroll: 'trimSnaps'
+    },
     [Autoplay({ delay: 5000, stopOnInteraction: true })]
   );
 
   if (!books.length) return null;
 
   return (
-    <section className="py-20 bg-cream">
+    <section className="py-20 bg-cream overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {/* Header */}
         <div className="flex items-center gap-3 mb-10">
           <div className="w-12 h-12 rounded-2xl bg-gold-500 flex items-center justify-center shadow-gold-glow">
             <TrendingUp className="text-white" size={22} strokeWidth={2.5} />
@@ -37,13 +44,15 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
           </div>
         </div>
 
+        {/* Carousel Container */}
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-6">
+          <div className="flex gap-4 sm:gap-6">
             {books.map((book) => (
               <div
                 key={book.id}
-                className="flex-[0_0_240px] min-w-0 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
-                onClick={() => setSelectedBook(book)} // 👈 Zid hadi
+                /* 👇 Responsive Widths */
+                className="flex-[0_0_85%] sm:flex-[0_0_45%] md:flex-[0_0_35%] lg:flex-[0_0_23%] min-w-0 cursor-pointer pb-4"
+                onClick={() => setSelectedBook(book)}
               >
                 <BookCard book={book} />
               </div>
@@ -52,7 +61,6 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
         </div>
       </div>
 
-      {/* 👇 Zid l'Modal hna */}
       <PublicBookModal
         book={selectedBook}
         isOpen={!!selectedBook}

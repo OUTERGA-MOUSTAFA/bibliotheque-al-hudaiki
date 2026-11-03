@@ -14,10 +14,10 @@ export default function BookCard({ book }: { book: Book }) {
             alt={book.titre}
             fill
             className="object-cover group-hover:scale-[1.03] transition duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px"
+            sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 25vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-stone-300">
+          <div className="absolute inset-0 flex items-center justify-center text-stone-300 bg-stone-200">
             <BookIcon size={48} strokeWidth={1.5} />
           </div>
         )}
@@ -45,11 +45,12 @@ export default function BookCard({ book }: { book: Book }) {
       </div>
 
       <div className="mt-3 space-y-1">
-        <h3 className="font-semibold text-stone-900 line-clamp-2 group-hover:text-brand-700 transition text-sm leading-snug">
+        {/* 👇 line-clamp-2 bach l'titre maykherrejch mn l'karta */}
+        <h3 className="font-semibold text-stone-900 line-clamp-2 group-hover:text-brand-700 transition text-sm sm:text-base leading-snug">
           {book.titre}
         </h3>
         {book.categorie && (
-          <p className="text-xs text-stone-500">{book.categorie.nom}</p>
+          <p className="text-xs text-stone-500 line-clamp-1">{book.categorie.nom}</p>
         )}
       </div>
     </div>

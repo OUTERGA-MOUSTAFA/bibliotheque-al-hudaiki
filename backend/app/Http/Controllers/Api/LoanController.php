@@ -40,6 +40,7 @@ class LoanController extends Controller
     {
         $validated = $request->validate([
             'book_id' => 'required|exists:books,id',
+            'borrow_duration' => 'required|integer|min:1',
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
