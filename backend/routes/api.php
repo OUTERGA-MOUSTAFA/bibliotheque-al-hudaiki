@@ -8,9 +8,10 @@ use App\Http\Controllers\Api\SponsorController;
 use App\Http\Controllers\Api\LoanController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\ContactController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
-
+Route::post('/contact', [ContactController::class, 'store']);
 // Public
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book:slug}', [BookController::class, 'show']);

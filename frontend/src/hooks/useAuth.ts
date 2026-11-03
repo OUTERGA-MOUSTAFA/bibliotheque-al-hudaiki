@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from '@/navigation';
 import { auth, type AuthUser } from '@/lib/auth';
 
@@ -12,6 +12,7 @@ export function useAuth() {
   useEffect(() => {
     const stored = auth.getUser();
     if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(stored);
     }
     setLoading(false);
@@ -32,7 +33,8 @@ export function useAuth() {
   const logout = async () => {
     await auth.logout();
     setUser(null);
-     window.location.href = '/';
+    router.push('/');
+    router.refresh();
   };
 
   return {

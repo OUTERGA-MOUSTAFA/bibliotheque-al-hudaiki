@@ -17,10 +17,10 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace('/login');
+      router.replace('/login'); // Ila machi connecté, y-redirigi l'login
     }
     if (!loading && user && adminOnly && !isAdmin) {
-      router.replace('/');
+      router.replace('/'); // Ila machi admin w bgha ydkhel l'admin, y-redirigi l'accueil
     }
   }, [user, loading, adminOnly, isAdmin, router]);
 
