@@ -28,6 +28,10 @@ export interface Book {
   nb_emprunts: number;
   categorie?: Category;
   reviews?: Review[];
+  max_borrow_days: number;
+  age_restriction?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Review {

@@ -46,9 +46,13 @@ class User extends Authenticatable
         });
     }
 
+    // public function getAgeAttribute(): int
+    // {
+    //     return $this->date_naissance?->age ?? 0;
+    // }
     public function getAgeAttribute(): int
     {
-        return $this->date_naissance?->age ?? 0;
+        return $this->date_naissance ? \Carbon\Carbon::parse($this->date_naissance)->age : 0;
     }
 
     public function getEstMajeurAttribute(): bool

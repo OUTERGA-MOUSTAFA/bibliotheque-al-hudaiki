@@ -27,7 +27,10 @@ class Book extends Model
         'image',
         'note_moyenne',
         'nb_favoris',
-        'nb_emprunts'
+        'nb_emprunts',
+        'slug',
+        'max_borrow_days',
+        'age_restriction',
     ];
 
     protected $casts = [

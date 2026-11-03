@@ -30,7 +30,9 @@ export default function AdminBooksPage() {
     nombre_pages: '',
     langue: 'ar',
     stock: 1,
-    categorie_id: ''
+    categorie_id: '',
+    max_borrow_days: 14,
+    age_restriction: ''
   });
 
   // 👇 1. N7ETO fetchBooks f useCallback bach React y3refha mzyan
@@ -97,7 +99,7 @@ export default function AdminBooksPage() {
       toast.success("Livre ajouté avec succès !");
       setIsModalOpen(false);
 
-      setFormData({ titre: '', description: '', resume: '', nombre_pages: '', langue: 'ar', stock: 1, categorie_id: '' });
+      setFormData({ titre: '', description: '', resume: '', nombre_pages: '', langue: 'ar', stock: 1, categorie_id: ''});
       setImageFile(null);
 
       setLoading(true);
@@ -293,6 +295,16 @@ export default function AdminBooksPage() {
                 </label>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Durée max d'emprunt (Jours) *</Label>
+                  <Input type="number" required min={1} value={formData.max_borrow_days} onChange={(e) => setFormData({ ...formData, max_borrow_days: parseInt(e.target.value) || 14 })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Âge minimum (Optionnel)</Label>
+                  <Input type="number" placeholder="Ex: 18" value={formData.age_restriction} onChange={(e) => setFormData({ ...formData, age_restriction: e.target.value })} />
+                </div>
+              </div>
               <div className="flex justify-end gap-3 pt-6 border-t border-stone-100">
                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('cancel')}</Button>
                 <Button type="submit" disabled={formLoading} className="bg-brand-600 hover:bg-brand-700 text-white min-w-[120px]">

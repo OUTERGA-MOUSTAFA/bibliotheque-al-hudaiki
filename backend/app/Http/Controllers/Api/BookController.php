@@ -63,62 +63,124 @@ class BookController extends Controller
     }
 
     // 👇 Zid ktab jdid (L'Admin Panel kay-3ayet 3liha)
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'titre' => 'required|string|max:255',
+    //         'description' => 'nullable|string|max:555',
+    //         'resume' => 'nullable|string|max:1200',
+    //         'nombre_pages' => 'nullable|integer',
+    //         'langue' => 'nullable|string|max:5',
+    //         'stock' => 'required|integer|min:0',
+    //         'categorie_id' => 'nullable|exists:categories,id',
+    //         'image' => 'nullable|image|max:5120',
+    //         'book_id' => 'required|exists:books,id',
+    //     ]);
+
+    //     $validated['slug'] = Str::slug($validated['titre']) ?: 'book-' . time();
+
+    //      return DB::transaction(function () use ($validated, $request) {
+    //     $book = Book::lockForUpdate()->findOrFail($validated['book_id']);
+
+    //     if ($book->stock < 1) {
+    //         abort(422, 'Livre indisponible.');
+    //     }
+
+    //     // 👇 N7sebo l'date dial l'retour 3la 7sab l'mudda l'max
+    //     $datePret = now();
+    //     $dateRetour = now()->addDays($book->max_borrow_days);
+
+    //     $loan = Loan::create([
+    //         'book_id' => $book->id,
+    //         'user_id' => $request->user()->id,
+    //         'date_pret' => $datePret,
+    //         'date_retour_prevue' => $dateRetour,
+    //     ]);
+
+    //     $book->decrement('stock');
+    //     $book->increment('nb_emprunts');
+
+    //     if ($book->stock === 0) $book->update(['statut' => 'emprunte']);
+
+    //     if (empty($validated['categorie_id']) || !Category::find($validated['categorie_id'])) {
+    //         $validated['categorie_id'] = null;
+    //     }
+
+    //     $validated['langue'] = $validated['langue'] ?? 'ar';
+    //     $validated['statut'] = 'disponible';
+
+    //     // 📸 ☁️ L'UPLOAD L'CLOUDINARY
+    //     if ($request->hasFile('image')) {
+    //         try {
+    //             // 👇 Jbed l'keys mn config (machi env)
+    //             $cloudName = config('services.cloudinary.cloud_name');
+    //             $apiKey    = config('services.cloudinary.api_key');
+    //             $apiSecret = config('services.cloudinary.api_secret');
+
+    //             if (!$cloudName || !$apiKey || !$apiSecret) {
+    //                 return response()->json(['message' => 'Erreur: Les clés Cloudinary sont vides dans config/services.php'], 500);
+    //             }
+
+    //             Configuration::instance([
+    //                 'cloud' => [
+    //                     'cloud_name' => $cloudName,
+    //                     'api_key'    => $apiKey,
+    //                     'api_secret' => $apiSecret,
+    //                 ],
+    //                 'url' => ['secure' => true]
+    //             ]);
+
+    //             $upload = (new UploadApi())->upload($request->file('image')->getRealPath());
+    //             $validated['image'] = $upload['secure_url'];
+    //         } catch (\Exception $e) {
+    //             return response()->json(['message' => 'Erreur Cloudinary: ' . $e->getMessage()], 500);
+    //         }
+    //     } else {
+    //         $validated['image'] = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop';
+    //     }
+
+    //     $book = Book::create($validated);
+    //     $book->load('categorie');
+
+    //     return response()->json($book, 201);
+    // }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'nullable|string|max:555',
-            'resume' => 'nullable|string|max:1200',
-            'nombre_pages' => 'nullable|integer',
-            'langue' => 'nullable|string|max:5',
-            'stock' => 'required|integer|min:0',
-            'categorie_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|max:5120',
+            'book_id' => 'required|exists:books,id',
         ]);
 
-        $validated['slug'] = Str::slug($validated['titre']) ?: 'book-' . time();
+        return DB::transaction(function () use ($validated, $request) {
+            $book = Book::lockForUpdate()->findOrFail($validated['book_id']);
+            $user = $request->user();
 
-        if (empty($validated['categorie_id']) || !Category::find($validated['categorie_id'])) {
-            $validated['categorie_id'] = null;
-        }
-
-        $validated['langue'] = $validated['langue'] ?? 'ar';
-        $validated['statut'] = 'disponible';
-
-        // 📸 ☁️ L'UPLOAD L'CLOUDINARY
-        if ($request->hasFile('image')) {
-            try {
-                // 👇 Jbed l'keys mn config (machi env)
-                $cloudName = config('services.cloudinary.cloud_name');
-                $apiKey    = config('services.cloudinary.api_key');
-                $apiSecret = config('services.cloudinary.api_secret');
-
-                if (!$cloudName || !$apiKey || !$apiSecret) {
-                    return response()->json(['message' => 'Erreur: Les clés Cloudinary sont vides dans config/services.php'], 500);
-                }
-
-                Configuration::instance([
-                    'cloud' => [
-                        'cloud_name' => $cloudName,
-                        'api_key'    => $apiKey,
-                        'api_secret' => $apiSecret,
-                    ],
-                    'url' => ['secure' => true]
-                ]);
-
-                $upload = (new UploadApi())->upload($request->file('image')->getRealPath());
-                $validated['image'] = $upload['secure_url'];
-            } catch (\Exception $e) {
-                return response()->json(['message' => 'Erreur Cloudinary: ' . $e->getMessage()], 500);
+            // 🛡️ Hmaya dial l'3mer
+            if ($book->age_restriction && $user->age < $book->age_restriction) {
+                abort(403, 'Vous n\'avez pas l\'âge requis pour emprunter ce livre.');
             }
-        } else {
-            $validated['image'] = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop';
-        }
 
-        $book = Book::create($validated);
-        $book->load('categorie');
+            if ($book->stock < 1) {
+                abort(422, 'Livre indisponible.');
+            }
 
-        return response()->json($book, 201);
+            // 📅 N7esbo l'date dial l'retour 3la 7sab l'mudda l'max li 7et l'Admin
+            $datePret = now();
+            $dateRetour = now()->addDays($book->max_borrow_days ?? 14);
+
+            $loan = Loan::create([
+                'book_id' => $book->id,
+                'user_id' => $user->id,
+                'date_pret' => $datePret,
+                'date_retour_prevue' => $dateRetour,
+            ]);
+
+            $book->decrement('stock');
+            $book->increment('nb_emprunts');
+            if ($book->stock === 0) $book->update(['statut' => 'emprunte']);
+
+            return response()->json($loan, 201);
+        });
     }
 
     // 👇 Modifier ktab (L'Admin Panel kay-3ayet 3liha)
