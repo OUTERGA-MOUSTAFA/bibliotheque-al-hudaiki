@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import BookCard from '@/components/books/BookCard';
+import PublicBookModal from '@/components/books/PublicBookModal';
 import { TrendingUp } from 'lucide-react';
 import type { Book } from '@/types';
 
@@ -11,6 +13,7 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
   const t = useTranslations('home');
   const locale = useLocale();
   const isArabic = locale === 'ar';
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
   const [emblaRef] = useEmblaCarousel(
     { align: 'start', loop: true, direction: isArabic ? 'rtl' : 'ltr' },
@@ -22,7 +25,6 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
   return (
     <section className="py-20 bg-cream">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-10">
           <div className="w-12 h-12 rounded-2xl bg-gold-500 flex items-center justify-center shadow-gold-glow">
             <TrendingUp className="text-white" size={22} strokeWidth={2.5} />
@@ -35,17 +37,28 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
           </div>
         </div>
 
-        {/* Carousel */}
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex gap-6">
             {books.map((book) => (
-              <div key={book.id} className="flex-[0_0_240px] min-w-0">
+              <div
+                key={book.id}
+                className="flex-[0_0_240px] min-w-0 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
+                onClick={() => setSelectedBook(book)} // 👈 Zid hadi
+              >
                 <BookCard book={book} />
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* 👇 Zid l'Modal hna */}
+      <PublicBookModal
+        book={selectedBook}
+        isOpen={!!selectedBook}
+        onClose={() => setSelectedBook(null)}
+        onRefresh={() => window.location.reload()}
+      />
     </section>
   );
 }

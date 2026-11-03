@@ -1,4 +1,4 @@
-'use client'; // 👈 Darouri
+'use client';
 
 import { useState } from 'react';
 import BookCard from './BookCard';
@@ -14,7 +14,11 @@ export default function BookGrid({ books }: { books: Book[] }) {
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {books.map((book) => (
-          <div key={book.id} onClick={() => setSelectedBook(book)} className="cursor-pointer transition-transform hover:scale-[1.02]">
+          <div
+            key={book.id}
+            onClick={() => setSelectedBook(book)}
+            className="cursor-pointer transition-transform duration-300 hover:-translate-y-1"
+          >
             <BookCard book={book} />
           </div>
         ))}

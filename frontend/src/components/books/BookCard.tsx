@@ -1,4 +1,3 @@
-import { Link } from '@/navigation';
 import Image from 'next/image';
 import { Book as BookIcon, Heart, Star } from 'lucide-react';
 import type { Book } from '@/types';
@@ -7,7 +6,7 @@ export default function BookCard({ book }: { book: Book }) {
   const isAvailable = book.stock > 0;
 
   return (
-    <Link href={`/books/${book.slug}`} className="group block">
+    <div className="group block h-full">
       <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-sand shadow-soft group-hover:shadow-soft-lg transition-all duration-300">
         {book.image ? (
           <Image
@@ -23,9 +22,9 @@ export default function BookCard({ book }: { book: Book }) {
           </div>
         )}
 
-        {/* Status dot — machi badge 3ari9 */}
+        {/* Status dot */}
         <div className="absolute top-3 left-3">
-          <span className={`w-3 h-3 rounded-full ${isAvailable ? 'bg-brand-500' : 'bg-coral-500'} ring-2 ring-white shadow-sm`} />
+          <span className={`w-3 h-3 block rounded-full ${isAvailable ? 'bg-brand-500' : 'bg-coral-500'} ring-2 ring-white shadow-sm`} />
         </div>
 
         {/* Favorites */}
@@ -53,6 +52,6 @@ export default function BookCard({ book }: { book: Book }) {
           <p className="text-xs text-stone-500">{book.categorie.nom}</p>
         )}
       </div>
-    </Link>
+    </div>
   );
 }
