@@ -11,31 +11,36 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        // Par défaut, on ne renvoie que les catégories actives pour le public
-        // $query = Category::query();
+        // GET /admin/categories : toutes les catégories (protégé par role:admin)
+        // GET /categories       : uniquement les catégories actives, avec le nombre de livres visibles
+        $isAdmin = $request->is('api/admin/*');
 
-        // if ($request->input('admin') !== 'true') {
-        //     $query->where('statut', 'actif');
-        // }
+        $query = Category::withCount(['books' => function ($q) use ($isAdmin) {
+            if (!$isAdmin) $q->where('statut', '!=', 'archive');
+        }])->orderBy('nom');
 
-        // return response()->json($query->withCount('books')->get());
-
-        try {
-            // N-jbdo l'categories m3a 3adad l'ktub
-            $query = Category::withCount('books');
-
-            // Ila machi admin, n-affichiw ghir li actif
-            if ($request->input('admin') !== 'true') {
-                $query->where('statut', 'actif');
-            }
-
-            return response()->json($query->get());
-        } catch (\Exception $e) {
-            // Ila kan chi mochkil f l'Database, had l'JSON ghadi yban f l'Network tab
-            return response()->json([
-                'message' => 'Erreur DB: ' . $e->getMessage()
-            ], 500);
+        if (!$isAdmin) {
+            $query->where('statut', 'actif');
         }
+
+        return response()->json($query->get());
+    }
+
+    private function slugUnique(string $nom, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($nom) ?: 'categorie';
+        $slug = $base;
+        $i = 2;
+
+        while (Category::where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
+        ) {
+            $slug = "{$base}-{$i}";
+            $i++;
+        }
+
+        return $slug;
     }
 
     public function store(Request $request)
@@ -45,7 +50,7 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        $validated['slug'] = Str::slug($validated['nom']) ?: 'cat-' . time();
+        $validated['slug'] = $this->slugUnique($validated['nom']);
         $validated['statut'] = 'actif';
 
         $category = Category::create($validated);
@@ -59,8 +64,8 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        if (isset($validated['nom'])) {
-            $validated['slug'] = Str::slug($validated['nom']) ?: 'cat-' . time();
+        if (isset($validated['nom']) && $validated['nom'] !== $category->nom) {
+            $validated['slug'] = $this->slugUnique($validated['nom'], $category->id);
         }
 
         $category->update($validated);

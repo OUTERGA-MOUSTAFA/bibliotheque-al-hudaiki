@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -92,6 +93,39 @@ class AuthController extends Controller
         return response()->json([
             'user' => $request->user(),
             'roles' => $request->user()->getRoleNames(),
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'nom' => 'sometimes|required|string|max:255',
+            'prenom' => 'sometimes|required|string|max:255',
+            'email' => ['sometimes', 'required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'adresse' => 'nullable|string|max:500',
+            'telephone' => 'sometimes|required|string|max:20',
+            'etablissement' => 'nullable|string|max:255',
+            // Changement de mot de passe : l'ancien est obligatoire
+            'current_password' => 'required_with:password|current_password:sanctum',
+            'password' => 'sometimes|string|min:8|confirmed',
+        ]);
+
+        unset($validated['current_password']);
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        $user->fill($validated);
+        if ($user->isDirty(['nom', 'prenom'])) {
+            $user->name = trim($user->prenom . ' ' . $user->nom);
+        }
+        $user->save();
+
+        return response()->json([
+            'user' => $user->fresh(),
+            'roles' => $user->getRoleNames(),
         ]);
     }
 }

@@ -48,7 +48,7 @@ export default function AdminBooksPage() {
 
   // 👇 2. N7ETO fetchCategories f useCallback
   const fetchCategories = useCallback(() => {
-    api.get('/categories?admin=true')
+    api.get('/admin/categories')
       .then(({ data }) => {
         const catList = Array.isArray(data) ? data : (data.data || []);
         setCategories(catList);

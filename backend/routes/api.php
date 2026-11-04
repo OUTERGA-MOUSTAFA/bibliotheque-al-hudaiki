@@ -11,20 +11,21 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ContactController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
-Route::post('/contact', [ContactController::class, 'store']);
+
 // Public
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:auth');
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book:slug}', [BookController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/sponsors', [SponsorController::class, 'index']);
 
-// 🛡️ Auth (Protected b Rate Limiter)
+// 🛡️ Auth (protégé par rate limiter)
 Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Authenticated
+// Authentifié
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
@@ -38,15 +39,32 @@ Route::middleware('auth:sanctum')->group(function () {
 // Admin
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
-    Route::apiResource('books', BookController::class)->except(['index', 'show']);
-    Route::get('/loans', [LoanController::class, 'index']);
-    Route::get('/users', [AdminController::class, 'users']);
 
-    // Dans le groupe admin (middleware auth:sanctum)
-    // categories
+    // Livres (la liste admin inclut les archivés, contrairement à /books public)
+    Route::get('/books', [BookController::class, 'adminIndex']);
+    Route::apiResource('books', BookController::class)->except(['index', 'show']);
+    Route::post('/books/{book}/archive', [BookController::class, 'archive']);
+    Route::post('/books/{book}/restore', [BookController::class, 'restore']);
+
+    // Catégories
     Route::apiResource('categories', CategoryController::class);
     Route::post('/categories/{category}/archive', [CategoryController::class, 'archive']);
-    // book
-    Route::post('/books/{book}/archive', [\App\Http\Controllers\Api\BookController::class, 'archive']);
-    Route::post('/books/{book}/restore', [\App\Http\Controllers\Api\BookController::class, 'restore']);
+
+    // Prêts
+    Route::get('/loans', [LoanController::class, 'index']);
+    Route::post('/loans/{loan}/return', [LoanController::class, 'returnBook']);
+    Route::delete('/loans/{loan}', [LoanController::class, 'destroy']);
+
+    // Utilisateurs
+    Route::get('/users', [AdminController::class, 'users']);
+    Route::patch('/users/{user}/archive', [AdminController::class, 'archiveUser']);
+    Route::patch('/users/{user}/restore', [AdminController::class, 'restoreUser']);
+    Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
+
+    // Sponsors
+    Route::apiResource('sponsors', SponsorController::class)->except(['index', 'show']);
+
+    // Messages de contact
+    Route::get('/contacts', [ContactController::class, 'index']);
+    Route::patch('/contacts/{contactRequest}/read', [ContactController::class, 'markAsRead']);
 });

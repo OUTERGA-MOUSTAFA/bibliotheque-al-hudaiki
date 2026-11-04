@@ -14,6 +14,33 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Token expiré ou révoqué (ex. compte archivé) : on nettoie la session locale
+// et on renvoie vers la page de connexion, au lieu de rester « connecté » en apparence.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const url: string = error?.config?.url ?? '';
+    const isAuthCall = url.includes('/login') || url.includes('/register');
+
+    if (status === 401 && !isAuthCall && typeof window !== 'undefined' && localStorage.getItem('auth_token')) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      const locale = window.location.pathname.split('/')[1] || 'ar';
+      window.location.href = `/${locale}/login`;
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Message d'erreur lisible renvoyé par Laravel (abort / validation), sinon message par défaut
+export function apiErrorMessage(error: unknown, fallback: string): string {
+  const data = (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+    ?.response?.data;
+  const firstValidationError = data?.errors ? Object.values(data.errors)[0]?.[0] : undefined;
+  return firstValidationError || data?.message || fallback;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
 // 👇 Zidna had l'Type bach n7aydo l'warning dial "any"

@@ -9,4 +9,8 @@ class ContactRequest extends Model
 {
     /** @use HasFactory<\Database\Factories\ContactRequestFactory> */
     use HasFactory;
+
+    protected $fillable = ['nom', 'email', 'sujet', 'message', 'lu'];
+
+    protected $casts = ['lu' => 'boolean'];
 }

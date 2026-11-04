@@ -1,12 +1,16 @@
 <x-mail::message>
-# Introduction
+# Bonjour {{ $loan->user->prenom }},
 
-The body of your message.
+Le livre **{{ $loan->book->titre }}** devait être rendu le
+**{{ $loan->date_retour_prevue->format('d/m/Y') }}**
+({{ (int) $loan->date_retour_prevue->diffInDays(today()) }} jour(s) de retard).
 
-<x-mail::button :url="''">
-Button Text
+Merci de le rapporter à la bibliothèque dès que possible.
+
+<x-mail::button :url="rtrim(config('app.frontend_url'), '/') . '/compte/emprunts'">
+Voir mes emprunts
 </x-mail::button>
 
-Thanks,<br>
+Merci,<br>
 {{ config('app.name') }}
 </x-mail::message>
