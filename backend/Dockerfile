@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -y \
 # 2. 👇 L'7AL L'2AKID DIAL APACHE MPM (N7AYDO L'FICHIERS B L'YED)
 RUN rm -f /etc/apache2/mods-enabled/mpm_event.*
 RUN rm -f /etc/apache2/mods-enabled/mpm_worker.*
-RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
-RUN ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+# -sf : l'image active déjà mpm_prefork, un simple « ln -s » échouerait (File exists)
+RUN ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
+RUN ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
 # 3. Activer mod_rewrite (Mohim l Laravel)
 RUN a2enmod rewrite
@@ -38,12 +39,15 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # 9. SCRIPT DIAL L'BIDAYA
 RUN echo '#!/bin/bash' > /usr/local/bin/start.sh
-RUN echo 'sed -i "s/80/${PORT:-80}/g" /etc/apache2/ports.conf' >> /usr/local/bin/start.sh
-RUN echo 'sed -i "s/:80/:${PORT:-80}/g" /etc/apache2/sites-available/000-default.conf' >> /usr/local/bin/start.sh
+# On remplace la ligne entière (et pas « 80 » partout) : relancé, le script ne change pas 8080 en 808080
+RUN echo 'sed -ri "s/^Listen [0-9]+$/Listen ${PORT:-80}/" /etc/apache2/ports.conf' >> /usr/local/bin/start.sh
+RUN echo 'sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT:-80}>/" /etc/apache2/sites-available/000-default.conf' >> /usr/local/bin/start.sh
 RUN echo 'php artisan config:clear' >> /usr/local/bin/start.sh
 RUN echo 'rm -f /var/www/html/public/storage' >> /usr/local/bin/start.sh
 RUN echo 'php artisan storage:link' >> /usr/local/bin/start.sh
-RUN echo 'apache2-foreground' >> /usr/local/bin/start.sh
+# Met la base Neon à jour (colonnes « lu », avis…). En cas d'échec, message dans les logs sans bloquer le site
+RUN echo 'php artisan migrate --force || echo "migrate a échoué : vérifiez les variables DB_* dans Railway"' >> /usr/local/bin/start.sh
+RUN echo 'exec apache2-foreground' >> /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 EXPOSE 80
