@@ -20,8 +20,21 @@ export function useAuth() {
 
   const login = async (email: string, password: string) => {
     const data = await auth.login(email, password);
+    if (!data.two_factor) setUser({ ...data.user, roles: data.roles });
+    return data;
+  };
+
+  const completeTwoFactor = async (challenge: string, code: { code?: string; recovery_code?: string }) => {
+    const data = await auth.completeTwoFactor(challenge, code);
     setUser({ ...data.user, roles: data.roles });
     return data;
+  };
+
+  const updateUser = (patch: Partial<AuthUser>) => {
+    if (!user) return;
+    const next = { ...user, ...patch, roles: user.roles };
+    auth.updateStoredUser(next);
+    setUser(next);
   };
 
   const register = async (payload: Record<string, unknown>) => {
@@ -41,6 +54,8 @@ export function useAuth() {
     user,
     loading,
     login,
+    completeTwoFactor,
+    updateUser,
     register,
     logout,
     isAuthenticated: !!user,

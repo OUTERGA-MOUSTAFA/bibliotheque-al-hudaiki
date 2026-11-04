@@ -6,10 +6,8 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Cloudinary\Api\Upload\UploadApi;
-use Cloudinary\Configuration\Configuration;
+use App\Services\ImageUploader;
 
 class BookController extends Controller
 {
@@ -43,8 +41,20 @@ class BookController extends Controller
     {
         abort_if($book->statut === 'archive', 404);
 
-        $book->load(['categorie', 'reviews.user:id,nom,prenom,photo']);
-        return response()->json($book);
+        $book->load([
+            'categorie',
+            'reviews' => fn($q) => $q->latest(),
+            'reviews.user:id,nom,prenom,photo',
+        ]);
+
+        // Route publique : si un token est envoyé, on personnalise la réponse pour ce lecteur
+        $user = auth('sanctum')->user();
+
+        return response()->json(array_merge($book->toArray(), [
+            'is_favorited' => $user ? $book->favorites()->where('user_id', $user->id)->exists() : false,
+            'can_review' => $user ? $user->loans()->where('book_id', $book->id)->exists() : false,
+            'my_review' => $user ? $book->reviews->firstWhere('user_id', $user->id) : null,
+        ]));
     }
 
     public function store(Request $request)
@@ -183,22 +193,6 @@ class BookController extends Controller
 
     private function uploadImage(UploadedFile $file): string
     {
-        try {
-            Configuration::instance([
-                'cloud' => [
-                    'cloud_name' => config('services.cloudinary.cloud_name'),
-                    'api_key' => config('services.cloudinary.api_key'),
-                    'api_secret' => config('services.cloudinary.api_secret'),
-                ],
-                'url' => ['secure' => true],
-            ]);
-
-            $upload = (new UploadApi())->upload($file->getRealPath(), ['folder' => 'al-hudaiki/books']);
-            return $upload['secure_url'];
-        } catch (\Throwable $e) {
-            // Le détail reste dans les logs, jamais renvoyé au client
-            Log::error('Upload Cloudinary échoué', ['error' => $e->getMessage()]);
-            abort(502, "L'envoi de l'image a échoué. Réessayez plus tard.");
-        }
+        return app(ImageUploader::class)->upload($file, 'books');
     }
 }

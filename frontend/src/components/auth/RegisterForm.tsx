@@ -23,6 +23,7 @@ export default function RegisterForm() {
 
   // 👇 State l'les erreurs
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [consentement, setConsentement] = useState(false);
 
   const update = (key: string, value: string) => {
     setFormData((s) => ({ ...s, [key]: value }));
@@ -59,7 +60,7 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      await register(formData);
+      await register({ ...formData, consentement });
       toast.success("Compte créé avec succès !");
       router.push('/compte');
       router.refresh();
@@ -179,6 +180,29 @@ export default function RegisterForm() {
             {errors.password_confirmation && <p className="text-xs text-coral-600">{errors.password_confirmation}</p>}
           </div>
         </div>
+      </div>
+
+      {/* Loi 09-08 : consentement explicite, avec lien vers la politique de confidentialité */}
+      <div className="space-y-1">
+        <label className="flex items-start gap-3 text-sm text-stone-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={consentement}
+            onChange={(e) => {
+              setConsentement(e.target.checked);
+              if (errors.consentement) setErrors((prev) => ({ ...prev, consentement: '' }));
+            }}
+            required
+            className="mt-0.5 h-4 w-4 accent-brand-600 shrink-0"
+          />
+          <span>
+            {t('consent')}{' '}
+            <Link href="/confidentialite" target="_blank" className="text-brand-600 font-semibold hover:underline">
+              {t('consent_link')}
+            </Link>
+          </span>
+        </label>
+        {errors.consentement && <p className="text-xs text-coral-600">{errors.consentement}</p>}
       </div>
 
       <Button type="submit" disabled={loading} className="w-full h-11 bg-brand-600 hover:bg-brand-700 rounded-xl">

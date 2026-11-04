@@ -26,7 +26,7 @@ api.interceptors.response.use(
     if (status === 401 && !isAuthCall && typeof window !== 'undefined' && localStorage.getItem('auth_token')) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
-      const locale = window.location.pathname.split('/')[1] || 'ar';
+      const locale = window.location.pathname.split('/')[1] || 'fr';
       window.location.href = `/${locale}/login`;
     }
     return Promise.reject(error);

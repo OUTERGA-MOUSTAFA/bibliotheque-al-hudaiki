@@ -111,12 +111,9 @@ export default function Footer() {
             © {year} مكتبة الحظيكي — جميع الحقوق محفوظة
           </p>
           <div className="flex gap-6 text-xs">
-            <a href="#" className="text-stone-500 hover:text-gold-400 transition">
+            <Link href="/confidentialite" className="text-stone-500 hover:text-gold-400 transition">
               {t('privacy')}
-            </a>
-            <a href="#" className="text-stone-500 hover:text-gold-400 transition">
-              {t('terms')}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

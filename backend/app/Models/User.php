@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;   // 👈 ZID HADI
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;   // 👈 ZID HasFactory
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',
@@ -25,13 +26,19 @@ class User extends Authenticatable
         'photo',
         'email',
         'password',
-        'statut'
+        'statut',
+        'consentement_at',
     ];
 
-    protected $hidden = ['password', 'remember_token', 'cin', 'numero_massar'];
+    protected $hidden = [
+        'password', 'remember_token', 'cin', 'numero_massar',
+        'two_factor_secret', 'two_factor_recovery_codes',
+    ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'consentement_at' => 'datetime',
+        'two_factor_confirmed_at' => 'datetime',
         'date_naissance' => 'date',
         'password' => 'hashed',
     ];

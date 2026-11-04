@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\LoanController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\TwoFactorController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
 
@@ -23,6 +25,7 @@ Route::get('/sponsors', [SponsorController::class, 'index']);
 Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/two-factor-challenge', [AuthController::class, 'twoFactorChallenge']);
 });
 
 // Authentifié
@@ -30,10 +33,27 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+
+    // Loi 09-08 : droit d'accès et droit à l'effacement
+    Route::get('/me/export', [AuthController::class, 'exportData']);
+    Route::delete('/me', [AuthController::class, 'deleteAccount']);
+
+    // Double authentification
+    Route::get('/two-factor', [TwoFactorController::class, 'status']);
+    Route::post('/two-factor/enable', [TwoFactorController::class, 'enable']);
+    Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:auth');
+    Route::post('/two-factor/recovery-codes', [TwoFactorController::class, 'recoveryCodes']);
+    Route::post('/two-factor/disable', [TwoFactorController::class, 'disable']);
+
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites/{book}', [FavoriteController::class, 'toggle']);
     Route::get('/my-loans', [LoanController::class, 'myLoans']);
     Route::post('/loans', [LoanController::class, 'store']);
+
+    // Avis
+    Route::get('/my-reviews', [ReviewController::class, 'mine']);
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store']);
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
 });
 
 // Admin
@@ -67,4 +87,5 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     // Messages de contact
     Route::get('/contacts', [ContactController::class, 'index']);
     Route::patch('/contacts/{contactRequest}/read', [ContactController::class, 'markAsRead']);
+    Route::delete('/contacts/{contactRequest}', [ContactController::class, 'destroy']);
 });

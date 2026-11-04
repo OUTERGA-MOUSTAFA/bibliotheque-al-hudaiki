@@ -22,9 +22,15 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-        <!-- Les tests tournent sur SQLite en mémoire : JAMAIS sur la base Neon -->
-        <env name="DB_CONNECTION" value="sqlite" force="true"/>
-        <env name="DB_DATABASE" value=":memory:" force="true"/>
+        <!--
+            Les tests tournent sur PostgreSQL, sur une base DÉDIÉE "al_hudaiki_test"
+            (même serveur Neon que .env : DB_HOST / DB_USERNAME / DB_PASSWORD).
+            RefreshDatabase vide cette base à chaque test : ne JAMAIS y mettre la base de l'appli.
+            Création une seule fois, dans la console Neon (Databases > New database) : al_hudaiki_test
+            Le garde-fou de tests/TestCase.php refuse toute base dont le nom ne finit pas par _test.
+        -->
+        <env name="DB_CONNECTION" value="pgsql" force="true"/>
+        <env name="DB_DATABASE" value="al_hudaiki_test" force="true"/>
         <env name="DB_URL" value="" force="true"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

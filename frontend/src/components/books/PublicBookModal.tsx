@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react'; // 👈 Zid useEffect
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { X, Calendar, Hash, Clock, ShieldAlert, BookOpen, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from '@/navigation';
-import type { Book } from '@/types';
+import FavoriteButton from '@/components/books/FavoriteButton';
+import BookReviews from '@/components/books/BookReviews';
+import type { Book, BookDetails } from '@/types';
 
 const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
@@ -29,6 +31,23 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
             setBorrowDuration(book.max_borrow_days);
         }
     }, [book]);
+
+    // Détails complets (avis, favori, droit de noter) : la liste ne les contient pas
+    const [details, setDetails] = useState<BookDetails | null>(null);
+
+    const slug = book?.slug;
+    const loadDetails = useCallback(() => {
+        if (!slug) return;
+        api.get<BookDetails>(`/books/${slug}`)
+            .then(({ data }) => setDetails(data))
+            .catch(() => setDetails(null));
+    }, [slug]);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setDetails(null);
+        if (isOpen) loadDetails();
+    }, [isOpen, loadDetails]);
 
     const userAge = useMemo(() => {
         if (!user?.date_naissance) return 0;
@@ -110,9 +129,16 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
                 </div>
 
                 <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto">
-                    <div className="mb-6">
-                        <span className="text-xs font-bold text-brand-600 uppercase">{book.categorie?.nom || 'Sans catégorie'}</span>
-                        <h2 className="text-3xl font-extrabold text-stone-900 mt-1">{book.titre}</h2>
+                    {/* pr-12 (physique) : laisse la place au bouton de fermeture, toujours en haut à droite */}
+                    <div className="mb-6 flex items-start justify-between gap-4 pr-12">
+                        <div className="min-w-0">
+                            <span className="text-xs font-bold text-brand-600 uppercase">{book.categorie?.nom || 'Sans catégorie'}</span>
+                            <h2 className="text-3xl font-extrabold text-stone-900 mt-1">{book.titre}</h2>
+                        </div>
+                        <FavoriteButton
+                            bookId={book.id}
+                            initialFavorited={details?.is_favorited ?? false}
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-stone-600">
@@ -126,6 +152,13 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
                         <h3 className="font-bold text-stone-900 text-sm mb-1">Résumé</h3>
                         <p className="text-sm text-stone-600 leading-relaxed">{book.resume || 'Aucun résumé disponible.'}</p>
                     </div>
+
+                    {details ? (
+                        // onRefresh recharge toute la page : pour un avis, on recharge seulement le modal
+                        <BookReviews details={details} onChanged={loadDetails} />
+                    ) : (
+                        <div className="mb-6 h-16 rounded-2xl bg-stone-100 animate-pulse" />
+                    )}
 
                     {/* L'Zone dial l'I3ara */}
                     <div className="mt-auto bg-stone-50 border border-stone-200 rounded-2xl p-5">

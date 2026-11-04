@@ -43,14 +43,29 @@ class ContactController extends Controller
     }
 
     // Admin : liste des messages reçus
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(ContactRequest::latest()->paginate(20));
+        $query = ContactRequest::latest();
+
+        if ($request->filtre === 'non_lus') {
+            $query->where('lu', false);
+        }
+
+        return response()->json(array_merge(
+            $query->paginate(20)->toArray(),
+            ['non_lus' => ContactRequest::where('lu', false)->count()]
+        ));
     }
 
-    public function markAsRead(ContactRequest $contactRequest)
+    public function markAsRead(Request $request, ContactRequest $contactRequest)
     {
-        $contactRequest->update(['lu' => true]);
+        $contactRequest->update(['lu' => $request->boolean('lu', true)]);
         return response()->json($contactRequest);
+    }
+
+    public function destroy(ContactRequest $contactRequest)
+    {
+        $contactRequest->delete();
+        return response()->noContent();
     }
 }
