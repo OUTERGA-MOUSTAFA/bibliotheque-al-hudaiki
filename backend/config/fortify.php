@@ -131,7 +131,7 @@ return [
     |
     */
 
-    'views' => true,
+    'views' => false, // API seulement : le front Next.js a ses propres pages
 
     /*
     |--------------------------------------------------------------------------

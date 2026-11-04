@@ -16,7 +16,7 @@ export default function AdminArchivesPage() {
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
     const fetchArchivedBooks = useCallback(() => {
-        api.get('/books', { params: { statut: 'archive', per_page: 50 } })
+        api.get('/admin/books', { params: { statut: 'archive', per_page: 50 } })
             .then(({ data }) => setBooks(data.data || []))
             .catch((err) => toast.error("Erreur de chargement des archives"))
             .finally(() => setLoading(false));

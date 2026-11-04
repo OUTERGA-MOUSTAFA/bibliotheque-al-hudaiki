@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Models\Loan;
@@ -11,13 +12,24 @@ class NotifyLateLoans extends Command
     protected $signature   = 'loans:notify-late';
     protected $description = 'Notifie les lecteurs en retard';
 
-    public function handle() {
-        Loan::whereNull('date_retour_reelle')
-            ->where('date_retour_prevue', '<', now())
-            ->with(['user','book'])
-            ->each(function ($loan) {
-                Mail::to($loan->user->email)->queue(new LateLoanMail($loan));
+    public function handle(): int
+    {
+        $count = 0;
+
+        Loan::enRetard()
+            ->with(['user', 'book'])
+            ->chunkById(100, function ($loans) use (&$count) {
+                foreach ($loans as $loan) {
+                    if (!$loan->user?->email || !$loan->book) {
+                        continue;
+                    }
+                    Mail::to($loan->user->email)->queue(new LateLoanMail($loan));
+                    $count++;
+                }
             });
-        $this->info('Notifications envoyées.');
+
+        $this->info("{$count} notification(s) envoyée(s).");
+
+        return self::SUCCESS;
     }
 }

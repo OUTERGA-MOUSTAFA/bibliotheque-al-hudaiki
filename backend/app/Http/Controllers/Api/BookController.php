@@ -3,118 +3,120 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Book;
-use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
-use Cloudinary\Api\Upload\UploadApi;
-use Cloudinary\Configuration\Configuration;
+use App\Services\ImageUploader;
 
 class BookController extends Controller
 {
+    private const IMAGE_PAR_DEFAUT = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop';
+
+    // Public : les livres archivés ne sont jamais visibles
     public function index(Request $request)
+    {
+        $query = Book::with('categorie')->where('statut', '!=', 'archive');
+
+        if (in_array($request->statut, ['disponible', 'emprunte'], true)) {
+            $query->where('statut', $request->statut);
+        }
+
+        return response()->json($this->filtrer($query, $request)->paginate($this->perPage($request)));
+    }
+
+    // Admin : tous les livres, archivés compris (filtre ?statut=archive possible)
+    public function adminIndex(Request $request)
     {
         $query = Book::with('categorie');
 
-        if ($request->filled('q')) {
-            $search = $request->q;
-            $query->where(function ($q) use ($search) {
-                $q->where('titre', 'like', "%{$search}%")->orWhere('resume', 'like', "%{$search}%");
-            });
-        }
-        if ($request->filled('categorie')) $query->where('categorie_id', $request->categorie);
-        if ($request->filled('langue')) $query->where('langue', $request->langue);
-        if ($request->filled('disponible') && $request->disponible === 'true') $query->where('stock', '>', 0);
-        if ($request->filled('statut')) $query->where('statut', $request->statut);
-
-        if ($request->filled('tri')) {
-            if ($request->tri === 'populaire') $query->orderByDesc('nb_emprunts');
-            if ($request->tri === 'alpha') $query->orderBy('titre');
-            if ($request->tri === 'recent') $query->latest();
-        } else {
-            $query->latest();
+        if (in_array($request->statut, ['disponible', 'emprunte', 'archive'], true)) {
+            $query->where('statut', $request->statut);
         }
 
-        return response()->json($query->paginate($request->per_page ?? 12));
+        return response()->json($this->filtrer($query, $request)->paginate($this->perPage($request)));
     }
 
     public function show(Book $book)
     {
-        $book->load(['categorie', 'reviews.user']);
-        return response()->json($book);
+        abort_if($book->statut === 'archive', 404);
+
+        $book->load([
+            'categorie',
+            'reviews' => fn($q) => $q->latest(),
+            'reviews.user:id,nom,prenom,photo',
+        ]);
+
+        // Route publique : si un token est envoyé, on personnalise la réponse pour ce lecteur
+        $user = auth('sanctum')->user();
+
+        return response()->json(array_merge($book->toArray(), [
+            'is_favorited' => $user ? $book->favorites()->where('user_id', $user->id)->exists() : false,
+            'can_review' => $user ? $user->loans()->where('book_id', $book->id)->exists() : false,
+            'my_review' => $user ? $book->reviews->firstWhere('user_id', $user->id) : null,
+        ]));
     }
 
-    // 👇 L'Ajout dial l'Ktab (L'Admin)
     public function store(Request $request)
     {
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'nullable|string|max:555',
             'resume' => 'nullable|string|max:1200',
-            'nombre_pages' => 'nullable|integer',
+            'nombre_pages' => 'nullable|integer|min:1',
             'langue' => 'nullable|string|max:5',
             'stock' => 'required|integer|min:0',
-            'max_borrow_days' => 'required|integer|min:1',
-            'age_restriction' => 'nullable|integer|min:0',
+            'max_borrow_days' => 'required|integer|min:1|max:365',
+            'age_restriction' => 'nullable|integer|min:0|max:120',
             'categorie_id' => 'nullable|exists:categories,id',
             'image' => 'nullable|image|max:5120',
         ]);
 
-        $validated['slug'] = Str::slug($validated['titre']) ?: 'book-' . time();
-
-        if (empty($validated['categorie_id']) || !Category::find($validated['categorie_id'])) {
-            $validated['categorie_id'] = null;
-        }
-
+        $validated['slug'] = $this->slugUnique($validated['titre']);
         $validated['langue'] = $validated['langue'] ?? 'ar';
-        $validated['statut'] = 'disponible';
-
-        // 📸 ☁️ L'UPLOAD L'CLOUDINARY
-        if ($request->hasFile('image')) {
-            try {
-                $cloudName = config('services.cloudinary.cloud_name');
-                $apiKey    = config('services.cloudinary.api_key');
-                $apiSecret = config('services.cloudinary.api_secret');
-
-                Configuration::instance([
-                    'cloud' => ['cloud_name' => $cloudName, 'api_key' => $apiKey, 'api_secret' => $apiSecret],
-                    'url' => ['secure' => true]
-                ]);
-
-                $upload = (new UploadApi())->upload($request->file('image')->getRealPath());
-                $validated['image'] = $upload['secure_url'];
-            } catch (\Exception $e) {
-                return response()->json(['message' => 'Erreur Cloudinary: ' . $e->getMessage()], 500);
-            }
-        } else {
-            $validated['image'] = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop';
-        }
+        $validated['statut'] = $validated['stock'] > 0 ? 'disponible' : 'emprunte';
+        $validated['image'] = $request->hasFile('image')
+            ? $this->uploadImage($request->file('image'))
+            : self::IMAGE_PAR_DEFAUT;
 
         $book = Book::create($validated);
-        $book->load('categorie');
 
-        return response()->json($book, 201);
+        return response()->json($book->load('categorie'), 201);
     }
 
+    // PUT JSON, ou POST multipart avec _method=PUT pour changer l'image
     public function update(Request $request, Book $book)
     {
         $validated = $request->validate([
-            'titre' => 'sometimes|string|max:255',
+            'titre' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string|max:555',
             'resume' => 'nullable|string|max:1200',
-            'nombre_pages' => 'nullable|integer',
+            'nombre_pages' => 'nullable|integer|min:1',
             'langue' => 'sometimes|string|max:5',
             'stock' => 'sometimes|integer|min:0',
-            'max_borrow_days' => 'sometimes|integer|min:1',
-            'age_restriction' => 'nullable|integer|min:0',
+            'max_borrow_days' => 'sometimes|integer|min:1|max:365',
+            'age_restriction' => 'nullable|integer|min:0|max:120',
             'categorie_id' => 'nullable|exists:categories,id',
+            'image' => 'nullable|image|max:5120',
         ]);
 
-        if (isset($validated['titre'])) {
-            $validated['slug'] = Str::slug($validated['titre']) ?: 'book-' . time();
+        if (isset($validated['titre']) && $validated['titre'] !== $book->titre) {
+            $validated['slug'] = $this->slugUnique($validated['titre'], $book->id);
+        }
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $this->uploadImage($request->file('image'));
+        } else {
+            unset($validated['image']);
+        }
+
+        // Le statut suit le stock (sauf si le livre est archivé)
+        if (isset($validated['stock']) && $book->statut !== 'archive') {
+            $validated['statut'] = $validated['stock'] > 0 ? 'disponible' : 'emprunte';
         }
 
         $book->update($validated);
+
         return response()->json($book->load('categorie'));
     }
 
@@ -126,13 +128,71 @@ class BookController extends Controller
 
     public function restore(Book $book)
     {
-        $book->update(['statut' => 'disponible']);
+        $book->update(['statut' => $book->stock > 0 ? 'disponible' : 'emprunte']);
         return response()->json(['message' => 'Livre restauré', 'book' => $book]);
     }
 
     public function destroy(Book $book)
     {
+        if ($book->loans()->whereNull('date_retour_reelle')->exists()) {
+            abort(422, 'Ce livre a des exemplaires non rendus : archivez-le plutôt.');
+        }
+
         $book->delete();
         return response()->noContent();
+    }
+
+    // ───────────────────────── Helpers ─────────────────────────
+
+    private function filtrer($query, Request $request)
+    {
+        if ($request->filled('q')) {
+            $search = $request->q;
+            // whereLike = insensible à la casse (ILIKE sur PostgreSQL)
+            $query->where(function ($q) use ($search) {
+                $q->whereLike('titre', "%{$search}%")
+                    ->orWhereLike('resume', "%{$search}%")
+                    ->orWhereLike('description', "%{$search}%");
+            });
+        }
+        if ($request->filled('categorie')) $query->where('categorie_id', $request->categorie);
+        if ($request->filled('langue')) $query->where('langue', $request->langue);
+        if ($request->disponible === 'true') $query->where('stock', '>', 0);
+
+        match ($request->tri) {
+            'populaire' => $query->orderByDesc('nb_emprunts'),
+            'alpha' => $query->orderBy('titre'),
+            default => $query->latest(),
+        };
+
+        return $query;
+    }
+
+    private function perPage(Request $request): int
+    {
+        return min(max((int) ($request->per_page ?: 12), 1), 50);
+    }
+
+    private function slugUnique(string $titre, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($titre) ?: 'livre';
+        $slug = $base;
+        $i = 2;
+
+        while (Book::withTrashed()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
+        ) {
+            $slug = "{$base}-{$i}";
+            $i++;
+        }
+
+        return $slug;
+    }
+
+    private function uploadImage(UploadedFile $file): string
+    {
+        return app(ImageUploader::class)->upload($file, 'books');
     }
 }

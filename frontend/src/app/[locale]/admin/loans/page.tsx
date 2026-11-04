@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+import { api, apiErrorMessage } from '@/lib/api';
+import { toast } from 'sonner';
 import Image from 'next/image';
 import { Loader2, CheckCircle, Trash2, Phone } from 'lucide-react';
 
@@ -20,8 +21,11 @@ export default function AdminLoansPage() {
   const returnBook = async (id: number) => {
     try {
       await api.post(`/admin/loans/${id}/return`);
+      toast.success('تم تسجيل الإرجاع');
       fetchLoans();
-    } catch (err) { alert('خطأ'); }
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'خطأ أثناء تسجيل الإرجاع'));
+    }
   };
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-brand-600" /></div>;

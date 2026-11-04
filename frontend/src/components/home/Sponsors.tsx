@@ -19,18 +19,24 @@ export default function Sponsors({ sponsors }: { sponsors: Sponsor[] }) {
           {sponsors.map((s) => (
             <a
               key={s.id}
-              href={s.lien_externe}
+              href={s.lien_externe || undefined}
               target="_blank"
               rel="noopener noreferrer"
               className="grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition duration-300 hover:scale-105"
             >
-              <Image
-                src={s.logo}
-                alt={s.nom}
-                width={120}
-                height={60}
-                className="object-contain h-12 w-auto"
-              />
+              {s.logo ? (
+                // unoptimized : le logo peut venir de n'importe quel site saisi par l'admin
+                <Image
+                  src={s.logo}
+                  alt={s.nom}
+                  width={120}
+                  height={60}
+                  unoptimized
+                  className="object-contain h-12 w-auto"
+                />
+              ) : (
+                <span className="font-bold text-stone-600">{s.nom}</span>
+              )}
             </a>
           ))}
         </div>

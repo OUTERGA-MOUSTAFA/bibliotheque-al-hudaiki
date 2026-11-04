@@ -18,7 +18,8 @@ class FavoriteController extends Controller
             ->get();
 
         return response()->json([
-            'data' => $favorites->map(fn($f) => $f->book),
+            // filter() : retire les favoris dont le livre a été supprimé
+            'data' => $favorites->map(fn($f) => $f->book)->filter()->values(),
         ]);
     }
 
@@ -32,7 +33,10 @@ class FavoriteController extends Controller
 
         if ($existing) {
             $existing->delete();
-            $book->decrement('nb_favoris');
+            // nb_favoris est unsigned : on ne descend jamais sous 0
+            if ($book->nb_favoris > 0) {
+                $book->decrement('nb_favoris');
+            }
             return response()->json(['favorited' => false]);
         }
 

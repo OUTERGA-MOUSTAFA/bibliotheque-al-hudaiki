@@ -18,6 +18,14 @@ export interface AuthUser {
   etablissement?: string;
   roles?: string[];
 }
+export interface LoginResponse {
+  two_factor?: boolean;
+  challenge?: string;
+  user: AuthUser;
+  roles: string[];
+  token: string;
+}
+
 export const auth = {
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
@@ -49,10 +57,25 @@ export const auth = {
     return user?.roles?.includes('admin') ?? false;
   },
 
-  async login(email: string, password: string) {
+  // Si la 2FA est active, le serveur renvoie { two_factor: true, challenge } et pas encore de token
+  async login(email: string, password: string): Promise<LoginResponse> {
     const { data } = await api.post('/login', { email, password });
+    if (!data.two_factor) {
+      this.setSession({ ...data.user, roles: data.roles }, data.token);
+    }
+    return data;
+  },
+
+  // 2e étape : code de l'application d'authentification, ou code de secours
+  async completeTwoFactor(challenge: string, code: { code?: string; recovery_code?: string }): Promise<LoginResponse> {
+    const { data } = await api.post('/two-factor-challenge', { challenge, ...code });
     this.setSession({ ...data.user, roles: data.roles }, data.token);
     return data;
+  },
+
+  // Met à jour l'utilisateur stocké localement (après modification du profil)
+  updateStoredUser(user: AuthUser) {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
   },
 
   async register(payload: Record<string, unknown>) {

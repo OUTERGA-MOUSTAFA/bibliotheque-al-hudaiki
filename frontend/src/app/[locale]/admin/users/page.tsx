@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+import { api, apiErrorMessage } from '@/lib/api';
+import { toast } from 'sonner';
 import { Loader2, Archive, Trash2, Mail, Phone } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -18,14 +19,24 @@ export default function AdminUsersPage() {
 
   const archiveUser = async (id: number) => {
     if (!confirm('أرشفة المستخدم؟')) return;
-    await api.patch(`/admin/users/${id}/archive`);
-    fetchUsers();
+    try {
+      await api.patch(`/admin/users/${id}/archive`);
+      toast.success('تمت أرشفة المستخدم');
+      fetchUsers();
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'خطأ أثناء الأرشفة'));
+    }
   };
 
   const deleteUser = async (id: number) => {
     if (!confirm('حذف المستخدم نهائياً؟')) return;
-    await api.delete(`/admin/users/${id}`);
-    fetchUsers();
+    try {
+      await api.delete(`/admin/users/${id}`);
+      toast.success('تم حذف المستخدم');
+      fetchUsers();
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'خطأ أثناء الحذف'));
+    }
   };
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-brand-600" /></div>;

@@ -57,3 +57,20 @@ export interface PaginatedResponse<T> {
   per_page: number;
   total: number;
 }
+// Réponse de GET /books/{slug} : le livre + infos propres au lecteur connecté
+export interface BookDetails extends Book {
+  is_favorited: boolean;
+  can_review: boolean;
+  my_review: (Review & { user_id: number }) | null;
+  reviews: (Review & { user_id: number })[];
+}
+
+export interface ContactMessage {
+  id: number;
+  nom: string;
+  email: string;
+  sujet: string;
+  message: string;
+  lu: boolean;
+  created_at: string;
+}

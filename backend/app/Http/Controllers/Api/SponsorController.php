@@ -2,48 +2,54 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Models\Sponsor;
+use App\Services\ImageUploader;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class SponsorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Sponsor::orderBy('ordre')->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $sponsor = Sponsor::create($this->validateSponsor($request));
+        return response()->json($sponsor, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Sponsor $sponsor)
     {
-        //
+        $sponsor->update($this->validateSponsor($request, true));
+        return response()->json($sponsor);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Sponsor $sponsor)
     {
-        //
+        $sponsor->delete();
+        return response()->noContent();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    // Le logo peut être une URL (logo) ou un fichier image envoyé (logo_file, multipart)
+    private function validateSponsor(Request $request, bool $partial = false): array
     {
-        //
+        $required = $partial ? 'sometimes' : 'required';
+
+        $validated = $request->validate([
+            'nom' => "$required|string|max:255",
+            'logo' => 'nullable|url|max:500',
+            'logo_file' => 'nullable|image|max:2048',
+            'lien_externe' => 'nullable|url|max:500',
+            'ordre' => 'nullable|integer|min:0',
+        ]);
+
+        if ($request->hasFile('logo_file')) {
+            $validated['logo'] = app(ImageUploader::class)->upload($request->file('logo_file'), 'sponsors');
+        }
+        unset($validated['logo_file']);
+
+        return $validated;
     }
 }

@@ -24,7 +24,8 @@ export default function ProtectedRoute({
     }
   }, [user, loading, adminOnly, isAdmin, router]);
 
-  if (loading || !user) {
+  // Ne jamais afficher, même un instant, le contenu admin à un non-admin
+  if (loading || !user || (adminOnly && !isAdmin)) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="animate-spin text-brand-600" size={32} />

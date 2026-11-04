@@ -7,20 +7,32 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { toast } from 'sonner'; // 👈 ZIDNA HADI
+import { AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
+import { apiErrorMessage } from '@/lib/api';
+
+type ApiError = { response?: { status?: number; data?: { message?: string; errors?: Record<string, string[]> } }; request?: unknown };
 
 export default function LoginForm() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, completeTwoFactor } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // 👇 State jdid l'les erreurs dial les champs
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
+
+  // Étape 2FA
+  const [challenge, setChallenge] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [useRecovery, setUseRecovery] = useState(false);
+
+  const redirectAfterLogin = (roles: string[] = []) => {
+    toast.success(t('login_success'));
+    router.push(roles.includes('admin') ? '/admin' : '/compte');
+    router.refresh();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,74 +40,126 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      await login(email, password);
       const data = await login(email, password);
-      toast.success("Connexion réussie !");
-      if (data.roles && data.roles.includes('admin')) {
-        router.push('/admin');
-      } else {
-        router.push('/compte');
+      if (data.two_factor && data.challenge) {
+        // Mot de passe correct, mais il faut encore le code de l'application
+        setChallenge(data.challenge);
+        return;
       }
-      router.refresh();
-    } catch (err: any) {
-      // 🚨 Hna fin kaytle3 l'erreur
+      redirectAfterLogin(data.roles);
+    } catch (error) {
+      const err = error as ApiError;
       if (err.response?.status === 422 || err.response?.status === 401) {
-        // Erreurs dial validation (Laravel)
-        const apiErrors = err.response.data.errors || {};
+        const apiErrors = err.response.data?.errors || {};
         setErrors({
           email: apiErrors.email?.[0],
           password: apiErrors.password?.[0],
-          general: err.response.data.message || 'Identifiants incorrects'
-        });
-        toast.error("Erreur de connexion", {
-          description: "Vérifiez vos identifiants.",
+          general: err.response.data?.message || t('invalid_credentials'),
         });
       } else if (err.request) {
-        // L'Backend mtfi wla CORS
-        setErrors({ general: 'Impossible de contacter le serveur.' });
-        toast.error("Erreur serveur", {
-          description: "Vérifiez que Laravel est lancé.",
-        });
+        setErrors({ general: t('server_unreachable') });
       }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleTwoFactor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!challenge) return;
+    setErrors({});
+    setLoading(true);
+
+    try {
+      const data = await completeTwoFactor(challenge, useRecovery ? { recovery_code: code.trim() } : { code: code.replace(/\s/g, '') });
+      redirectAfterLogin(data.roles);
+    } catch (error) {
+      setErrors({ general: apiErrorMessage(error, t('invalid_code')) });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const errorBox = errors.general && (
+    <div className="flex items-start gap-2 p-3 bg-coral-50 border border-coral-200 rounded-xl text-sm text-coral-700">
+      <AlertCircle size={18} className="shrink-0 mt-0.5" />
+      <span>{errors.general}</span>
+    </div>
+  );
+
+  if (challenge) {
+    return (
+      <form onSubmit={handleTwoFactor} className="bg-white rounded-2xl shadow-soft border border-stone-200 p-8 space-y-5">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center mx-auto mb-3">
+            <ShieldCheck className="text-brand-600" />
+          </div>
+          <h2 className="font-bold text-stone-900">{t('two_factor_title')}</h2>
+          <p className="text-sm text-stone-600 mt-1">
+            {useRecovery ? t('two_factor_recovery_hint') : t('two_factor_hint')}
+          </p>
+        </div>
+
+        {errorBox}
+
+        <div className="space-y-2">
+          <Label htmlFor="code">{useRecovery ? t('recovery_code') : t('auth_code')}</Label>
+          <Input
+            id="code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            inputMode={useRecovery ? 'text' : 'numeric'}
+            autoComplete="one-time-code"
+            autoFocus
+            required
+            dir="ltr"
+            className="text-center tracking-[0.3em] font-mono"
+            disabled={loading}
+          />
+        </div>
+
+        <Button type="submit" disabled={loading} className="w-full h-11 bg-brand-600 hover:bg-brand-700 rounded-xl">
+          {loading ? <Loader2 size={16} className="animate-spin" /> : t('verify')}
+        </Button>
+
+        <div className="flex justify-between text-sm">
+          <button type="button" onClick={() => { setUseRecovery(!useRecovery); setCode(''); setErrors({}); }} className="text-brand-600 font-semibold hover:underline">
+            {useRecovery ? t('use_auth_code') : t('use_recovery_code')}
+          </button>
+          <button type="button" onClick={() => { setChallenge(null); setCode(''); setErrors({}); }} className="text-stone-500 hover:underline">
+            {t('back')}
+          </button>
+        </div>
+      </form>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-soft border border-stone-200 p-8 space-y-5">
-
-      {/* Erreur Générale (Toast msta3mla hit l'fo9, walakin nzido hna ila bghiti) */}
-      {errors.general && (
-        <div className="flex items-start gap-2 p-3 bg-coral-50 border border-coral-200 rounded-xl text-sm text-coral-700">
-          <AlertCircle size={18} className="shrink-0 mt-0.5" />
-          <span>{errors.general}</span>
-        </div>
-      )}
+      {errorBox}
 
       <div className="space-y-2">
-        <Label htmlFor="email" className={errors.email ? "text-coral-600" : ""}>{t('email')}</Label>
+        <Label htmlFor="email" className={errors.email ? 'text-coral-600' : ''}>{t('email')}</Label>
         <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={errors.email ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+          className={errors.email ? 'border-coral-500 focus-visible:ring-coral-500' : ''}
           required
           disabled={loading}
         />
-        {/* 👇 Erreur dial Email ta7t l'champs */}
         {errors.email && <p className="text-xs text-coral-600 font-medium">{errors.email}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password" className={errors.password ? "text-coral-600" : ""}>{t('password')}</Label>
+        <Label htmlFor="password" className={errors.password ? 'text-coral-600' : ''}>{t('password')}</Label>
         <Input
           id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={errors.password ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+          className={errors.password ? 'border-coral-500 focus-visible:ring-coral-500' : ''}
           required
           disabled={loading}
         />
@@ -103,7 +167,7 @@ export default function LoginForm() {
       </div>
 
       <Button type="submit" disabled={loading} className="w-full h-11 bg-brand-600 hover:bg-brand-700 rounded-xl">
-        {loading ? <><Loader2 size={16} className="animate-spin mr-2" /> Chargement...</> : t('sign_in')}
+        {loading ? <Loader2 size={16} className="animate-spin" /> : t('sign_in')}
       </Button>
 
       <p className="text-center text-sm text-stone-600">

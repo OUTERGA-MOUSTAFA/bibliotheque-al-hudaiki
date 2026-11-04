@@ -17,8 +17,12 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $nom = fake()->unique()->word();
+
         return [
-            //
+            'nom' => $nom,
+            'slug' => \Illuminate\Support\Str::slug($nom),
+            'statut' => 'actif',
         ];
     }
 }
