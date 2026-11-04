@@ -1,58 +1,40 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useRouter } from '@/navigation';
 import { auth, type AuthUser } from '@/lib/auth';
 
+const noopSubscribe = () => () => {};
+
+// Session partagée : quand un composant se connecte ou se déconnecte,
+// tous les autres (Header compris) sont mis à jour immédiatement.
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const user = useSyncExternalStore(auth.subscribe, auth.getUser, () => null);
+  // false pendant le rendu serveur et l'hydratation, true ensuite (évite les écarts d'hydratation)
+  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
   const router = useRouter();
 
-  useEffect(() => {
-    const stored = auth.getUser();
-    if (stored) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(stored);
-    }
-    setLoading(false);
-  }, []);
+  const login = (email: string, password: string) => auth.login(email, password);
 
-  const login = async (email: string, password: string) => {
-    const data = await auth.login(email, password);
-    if (!data.two_factor) setUser({ ...data.user, roles: data.roles });
-    return data;
-  };
-
-  const completeTwoFactor = async (challenge: string, code: { code?: string; recovery_code?: string }) => {
-    const data = await auth.completeTwoFactor(challenge, code);
-    setUser({ ...data.user, roles: data.roles });
-    return data;
-  };
+  const completeTwoFactor = (challenge: string, code: { code?: string; recovery_code?: string }) =>
+    auth.completeTwoFactor(challenge, code);
 
   const updateUser = (patch: Partial<AuthUser>) => {
     if (!user) return;
-    const next = { ...user, ...patch, roles: user.roles };
-    auth.updateStoredUser(next);
-    setUser(next);
+    auth.updateStoredUser({ ...user, ...patch, roles: user.roles });
   };
 
-  const register = async (payload: Record<string, unknown>) => {
-    const data = await auth.register(payload);
-    setUser({ ...data.user, roles: ['lecteur'] });
-    return data;
-  };
+  const register = (payload: Record<string, unknown>) => auth.register(payload);
 
   const logout = async () => {
     await auth.logout();
-    setUser(null);
     router.push('/');
     router.refresh();
   };
 
   return {
     user,
-    loading,
+    loading: !hydrated,
     login,
     completeTwoFactor,
     updateUser,

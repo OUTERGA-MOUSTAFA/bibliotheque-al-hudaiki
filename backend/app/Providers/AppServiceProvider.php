@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,29 @@ class AppServiceProvider extends ServiceProvider
         // 🛡️ Rate Limiting 9assi l'Login w Register (6 attempts f d9i9a)
         RateLimiter::for('auth', function (Request $request) {
             return Limit::perMinute(6)->by($request->ip());
+        });
+
+        // Le lien de réinitialisation pointe vers le frontend Next.js, pas vers Laravel
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            $locale = app()->bound('reset_locale') ? app('reset_locale') : 'fr';
+
+            return rtrim(config('app.frontend_url'), '/') . "/{$locale}/reinitialiser-mot-de-passe?" . http_build_query([
+                'token' => $token,
+                'email' => $user->email,
+            ]);
+        });
+
+        ResetPassword::toMailUsing(function ($user, string $token) {
+            $url = call_user_func(ResetPassword::$createUrlCallback, $user, $token);
+
+            return (new MailMessage)
+                ->subject('Réinitialisation de votre mot de passe')
+                ->greeting("Bonjour {$user->prenom},")
+                ->line('Vous avez demandé à changer le mot de passe de votre compte à la bibliothèque.')
+                ->action('Choisir un nouveau mot de passe', $url)
+                ->line('Ce lien est valable 60 minutes.')
+                ->line("Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé.")
+                ->salutation(config('app.name'));
         });
     }
 }

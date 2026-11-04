@@ -1,0 +1,18 @@
+# Secrets : jamais dans l'image, l'hébergeur fournit les variables d'environnement
+.env
+.env.*
+!.env.example
+
+# Réinstallés dans l'image
+vendor
+node_modules
+
+# Fichiers générés localement
+bootstrap/cache/*.php
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+.phpunit.result.cache
+.phpunit.cache
+tests

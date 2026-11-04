@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Mail\ContactRequestMail;
 use App\Models\ContactRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -20,20 +21,14 @@ class ContactController extends Controller
         ]);
 
         // 1. Enregistré en base : le message reste conservé même si l'e-mail échoue
-        ContactRequest::create($validated);
+        $contact = ContactRequest::create($validated);
 
-        // 2. Notification de l'admin (adresse configurée via ADMIN_EMAIL dans .env)
+        // 2. Notification de l'admin. Lire config() et non env() : env() renvoie null
+        //    dès que la configuration est mise en cache (php artisan config:cache).
         $adminEmail = config('mail.admin_address');
         if ($adminEmail) {
             try {
-                Mail::raw(
-                    "Message de : {$validated['nom']} ({$validated['email']})\n\nSujet : {$validated['sujet']}\n\nMessage :\n{$validated['message']}",
-                    function ($message) use ($adminEmail, $validated) {
-                        $message->to($adminEmail)
-                            ->replyTo($validated['email'], $validated['nom'])
-                            ->subject('Nouveau message : ' . $validated['sujet']);
-                    }
-                );
+                Mail::to($adminEmail)->send(new ContactRequestMail($contact));
             } catch (\Throwable $e) {
                 Log::warning('Envoi du mail de contact échoué', ['error' => $e->getMessage()]);
             }

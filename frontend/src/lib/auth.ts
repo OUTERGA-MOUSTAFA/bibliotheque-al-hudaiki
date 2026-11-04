@@ -26,26 +26,58 @@ export interface LoginResponse {
   token: string;
 }
 
+// ── Abonnements : tous les composants (Header, pages…) voient la même session ──
+const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+
+let cachedRaw: string | null = null;
+let cachedUser: AuthUser | null = null;
+
 export const auth = {
+  // Appelé par useAuth : prévient le composant à chaque connexion / déconnexion,
+  // y compris depuis un autre onglet (événement « storage »)
+  subscribe(listener: () => void) {
+    listeners.add(listener);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === USER_KEY || e.key === TOKEN_KEY || e.key === null) listener();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => {
+      listeners.delete(listener);
+      window.removeEventListener('storage', onStorage);
+    };
+  },
+
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem(TOKEN_KEY);
   },
 
+  // Renvoie le même objet tant que la valeur stockée ne change pas (exigé par useSyncExternalStore)
   getUser(): AuthUser | null {
     if (typeof window === 'undefined') return null;
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    const raw = localStorage.getItem(TOKEN_KEY) ? localStorage.getItem(USER_KEY) : null;
+    if (raw !== cachedRaw) {
+      cachedRaw = raw;
+      try {
+        cachedUser = raw ? JSON.parse(raw) : null;
+      } catch {
+        cachedUser = null;
+      }
+    }
+    return cachedUser;
   },
 
   setSession(user: AuthUser, token: string) {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    notify();
   },
 
   clear() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    notify();
   },
 
   isAuthenticated(): boolean {
@@ -76,6 +108,7 @@ export const auth = {
   // Met à jour l'utilisateur stocké localement (après modification du profil)
   updateStoredUser(user: AuthUser) {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    notify();
   },
 
   async register(payload: Record<string, unknown>) {

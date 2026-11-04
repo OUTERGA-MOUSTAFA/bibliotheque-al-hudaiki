@@ -4,7 +4,7 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute adminOnly>
-      <div className="min-h-screen bg-sand flex">
+      <div className="min-h-screen bg-sand flex flex-col md:flex-row">
         <AdminSidebar />
         <main className="flex-1 p-6 lg:p-8 overflow-x-hidden">
           {children}

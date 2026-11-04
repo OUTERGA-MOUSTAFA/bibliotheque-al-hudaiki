@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function RegisterForm() {
@@ -64,12 +64,10 @@ export default function RegisterForm() {
       toast.success("Compte créé avec succès !");
       router.push('/compte');
       router.refresh();
-    } catch (err: any) {
-      // Had l'console.log ghadi ybeyn lik l'erreur l'7a9i9iya f F12
-      // console.error("Erreur complète:", err.response?.data || err);
-      console.warn("Validation Error:", err.response?.data || err);
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: { message?: string; errors?: Record<string, string[]> } } };
       if (err.response?.status === 422) {
-        const apiErrors = err.response.data.errors;
+        const apiErrors = err.response.data?.errors ?? {};
         const formattedErrors: Record<string, string> = {};
         Object.keys(apiErrors).forEach((key) => {
           formattedErrors[key] = apiErrors[key][0];
@@ -140,7 +138,60 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* ... (Khelli l'ba9i dial les champs kifma kanou, walakin zid les erreurs l'CIN w Massar w Email w Password) ... */}
+      {/* Pièces d'identité : le CIN est exigé par l'API pour les majeurs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="cin" className={errors.cin ? "text-coral-600" : ""}>
+            {t('cin')} {isMajeur ? '*' : <span className="text-stone-400 font-normal">({t('optional')})</span>}
+          </Label>
+          <Input
+            id="cin"
+            value={formData.cin}
+            onChange={(e) => update('cin', e.target.value.toUpperCase())}
+            className={errors.cin ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+            required={isMajeur}
+            maxLength={20}
+            autoComplete="off"
+          />
+          {errors.cin
+            ? <p className="text-xs text-coral-600">{errors.cin}</p>
+            : isMajeur && <p className="text-xs text-stone-500">{t('cin_hint')}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="adresse" className={errors.adresse ? "text-coral-600" : ""}>
+            {t('adresse')} <span className="text-stone-400 font-normal">({t('optional')})</span>
+          </Label>
+          <Input id="adresse" value={formData.adresse} onChange={(e) => update('adresse', e.target.value)} maxLength={500} autoComplete="street-address" />
+          {errors.adresse && <p className="text-xs text-coral-600">{errors.adresse}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="etablissement" className={errors.etablissement ? "text-coral-600" : ""}>
+            {t('etablissement')} <span className="text-stone-400 font-normal">({t('optional')})</span>
+          </Label>
+          <Input id="etablissement" value={formData.etablissement} onChange={(e) => update('etablissement', e.target.value)} maxLength={255} />
+          {errors.etablissement && <p className="text-xs text-coral-600">{errors.etablissement}</p>}
+        </div>
+
+        {/* Le numéro Massar ne concerne que les élèves : affiché quand un établissement est saisi */}
+        {isEtudiant && (
+          <div className="space-y-2">
+            <Label htmlFor="numero_massar" className={errors.numero_massar ? "text-coral-600" : ""}>
+              {t('numero_massar')} <span className="text-stone-400 font-normal">({t('optional')})</span>
+            </Label>
+            <Input
+              id="numero_massar"
+              value={formData.numero_massar}
+              onChange={(e) => update('numero_massar', e.target.value.toUpperCase())}
+              className={errors.numero_massar ? "border-coral-500 focus-visible:ring-coral-500" : ""}
+              maxLength={20}
+              autoComplete="off"
+            />
+            {errors.numero_massar && <p className="text-xs text-coral-600">{errors.numero_massar}</p>}
+          </div>
+        )}
+      </div>
 
       <div className="space-y-4">
         <div className="space-y-2">

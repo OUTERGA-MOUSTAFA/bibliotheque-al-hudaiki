@@ -79,9 +79,15 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Catégorie archivée']);
     }
 
+    public function restore(Category $category)
+    {
+        $category->update(['statut' => 'actif']);
+        return response()->json(['message' => 'Catégorie réactivée', 'category' => $category]);
+    }
+
     public function destroy(Category $category)
     {
-        // Suppression définitive (à utiliser avec précaution)
+        // Suppression définitive : les livres de cette catégorie passent « sans catégorie » (nullOnDelete)
         $category->delete();
         return response()->noContent();
     }

@@ -153,7 +153,12 @@ export default function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password" className={errors.password ? 'text-coral-600' : ''}>{t('password')}</Label>
+        <div className="flex items-baseline justify-between gap-2">
+          <Label htmlFor="password" className={errors.password ? 'text-coral-600' : ''}>{t('password')}</Label>
+          <Link href="/mot-de-passe-oublie" className="text-xs text-brand-600 font-semibold hover:underline">
+            {t('forgot_password')}
+          </Link>
+        </div>
         <Input
           id="password"
           type="password"

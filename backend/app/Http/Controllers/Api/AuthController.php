@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Illuminate\Validation\Rule;
@@ -16,8 +17,19 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+    // E-mails stockés en minuscules : sans cette étape, « Sara@x.ma » passait la règle unique
+    // puis heurtait l'index de la base (erreur 500 au lieu d'un message clair)
+    private function normaliserEmail(Request $request): void
+    {
+        if (is_string($request->input('email'))) {
+            $request->merge(['email' => strtolower(trim($request->input('email')))]);
+        }
+    }
+
     public function register(Request $request)
     {
+        $this->normaliserEmail($request);
+
         // 🛡️ Validation stricte (XSS / Injection)
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
@@ -136,6 +148,61 @@ class AuthController extends Controller
         return response()->json($this->sessionPayload($user));
     }
 
+    // Mot de passe oublié : envoie un lien de réinitialisation (valable 60 minutes)
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'locale' => 'nullable|in:fr,ar',
+        ]);
+
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($validated['email'])])->first();
+
+        if ($user && $user->statut === 'actif') {
+            // La langue sert à construire le lien vers la bonne page du frontend
+            app()->instance('reset_locale', $validated['locale'] ?? 'fr');
+            Password::sendResetLink(['email' => $user->email]);
+        }
+
+        // Réponse identique que le compte existe ou non : on ne révèle pas qui est inscrit
+        return response()->json([
+            'message' => 'Si un compte existe pour cette adresse, un lien de réinitialisation vient d\'être envoyé.',
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($validated['email'])])->first();
+
+        $status = Password::reset(
+            [
+                'email' => $user?->email ?? $validated['email'],
+                'token' => $validated['token'],
+                'password' => $validated['password'],
+                'password_confirmation' => $request->input('password_confirmation'),
+            ],
+            function (User $user, string $password) {
+                $user->forceFill(['password' => Hash::make($password)])->save();
+                // Toutes les sessions ouvertes (éventuellement par un intrus) sont fermées
+                $user->tokens()->delete();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => ['Ce lien de réinitialisation est invalide ou a expiré. Demandez-en un nouveau.'],
+            ]);
+        }
+
+        return response()->json(['message' => 'Mot de passe modifié. Vous pouvez vous connecter.']);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -203,6 +270,7 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         $user = $request->user();
+        $this->normaliserEmail($request);
 
         $validated = $request->validate([
             'nom' => 'sometimes|required|string|max:255',

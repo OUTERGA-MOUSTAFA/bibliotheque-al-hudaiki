@@ -26,6 +26,8 @@ Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/two-factor-challenge', [AuthController::class, 'twoFactorChallenge']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 });
 
 // Authentifié
@@ -67,8 +69,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::post('/books/{book}/restore', [BookController::class, 'restore']);
 
     // Catégories
-    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('categories', CategoryController::class)->except(['show']);
     Route::post('/categories/{category}/archive', [CategoryController::class, 'archive']);
+    Route::post('/categories/{category}/restore', [CategoryController::class, 'restore']);
 
     // Prêts
     Route::get('/loans', [LoanController::class, 'index']);

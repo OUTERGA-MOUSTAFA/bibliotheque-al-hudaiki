@@ -74,3 +74,42 @@ export interface ContactMessage {
   lu: boolean;
   created_at: string;
 }
+
+// ── Admin ──
+export interface AdminUser {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone?: string;
+  statut: 'actif' | 'archive';
+  created_at: string;
+  roles?: { name: string }[];
+}
+
+export interface AdminLoan {
+  id: number;
+  lecteur: { id: number; nom: string; prenom: string; photo?: string; telephone?: string } | null;
+  livre: { id: number; titre: string; image?: string } | null;
+  date_pret: string;
+  date_retour_prevue: string;
+  jours_retard: number;
+}
+
+export interface DashboardData {
+  stats: {
+    total_books: number;
+    available_books: number;
+    active_loans: number;
+    late_loans: number;
+    total_users: number;
+    archived_users: number;
+  };
+  recent_loans: {
+    id: number;
+    created_at: string;
+    date_retour_reelle?: string | null;
+    user?: { nom: string; prenom: string } | null;
+    book?: { titre: string } | null;
+  }[];
+}

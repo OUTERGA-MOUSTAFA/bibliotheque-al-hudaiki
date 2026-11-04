@@ -161,18 +161,12 @@ return [
     |
     */
 
+    // L'API (routes/api.php) gère inscription, connexion et mot de passe oublié.
+    // Fortify ne sert qu'à la double authentification (actions + trait sur User) :
+    // ses routes web sont désactivées dans FortifyServiceProvider (Fortify::ignoreRoutes).
     'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
-        // Features::emailVerification(),
-        Features::updateProfileInformation(),
-        Features::updatePasswords(),
         Features::twoFactorAuthentication([
             'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0,
-        ]),
-        Features::passkeys([
             'confirmPassword' => true,
         ]),
     ],

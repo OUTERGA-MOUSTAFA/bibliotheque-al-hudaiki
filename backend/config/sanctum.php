@@ -52,7 +52,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Durée de vie d'un token en minutes (30 jours par défaut) : un token volé ne reste pas valable à vie
+    'expiration' => (int) env('SANCTUM_EXPIRATION', 60 * 24 * 30),
 
     /*
     |--------------------------------------------------------------------------

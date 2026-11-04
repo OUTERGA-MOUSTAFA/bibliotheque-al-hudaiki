@@ -121,7 +121,6 @@ function FilterGroup({ label, children }: { label: string; children: React.React
 }
 
 function RadioOption({
-  name,
   value,
   current,
   onChange,

@@ -27,6 +27,8 @@ api.interceptors.response.use(
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
       const locale = window.location.pathname.split('/')[1] || 'fr';
+      // Rechargement complet volontaire : tous les composants oublient l'ancienne session
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = `/${locale}/login`;
     }
     return Promise.reject(error);
@@ -83,7 +85,7 @@ export async function fetchSponsors() {
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : (data.data || []);
-  } catch (error) {
+  } catch {
     return [];
   }
 }

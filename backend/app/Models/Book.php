@@ -29,7 +29,6 @@ class Book extends Model
         'note_moyenne',
         'nb_favoris',
         'nb_emprunts',
-        'slug',
         'max_borrow_days',
         'age_restriction',
     ];

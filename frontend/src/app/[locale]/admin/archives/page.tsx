@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import { api } from '@/lib/api';
+import { api, apiErrorMessage } from '@/lib/api';
 import Image from 'next/image';
 import { Loader2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,7 +9,6 @@ import type { Book } from '@/types';
 import BookDetailsModal from '@/components/admin/BookDetailsModal';
 
 export default function AdminArchivesPage() {
-    const t = useTranslations('admin');
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -18,7 +16,7 @@ export default function AdminArchivesPage() {
     const fetchArchivedBooks = useCallback(() => {
         api.get('/admin/books', { params: { statut: 'archive', per_page: 50 } })
             .then(({ data }) => setBooks(data.data || []))
-            .catch((err) => toast.error("Erreur de chargement des archives"))
+            .catch((err) => toast.error(apiErrorMessage(err, "Erreur de chargement des archives")))
             .finally(() => setLoading(false));
     }, []);
 
@@ -30,7 +28,7 @@ export default function AdminArchivesPage() {
             toast.success("Livre réactivé");
             fetchArchivedBooks();
         } catch (err) {
-            toast.error("Erreur de réactivation");
+            toast.error(apiErrorMessage(err, "Erreur de réactivation"));
         }
     };
     return (

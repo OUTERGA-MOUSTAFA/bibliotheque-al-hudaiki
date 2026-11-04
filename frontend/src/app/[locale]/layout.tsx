@@ -7,7 +7,6 @@ import Providers from '@/components/providers/Providers';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import '../globals.css';
-import { Link, usePathname, useRouter } from '@/navigation';
 import { Toaster } from '@/components/ui/sonner';
 
 
@@ -54,7 +53,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!routing.locales.includes(locale as any)) notFound();
+  if (!(routing.locales as readonly string[]).includes(locale)) notFound();
 
   setRequestLocale(locale);
 

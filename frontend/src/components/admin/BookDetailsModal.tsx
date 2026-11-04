@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { X, Edit, Archive, Trash2, Save, Loader2, RotateCcw  } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api, apiErrorMessage } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,7 @@ export default function BookDetailsModal({
             onRefresh();
             onClose();
         } catch (err) {
-            toast.error("Erreur lors de la modification");
+            toast.error(apiErrorMessage(err, "Erreur lors de la modification"));
         } finally {
             setLoading(false);
         }
@@ -55,7 +55,7 @@ export default function BookDetailsModal({
             onRefresh();
             onClose();
         } catch (err) {
-            toast.error("Erreur d'archivage");
+            toast.error(apiErrorMessage(err, "Erreur d'archivage"));
         } finally {
             setLoading(false);
         }
@@ -70,7 +70,7 @@ export default function BookDetailsModal({
             onRefresh();
             onClose();
         } catch (err) {
-            toast.error("Erreur de suppression");
+            toast.error(apiErrorMessage(err, "Erreur de suppression"));
         } finally {
             setLoading(false);
         }
@@ -84,7 +84,7 @@ export default function BookDetailsModal({
             onRefresh();
             onClose();
         } catch (err) {
-            toast.error("Erreur lors de la réactivation");
+            toast.error(apiErrorMessage(err, "Erreur lors de la réactivation"));
         } finally {
             setLoading(false);
         }

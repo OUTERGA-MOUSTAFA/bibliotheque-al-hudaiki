@@ -17,20 +17,29 @@ const formatDate = (dateString?: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR');
 };
 
+const ageFrom = (dateNaissance?: string) => {
+    if (!dateNaissance) return 0;
+    const birthDate = new Date(dateNaissance);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+};
+
 export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { book: Book | null, isOpen: boolean, onClose: () => void, onRefresh: () => void }) {
     const { user, isAuthenticated } = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
-    // 👇 State dial l'ikhtiyar dial l'ayyam
-    const [borrowDuration, setBorrowDuration] = useState<number>(14);
-
-    // Mlli kayt7ell l'Modal wla kaytbdel l'ktab, kan7etto l'Max dial l'Admin k'ikhtiyar par défaut
-    useEffect(() => {
-        if (book?.max_borrow_days) {
-            setBorrowDuration(book.max_borrow_days);
-        }
-    }, [book]);
+    // Durée choisie par le lecteur : par défaut le maximum fixé par l'admin.
+    // Réinitialisée pendant le rendu quand le livre change (pas d'effet → pas de rendu en cascade).
+    const [borrowDuration, setBorrowDuration] = useState<number>(book?.max_borrow_days ?? 14);
+    const [durationBookId, setDurationBookId] = useState(book?.id);
+    if (book?.id !== durationBookId) {
+        setDurationBookId(book?.id);
+        setBorrowDuration(book?.max_borrow_days ?? 14);
+    }
 
     // Détails complets (avis, favori, droit de noter) : la liste ne les contient pas
     const [details, setDetails] = useState<BookDetails | null>(null);
@@ -49,17 +58,7 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
         if (isOpen) loadDetails();
     }, [isOpen, loadDetails]);
 
-    const userAge = useMemo(() => {
-        if (!user?.date_naissance) return 0;
-        const birthDate = new Date(user.date_naissance);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    }, [user?.date_naissance]);
+    const userAge = ageFrom(user?.date_naissance);
 
     const bookCreatedAt = useMemo(() => formatDate(book?.created_at), [book?.created_at]);
     const bookUpdatedAt = useMemo(() => formatDate(book?.updated_at), [book?.updated_at]);

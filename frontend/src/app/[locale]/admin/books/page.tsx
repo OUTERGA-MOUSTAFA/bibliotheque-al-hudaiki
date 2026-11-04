@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'; // 👈 Zid useCallback
 import { useTranslations } from 'next-intl';
-import { api } from '@/lib/api';
+import { api, apiErrorMessage } from '@/lib/api';
 import Image from 'next/image';
 import { Loader2, Trash2, Archive, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -62,8 +62,6 @@ export default function AdminBooksPage() {
   // 👇 3. Daba useEffect ghadi ykoun n9i 100% bla ay warning
   useEffect(() => {
     fetchBooks();
-    // 👇 Zid had l'comment nichan 9bel l'khet
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchCategories();
   }, [fetchBooks, fetchCategories]);
 
@@ -117,7 +115,7 @@ export default function AdminBooksPage() {
       await api.post(`/admin/books/${id}/archive`);
       fetchBooks();
       toast.success("Livre archivé");
-    } catch (err) { toast.error("Erreur d'archivage"); }
+    } catch (err) { toast.error(apiErrorMessage(err, "Erreur d'archivage")); }
   };
 
   const deleteBook = async (id: number) => {
@@ -126,7 +124,7 @@ export default function AdminBooksPage() {
       await api.delete(`/admin/books/${id}`);
       fetchBooks();
       toast.success("Livre supprimé");
-    } catch (err) { toast.error("Erreur de suppression"); }
+    } catch (err) { toast.error(apiErrorMessage(err, "Erreur de suppression")); }
   };
 
   return (
@@ -293,7 +291,7 @@ export default function AdminBooksPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Durée max d'emprunt (Jours) *</Label>
+                  <Label>Durée max d&apos;emprunt (Jours) *</Label>
                   <Input type="number" required min={1} value={formData.max_borrow_days} onChange={(e) => setFormData({ ...formData, max_borrow_days: parseInt(e.target.value) || 14 })} />
                 </div>
                 <div className="space-y-2">

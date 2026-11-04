@@ -147,6 +147,7 @@ function PrivacySection() {
       auth.clear();
       toast.success(t('account_deleted'));
       // Rechargement complet : tous les composants oublient l'utilisateur supprimé
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign(`/${locale}`);
     } catch (err) {
       toast.error(apiErrorMessage(err, t('error')));
