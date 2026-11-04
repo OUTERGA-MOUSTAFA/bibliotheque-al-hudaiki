@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl'; // 👈 Zidna hada
-import { api } from '@/lib/api';
+import { api, apiErrorMessage } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,11 +19,10 @@ export default function ContactPage() {
         setLoading(true);
         try {
             await api.post('/contact', formData);
-            toast.success("Message envoyé avec succès !");
+            toast.success(t('success'));
             setFormData({ nom: '', email: '', sujet: '', message: '' });
         } catch (err: unknown) {
-            const error = err as { response?: { data?: { message?: string } } };
-            toast.error(error.response?.data?.message || "Erreur lors de l'envoi");
+            toast.error(apiErrorMessage(err, t('error')));
         } finally {
             setLoading(false);
         }

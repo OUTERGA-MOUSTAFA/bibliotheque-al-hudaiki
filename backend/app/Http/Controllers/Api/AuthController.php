@@ -45,7 +45,7 @@ class AuthController extends Controller
             // Loi 09-08 : consentement explicite obligatoire
             'consentement' => 'accepted',
         ], [
-            'consentement.accepted' => 'Vous devez accepter la politique de confidentialité (Loi 09-08).',
+            'consentement.accepted' => __('Vous devez accepter la politique de confidentialité (Loi 09-08).'),
         ]);
 
         unset($validated['consentement']);
@@ -54,7 +54,7 @@ class AuthController extends Controller
         $age = Carbon::parse($validated['date_naissance'])->age;
         if ($age >= 18 && empty($validated['cin'])) {
             throw ValidationException::withMessages([
-                'cin' => ['Le CIN est requis pour les personnes majeures.'],
+                'cin' => [__('Le CIN est requis pour les personnes majeures.')],
             ]);
         }
 
@@ -81,13 +81,13 @@ class AuthController extends Controller
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             // Message général : on ne dit pas si c'est l'e-mail ou le mot de passe qui est faux
             throw ValidationException::withMessages([
-                'email' => ['Les identifiants sont incorrects.'],
+                'email' => [__('Les identifiants sont incorrects.')],
             ]);
         }
 
         if ($user->statut === 'archive') {
             throw ValidationException::withMessages([
-                'email' => ['Votre compte a été archivé.'],
+                'email' => [__('Votre compte a été archivé.')],
             ]);
         }
 
@@ -119,7 +119,7 @@ class AuthController extends Controller
 
         if (!$user || !$user->hasEnabledTwoFactorAuthentication()) {
             throw ValidationException::withMessages([
-                'code' => ['Session expirée. Reconnectez-vous.'],
+                'code' => [__('Session expirée. Reconnectez-vous.')],
             ]);
         }
 
@@ -139,7 +139,7 @@ class AuthController extends Controller
 
         if (!$valide) {
             throw ValidationException::withMessages([
-                'code' => ['Code invalide.'],
+                'code' => [__('Code invalide.')],
             ]);
         }
 
@@ -160,13 +160,13 @@ class AuthController extends Controller
 
         if ($user && $user->statut === 'actif') {
             // La langue sert à construire le lien vers la bonne page du frontend
-            app()->instance('reset_locale', $validated['locale'] ?? 'fr');
+            app()->instance('reset_locale', $validated['locale'] ?? app()->getLocale());
             Password::sendResetLink(['email' => $user->email]);
         }
 
         // Réponse identique que le compte existe ou non : on ne révèle pas qui est inscrit
         return response()->json([
-            'message' => 'Si un compte existe pour cette adresse, un lien de réinitialisation vient d\'être envoyé.',
+            'message' => __('Si un compte existe pour cette adresse, un lien de réinitialisation vient d\'être envoyé.'),
         ]);
     }
 
@@ -196,17 +196,17 @@ class AuthController extends Controller
 
         if ($status !== Password::PASSWORD_RESET) {
             throw ValidationException::withMessages([
-                'email' => ['Ce lien de réinitialisation est invalide ou a expiré. Demandez-en un nouveau.'],
+                'email' => [__('Ce lien de réinitialisation est invalide ou a expiré. Demandez-en un nouveau.')],
             ]);
         }
 
-        return response()->json(['message' => 'Mot de passe modifié. Vous pouvez vous connecter.']);
+        return response()->json(['message' => __('Mot de passe modifié. Vous pouvez vous connecter.')]);
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Déconnecté']);
+        return response()->json(['message' => __('Déconnecté')]);
     }
 
     public function me(Request $request)
@@ -253,11 +253,11 @@ class AuthController extends Controller
         $user = $request->user();
 
         if ($user->hasRole('admin')) {
-            abort(422, "Un compte administrateur ne peut pas être supprimé depuis cet écran.");
+            abort(422, __("Un compte administrateur ne peut pas être supprimé depuis cet écran."));
         }
 
         if ($user->loans()->enCours()->exists()) {
-            abort(422, "Rendez d'abord vos livres en cours avant de supprimer votre compte.");
+            abort(422, __("Rendez d'abord vos livres en cours avant de supprimer votre compte."));
         }
 
         $user->tokens()->delete();

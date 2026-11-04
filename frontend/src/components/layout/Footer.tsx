@@ -26,7 +26,7 @@ export default function Footer() {
                 <BookOpen className="text-white" size={20} strokeWidth={2.5} />
               </div>
               <div>
-                <div className="font-bold text-white text-base">مكتبة الحظيكي</div>
+                <div className="font-bold text-white text-base">{t('brand')}</div>
                 <div className="text-[10px] text-brand-400 tracking-[0.15em] font-semibold">
                   AL HUDAIKI LIBRARY
                 </div>
@@ -88,7 +88,7 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-lg bg-brand-600/20 flex items-center justify-center shrink-0">
                   <MapPin size={14} className="text-brand-400" />
                 </div>
-                <span className="pt-1">Tafraout, Maroc</span>
+                <span className="pt-1">{t('city')}</span>
               </li>
               <li className="flex items-start gap-3 text-sm">
                 <div className="w-8 h-8 rounded-lg bg-gold-600/20 flex items-center justify-center shrink-0">
@@ -108,7 +108,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-14 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-stone-500 text-center sm:text-start">
-            © {year} مكتبة الحظيكي — جميع الحقوق محفوظة
+            {t('copyright', { year })}
           </p>
           <div className="flex gap-6 text-xs">
             <Link href="/confidentialite" className="text-stone-500 hover:text-gold-400 transition">

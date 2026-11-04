@@ -49,40 +49,40 @@ class LoanController extends Controller
             $user = $request->user();
 
             if ($user->statut !== 'actif') {
-                abort(403, "Votre compte est archivé.");
+                abort(403, __("Votre compte est archivé."));
             }
 
             if ($book->statut === 'archive') {
-                abort(422, "Ce livre n'est plus disponible.");
+                abort(422, __("Ce livre n'est plus disponible."));
             }
 
             // 🛡️ Restriction d'âge
             if ($book->age_restriction && $user->age < $book->age_restriction) {
-                abort(403, "Vous n'avez pas l'âge requis pour emprunter ce livre.");
+                abort(403, __("Vous n'avez pas l'âge requis pour emprunter ce livre."));
             }
 
             if ($book->stock < 1) {
-                abort(422, "Livre indisponible.");
+                abort(422, __("Livre indisponible."));
             }
 
             $enCours = $user->loans()->enCours();
 
             if ((clone $enCours)->where('book_id', $book->id)->exists()) {
-                abort(422, "Vous avez déjà emprunté ce livre.");
+                abort(422, __("Vous avez déjà emprunté ce livre."));
             }
 
             if ((clone $enCours)->whereDate('date_retour_prevue', '<', today())->exists()) {
-                abort(422, "Vous avez un livre en retard. Merci de le rendre avant un nouvel emprunt.");
+                abort(422, __("Vous avez un livre en retard. Merci de le rendre avant un nouvel emprunt."));
             }
 
             if ($enCours->count() >= self::MAX_PRETS_SIMULTANES) {
-                abort(422, "Vous avez atteint le maximum de " . self::MAX_PRETS_SIMULTANES . " emprunts en cours.");
+                abort(422, __('Vous avez atteint le maximum de :max emprunts en cours.', ['max' => self::MAX_PRETS_SIMULTANES]));
             }
 
             // 📅 Durée choisie par le lecteur, plafonnée par la limite fixée par l'admin
             $maxJours = $book->max_borrow_days ?? 14;
             if ($validated['borrow_duration'] > $maxJours) {
-                abort(422, "La durée maximale pour ce livre est de {$maxJours} jours.");
+                abort(422, __('La durée maximale pour ce livre est de :max jours.', ['max' => $maxJours]));
             }
 
             $loan = Loan::create([
@@ -135,14 +135,14 @@ class LoanController extends Controller
     public function returnBook(Loan $loan)
     {
         if ($loan->date_retour_reelle) {
-            abort(422, "Ce livre a déjà été rendu.");
+            abort(422, __("Ce livre a déjà été rendu."));
         }
 
         return DB::transaction(function () use ($loan) {
             $loan->update(['date_retour_reelle' => today()]);
             $this->rendreAuStock($loan);
 
-            return response()->json(['message' => 'Livre retourné', 'loan' => $loan->fresh('book')]);
+            return response()->json(['message' => __('Livre retourné'), 'loan' => $loan->fresh('book')]);
         });
     }
 

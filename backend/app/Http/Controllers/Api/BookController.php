@@ -47,7 +47,9 @@ class BookController extends Controller
             'reviews.user:id,nom,prenom,photo',
         ]);
 
-        // Route publique : si un token est envoyé, on personnalise la réponse pour ce lecteur
+        // Route publique : si un token est envoyé, on personnalise la réponse pour ce lecteur.
+        // Le @var indique à l'éditeur le vrai type (sinon il ne voit que l'interface Authenticatable).
+        /** @var \App\Models\User|null $user */
         $user = auth('sanctum')->user();
 
         return response()->json(array_merge($book->toArray(), [
@@ -129,13 +131,13 @@ class BookController extends Controller
     public function restore(Book $book)
     {
         $book->update(['statut' => $book->stock > 0 ? 'disponible' : 'emprunte']);
-        return response()->json(['message' => 'Livre restauré', 'book' => $book]);
+        return response()->json(['message' => __('Livre restauré'), 'book' => $book]);
     }
 
     public function destroy(Book $book)
     {
         if ($book->loans()->whereNull('date_retour_reelle')->exists()) {
-            abort(422, 'Ce livre a des exemplaires non rendus : archivez-le plutôt.');
+            abort(422, __('Ce livre a des exemplaires non rendus : archivez-le plutôt.'));
         }
 
         $book->delete();
@@ -158,6 +160,7 @@ class BookController extends Controller
         if ($request->filled('categorie')) $query->where('categorie_id', $request->categorie);
         if ($request->filled('langue')) $query->where('langue', $request->langue);
         if ($request->disponible === 'true') $query->where('stock', '>', 0);
+        if ($request->disponible === 'false') $query->where('stock', '<=', 0);
 
         match ($request->tri) {
             'populaire' => $query->orderByDesc('nb_emprunts'),

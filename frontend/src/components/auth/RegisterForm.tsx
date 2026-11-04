@@ -61,7 +61,7 @@ export default function RegisterForm() {
 
     try {
       await register({ ...formData, consentement });
-      toast.success("Compte créé avec succès !");
+      toast.success(t('register_success'));
       router.push('/compte');
       router.refresh();
     } catch (error: unknown) {
@@ -73,13 +73,9 @@ export default function RegisterForm() {
           formattedErrors[key] = apiErrors[key][0];
         });
         setErrors(formattedErrors);
-        toast.error("Erreur de validation", { description: "Vérifiez les champs en rouge." });
+        toast.error(t('validation_error'), { description: t('validation_hint') });
       } else {
-        // Ila kanet 500 wla chi haja akhor, ghadi tbeyn lik l'message l'7a9i9i
-        const serverMessage = err.response?.data?.message || "Erreur inconnue côté serveur";
-        toast.error("Erreur serveur", {
-          description: serverMessage,
-        });
+        toast.error(t('server_error'), { description: err.response?.data?.message || t('server_unreachable') });
       }
     } finally {
       setLoading(false);
@@ -257,7 +253,7 @@ export default function RegisterForm() {
       </div>
 
       <Button type="submit" disabled={loading} className="w-full h-11 bg-brand-600 hover:bg-brand-700 rounded-xl">
-        {loading ? <><Loader2 size={16} className="animate-spin mr-2" /> Chargement...</> : t('sign_up')}
+        {loading ? <Loader2 size={16} className="animate-spin" /> : t('sign_up')}
       </Button>
     </form>
   );

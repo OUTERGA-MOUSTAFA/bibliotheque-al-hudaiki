@@ -27,7 +27,7 @@ class ImageUploader
             return $upload['secure_url'];
         } catch (\Throwable $e) {
             Log::error('Upload Cloudinary échoué', ['folder' => $folder, 'error' => $e->getMessage()]);
-            abort(502, "L'envoi de l'image a échoué. Réessayez plus tard.");
+            abort(502, __("L'envoi de l'image a échoué. Réessayez plus tard."));
         }
     }
 }

@@ -28,7 +28,7 @@ export default function Categories({ categories }: { categories: Category[] }) {
           <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-2">
             📂 {t('categories')}
           </h2>
-          <p className="text-stone-600">اكتشف مجموعتنا حسب اهتمامك</p>
+          <p className="text-stone-600">{t('categories_subtitle')}</p>
         </div>
 
         {/* Grid */}
@@ -57,7 +57,7 @@ export default function Categories({ categories }: { categories: Category[] }) {
                 {/* Text */}
                 <h3 className={`font-bold text-lg ${style.text} mb-1`}>{cat.nom}</h3>
                 {cat.books_count !== undefined && (
-                  <p className="text-xs text-stone-600 font-medium">{cat.books_count} كتاب</p>
+                  <p className="text-xs text-stone-600 font-medium">{t('books_count', { count: cat.books_count })}</p>
                 )}
 
                 {/* Decorative element */}

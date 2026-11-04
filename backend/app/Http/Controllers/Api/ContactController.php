@@ -34,7 +34,7 @@ class ContactController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Votre message a été envoyé avec succès.'], 201);
+        return response()->json(['message' => __('Votre message a été envoyé avec succès.')], 201);
     }
 
     // Admin : liste des messages reçus

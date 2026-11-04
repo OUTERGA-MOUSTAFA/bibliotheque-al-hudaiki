@@ -1,22 +1,24 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchCategories } from '@/lib/api';
 import { Link } from '@/navigation';
 import { FolderOpen, BookOpen } from 'lucide-react';
 import type { Category } from '@/types';
-export default async function CategoriesPage() {
-  const t = await getTranslations('home'); // Wla 'catalog'
+
+export default async function CategoriesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('categories_page');
+  const tNav = await getTranslations('nav');
+  const tHome = await getTranslations('home');
   const categories = await fetchCategories().catch(() => []);
 
   return (
     <div className="bg-cream min-h-screen py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        
         <div className="mb-12">
           <div className="divider-gold mb-4" />
-          <h1 className="text-4xl font-bold text-stone-900 mb-2">
-            📂 {t('categories')}
-          </h1>
-          <p className="text-stone-600">Explorez notre fonds documentaire par thématique.</p>
+          <h1 className="text-4xl font-bold text-stone-900 mb-2">📂 {tNav('categories')}</h1>
+          <p className="text-stone-600">{t('subtitle')}</p>
         </div>
 
         {categories.length > 0 ? (
@@ -30,18 +32,11 @@ export default async function CategoriesPage() {
                 <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-4 group-hover:bg-brand-100 transition">
                   <FolderOpen className="text-brand-600" size={24} />
                 </div>
-                
-                <h3 className="text-lg font-bold text-stone-900 mb-1 group-hover:text-brand-700 transition">
-                  {cat.nom}
-                </h3>
-                
-                <p className="text-sm text-stone-500 mb-4 line-clamp-2">
-                  {cat.description || 'Découvrez notre sélection.'}
-                </p>
-
+                <h3 className="text-lg font-bold text-stone-900 mb-1 group-hover:text-brand-700 transition">{cat.nom}</h3>
+                <p className="text-sm text-stone-500 mb-4 line-clamp-2">{cat.description || t('default_description')}</p>
                 <div className="flex items-center gap-2 text-xs font-semibold text-brand-600">
                   <BookOpen size={14} />
-                  <span>{cat.books_count || 0} livres</span>
+                  <span>{tHome('books_count', { count: cat.books_count ?? 0 })}</span>
                 </div>
               </Link>
             ))}
@@ -49,10 +44,9 @@ export default async function CategoriesPage() {
         ) : (
           <div className="text-center py-20 bg-white rounded-2xl border border-stone-200">
             <FolderOpen className="mx-auto text-stone-300 mb-4" size={48} />
-            <h2 className="text-xl font-bold text-stone-900 mb-2">Aucune catégorie trouvée</h2>
+            <h2 className="text-xl font-bold text-stone-900 mb-2">{t('empty')}</h2>
           </div>
         )}
-
       </div>
     </div>
   );

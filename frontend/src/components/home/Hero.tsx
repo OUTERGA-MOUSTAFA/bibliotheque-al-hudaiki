@@ -12,9 +12,9 @@ export default function Hero() {
   const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
 
   const stats = [
-    { value: '+500', label: 'كتاب',        icon: BookOpen },
-    { value: '+200', label: 'قارئ',         icon: Users },
-    { value: '24/7', label: 'وصول رقمي',   icon: Clock },
+    { value: '+500', label: t('stat_books'), icon: BookOpen },
+    { value: '+200', label: t('stat_readers'), icon: Users },
+    { value: '24/7', label: t('stat_access'), icon: Clock },
   ];
 
   return (
@@ -40,7 +40,7 @@ export default function Hero() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-sm font-medium mb-8 backdrop-blur-sm">
             <Sparkles size={14} />
-            <span>مكتبة الحظيكي العامة — تفراوت</span>
+            <span>{t('badge')}</span>
           </div>
 
           {/* Title */}

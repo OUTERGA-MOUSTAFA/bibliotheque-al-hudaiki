@@ -49,13 +49,13 @@ class AdminController extends Controller
         // Un compte archivé ne doit plus pouvoir utiliser ses anciens tokens
         $user->tokens()->delete();
 
-        return response()->json(['message' => 'Utilisateur archivé']);
+        return response()->json(['message' => __('Utilisateur archivé')]);
     }
 
     public function restoreUser(User $user)
     {
         $user->update(['statut' => 'actif']);
-        return response()->json(['message' => 'Utilisateur réactivé']);
+        return response()->json(['message' => __('Utilisateur réactivé')]);
     }
 
     public function deleteUser(Request $request, User $user)
@@ -63,7 +63,7 @@ class AdminController extends Controller
         $this->ensureNotSelf($request, $user);
 
         if ($user->loans()->enCours()->exists()) {
-            abort(422, 'Cet utilisateur a encore des livres non rendus.');
+            abort(422, __('Cet utilisateur a encore des livres non rendus.'));
         }
 
         $user->tokens()->delete();
@@ -75,7 +75,7 @@ class AdminController extends Controller
     private function ensureNotSelf(Request $request, User $user): void
     {
         if ($request->user()->is($user)) {
-            abort(422, 'Vous ne pouvez pas effectuer cette action sur votre propre compte.');
+            abort(422, __('Vous ne pouvez pas effectuer cette action sur votre propre compte.'));
         }
     }
 }

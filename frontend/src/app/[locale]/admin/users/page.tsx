@@ -10,6 +10,7 @@ import type { AdminUser, PaginatedResponse } from '@/types';
 
 export default function AdminUsersPage() {
   const t = useTranslations('admin');
+  const tNav = useTranslations('nav');
   const { user: me } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
@@ -78,7 +79,7 @@ export default function AdminUsersPage() {
                     </span>
                     {isAdmin && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-50 text-gold-700 inline-flex items-center gap-1">
-                        <ShieldCheck size={10} /> Admin
+                        <ShieldCheck size={10} /> {tNav('admin')}
                       </span>
                     )}
                   </div>

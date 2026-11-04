@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { Cairo, Tajawal, IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
@@ -40,6 +40,16 @@ const ibmArabic = IBM_Plex_Sans_Arabic({
   weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 });
+
+// Titre et description de l'onglet dans la langue de la page
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'meta' });
+  return {
+    title: { default: t('title'), template: `%s — ${t('title')}` },
+    description: t('description'),
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

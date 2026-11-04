@@ -46,7 +46,7 @@ export default function Header() {
             </div>
             <div className="hidden sm:flex flex-col leading-tight">
               <span className="font-bold text-stone-900 text-sm">مكتبة الحظيكي</span>
-              <span className="text-[10px] text-brand-700 font-semibold tracking-wide">AL HUDAIGY LIBRARY</span>
+              <span className="text-[10px] text-brand-700 font-semibold tracking-wide">AL HUDAIKI LIBRARY</span>
             </div>
           </Link>
 
@@ -75,7 +75,7 @@ export default function Header() {
                 {isAdmin && (
                   <Link href="/admin">
                     <Button size="sm" className="bg-gold-500 hover:bg-gold-600 text-white rounded-full px-4 font-bold">
-                      <ShieldCheck size={16} className="me-2" /> Admin
+                      <ShieldCheck size={16} className="me-2" /> {t('admin')}
                     </Button>
                   </Link>
                 )}
@@ -129,7 +129,7 @@ export default function Header() {
               <>
                 {isAdmin && (
                   <Link href="/admin" className="px-3 py-2.5 rounded-lg text-sm font-semibold text-gold-700 hover:bg-gold-50 flex items-center gap-2">
-                    <ShieldCheck size={16} /> Admin
+                    <ShieldCheck size={16} /> {t('admin')}
                   </Link>
                 )}
                 <Link href="/compte" className="px-3 py-2.5 rounded-lg text-sm font-medium text-stone-700 hover:bg-brand-50 flex items-center gap-2">

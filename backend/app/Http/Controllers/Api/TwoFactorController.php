@@ -60,7 +60,7 @@ class TwoFactorController extends Controller
         $request->validate(['password' => 'required|current_password:sanctum']);
 
         $user = $request->user();
-        abort_unless($user->hasEnabledTwoFactorAuthentication(), 422, "La double authentification n'est pas active.");
+        abort_unless($user->hasEnabledTwoFactorAuthentication(), 422, __("La double authentification n'est pas active."));
 
         $generate($user);
 

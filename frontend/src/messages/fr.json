@@ -2,7 +2,7 @@
   "catalog": {
     "title": "Catalogue",
     "subtitle": "Parcourez notre collection complète de livres",
-    "results": "{count} livres",
+    "results": "{count, plural, =0 {Aucun livre} one {# livre} other {# livres}}",
     "no_results": "Aucun livre trouvé",
     "no_results_hint": "Essayez de modifier vos critères de recherche",
     "filters": "Filtres",
@@ -20,7 +20,13 @@
       "borrowed": "Emprunté"
     },
     "language_filter": "Langue",
-    "category_filter": "Catégorie"
+    "category_filter": "Catégorie",
+    "search_placeholder": "Titre, résumé…",
+    "search": "Rechercher",
+    "all": "Tous",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "pagination": "Pages"
   },
   "nav": {
     "home": "Accueil",
@@ -36,7 +42,8 @@
     "logout": "Déconnexion",
     "search": "Rechercher...",
     "search_placeholder": "Rechercher par titre, auteur ou thème",
-    "menu": "Menu"
+    "menu": "Menu",
+    "admin": "Admin"
   },
   "home": {
     "hero_title": "Plonge dans un océan d'histoires",
@@ -49,7 +56,13 @@
     "sponsors": "Nos partenaires",
     "reading_prompt": "La lecture est un voyage sans fin",
     "kids_section": "Coin enfants",
-    "kids_description": "Des histoires amusantes pour les petits"
+    "kids_description": "Des histoires amusantes pour les petits",
+    "badge": "Bibliothèque publique Al Hudaiki — Tafraout",
+    "stat_books": "livres",
+    "stat_readers": "lecteurs",
+    "stat_access": "accès en ligne",
+    "categories_subtitle": "Découvrez notre collection selon vos centres d’intérêt",
+    "books_count": "{count, plural, =0 {Aucun livre} one {# livre} other {# livres}}"
   },
   "book": {
     "available": "Disponible",
@@ -74,7 +87,34 @@
     "favorite_added": "Ajouté à vos favoris",
     "favorite_removed": "Retiré de vos favoris",
     "favorite_remove": "Retirer des favoris",
-    "error": "Une erreur est survenue"
+    "error": "Une erreur est survenue",
+    "status": {
+      "disponible": "Disponible",
+      "emprunte": "Emprunté",
+      "archive": "Archivé"
+    },
+    "no_category": "Sans catégorie",
+    "restricted": "Contenu réservé (+{age} ans)",
+    "reference": "Réf.",
+    "pages_count": "{count, plural, =0 {Pages : ?} one {# page} other {# pages}}",
+    "added_on": "Ajouté le",
+    "updated_on": "Modifié le",
+    "no_summary": "Aucun résumé disponible.",
+    "age_required": "Désolé, vous n’avez pas l’âge requis pour ce livre.",
+    "borrow_duration": "Durée d’emprunt",
+    "days": "{count, plural, one {# jour} other {# jours}}",
+    "borrow_date": "Emprunt",
+    "return_date": "Retour",
+    "borrow_cta": "Emprunter",
+    "out_of_stock": "Ce livre n’est plus disponible pour le moment.",
+    "login_to_borrow": "Connectez-vous pour emprunter ce livre.",
+    "borrowed": "Livre emprunté ! Retrouvez-le dans « Mes emprunts ».",
+    "borrow_error": "L’emprunt a échoué.",
+    "languages": {
+      "ar": "Arabe",
+      "fr": "Français",
+      "en": "Anglais"
+    }
   },
   "contact": {
     "name": "Nom complet",
@@ -93,7 +133,7 @@
     "subtitle": "Vous avez une question, une suggestion ou besoin d'aide ? Remplissez le formulaire ci-dessous et notre équipe vous répondra dans les plus brefs délais.",
     "info_title": "Informations de contact",
     "address": "Adresse",
-    "address_val": "Bibliothèque Al Hudaigy, Tafraout, Maroc",
+    "address_val": "Bibliothèque Al Hudaiki, Tafraout, Maroc",
     "email": "Email",
     "form_name": "Nom complet *",
     "form_name_placeholder": "Votre nom",
@@ -175,7 +215,11 @@
     "back": "Retour",
     "consent_link": "(politique de confidentialité)",
     "optional": "facultatif",
-    "cin_hint": "Obligatoire à partir de 18 ans."
+    "cin_hint": "Obligatoire à partir de 18 ans.",
+    "register_success": "Compte créé. Bienvenue !",
+    "validation_error": "Certains champs sont invalides",
+    "validation_hint": "Vérifiez les champs en rouge.",
+    "server_error": "Erreur du serveur"
   },
   "account": {
     "title": "Mon compte",
@@ -196,7 +240,14 @@
     "settings": "Paramètres",
     "role_reader": "Lecteur",
     "role_admin": "Administrateur",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "loans_title": "Mes emprunts",
+    "favorites_title": "Mes favoris",
+    "due_on": "Retour prévu le",
+    "late": "{count, plural, one {# jour de retard} other {# jours de retard}}",
+    "remaining": "{count, plural, =0 {À rendre aujourd’hui} one {# jour restant} other {# jours restants}}",
+    "returned": "Rendu",
+    "no_loans_any": "Vous n’avez encore emprunté aucun livre."
   },
   "admin": {
     "dashboard": "Tableau de bord",
@@ -285,7 +336,29 @@
     "stat_late_loans": "Emprunts en retard",
     "stat_users": "Utilisateurs",
     "recent_loans": "Derniers emprunts",
-    "no_recent_loans": "Aucun emprunt récent"
+    "no_recent_loans": "Aucun emprunt récent",
+    "panel": "Administration",
+    "load_books_error": "Impossible de charger les livres",
+    "load_categories_error": "Impossible de charger les catégories",
+    "book_added": "Livre ajouté",
+    "book_updated": "Livre modifié",
+    "book_archived": "Livre archivé",
+    "book_deleted": "Livre supprimé",
+    "book_restored": "Livre réactivé : il est de nouveau visible",
+    "confirm_archive_book": "Archiver ce livre ? Il ne sera plus visible sur le site.",
+    "confirm_delete_book": "Supprimer définitivement ce livre ?",
+    "confirm_restore_book": "Réactiver ce livre ? Il sera de nouveau visible par les lecteurs.",
+    "edit_book": "Modifier le livre",
+    "book_details": "Détails du livre",
+    "not_provided": "Non renseigné",
+    "full_summary": "Résumé complet",
+    "max_borrow_days": "Durée max. d’emprunt (jours)",
+    "min_age": "Âge minimum",
+    "title_placeholder": "Ex. : Le Petit Prince",
+    "age_placeholder": "Ex. : 18",
+    "archived_books": "Livres archivés",
+    "no_archived_books": "Aucun livre archivé",
+    "book": "Livre"
   },
   "footer": {
     "rights": "Tous droits réservés",
@@ -297,7 +370,10 @@
     "about_text": "Bibliothèque Al Hudaiki — Tafraout, Maroc. Un espace de lecture et de savoir au service de la communauté.",
     "privacy": "Confidentialité",
     "terms": "Conditions",
-    "legal": "Mentions légales"
+    "legal": "Mentions légales",
+    "brand": "Bibliothèque Al Hudaiki",
+    "copyright": "© {year} Bibliothèque Al Hudaiki — Tous droits réservés",
+    "city": "Tafraout, Maroc"
   },
   "common": {
     "loading": "Chargement...",
@@ -316,7 +392,10 @@
     "all": "Tous",
     "none": "Aucun",
     "required": "Requis",
-    "optional": "Optionnel"
+    "optional": "Optionnel",
+    "not_found_title": "Page introuvable",
+    "not_found_text": "La page que vous cherchez n’existe pas ou a été déplacée.",
+    "back_home": "Retour à l’accueil"
   },
   "errors": {
     "404_title": "Page introuvable",
@@ -445,5 +524,14 @@
     "invalid_link": "Ce lien est incomplet ou a expiré.",
     "request_new": "Demander un nouveau lien",
     "error": "Une erreur est survenue. Réessayez."
+  },
+  "meta": {
+    "title": "Bibliothèque Al Hudaiki — Tafraout",
+    "description": "Catalogue, emprunts et lecture à la Bibliothèque publique Al Hudaiki de Tafraout."
+  },
+  "categories_page": {
+    "subtitle": "Explorez notre fonds documentaire par thématique.",
+    "default_description": "Découvrez notre sélection dans cette catégorie.",
+    "empty": "Aucune catégorie pour le moment"
   }
 }

@@ -76,13 +76,13 @@ class CategoryController extends Controller
     {
         // Archivage (Safe delete)
         $category->update(['statut' => 'archive']);
-        return response()->json(['message' => 'Catégorie archivée']);
+        return response()->json(['message' => __('Catégorie archivée')]);
     }
 
     public function restore(Category $category)
     {
         $category->update(['statut' => 'actif']);
-        return response()->json(['message' => 'Catégorie réactivée', 'category' => $category]);
+        return response()->json(['message' => __('Catégorie réactivée'), 'category' => $category]);
     }
 
     public function destroy(Category $category)

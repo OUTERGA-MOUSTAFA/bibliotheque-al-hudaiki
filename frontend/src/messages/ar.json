@@ -2,7 +2,7 @@
   "catalog": {
     "title": "الفهرس",
     "subtitle": "تصفح مجموعتنا الكاملة من الكتب",
-    "results": "{count} كتاب",
+    "results": "{count, plural, =0 {لا توجد كتب} one {كتاب واحد} two {كتابان} few {# كتب} many {# كتاباً} other {# كتاب}}",
     "no_results": "لا توجد كتب",
     "no_results_hint": "جرّب تغيير معايير البحث أو مسح الفلاتر",
     "filters": "التصفية",
@@ -20,7 +20,13 @@
       "borrowed": "مُعار"
     },
     "language_filter": "اللغة",
-    "category_filter": "التصنيف"
+    "category_filter": "التصنيف",
+    "search_placeholder": "العنوان، الملخص…",
+    "search": "بحث",
+    "all": "الكل",
+    "previous": "السابق",
+    "next": "التالي",
+    "pagination": "الصفحات"
   },
   "nav": {
     "home": "الرئيسية",
@@ -36,7 +42,8 @@
     "logout": "تسجيل الخروج",
     "search": "ابحث عن كتاب...",
     "search_placeholder": "ابحث بالعنوان، المؤلف، أو الموضوع",
-    "menu": "القائمة"
+    "menu": "القائمة",
+    "admin": "الإدارة"
   },
   "home": {
     "hero_title": "اغمر نفسك في بحرٍ من الحكايات",
@@ -49,7 +56,13 @@
     "sponsors": "شركاؤنا",
     "reading_prompt": "القراءة رحلة لا تنتهي",
     "kids_section": "ركن الأطفال",
-    "kids_description": "قصص وحكايات ممتعة للصغار"
+    "kids_description": "قصص وحكايات ممتعة للصغار",
+    "badge": "مكتبة الحظيكي العمومية — تافراوت",
+    "stat_books": "كتاب",
+    "stat_readers": "قارئ",
+    "stat_access": "وصول رقمي",
+    "categories_subtitle": "اكتشف مجموعتنا حسب اهتمامك",
+    "books_count": "{count, plural, =0 {لا توجد كتب} one {كتاب واحد} two {كتابان} few {# كتب} many {# كتاباً} other {# كتاب}}"
   },
   "book": {
     "available": "متوفر",
@@ -74,7 +87,34 @@
     "favorite_added": "أُضيف إلى المفضلة",
     "favorite_removed": "أُزيل من المفضلة",
     "favorite_remove": "إزالة من المفضلة",
-    "error": "حدث خطأ"
+    "error": "حدث خطأ",
+    "status": {
+      "disponible": "متاح",
+      "emprunte": "مُعار",
+      "archive": "مؤرشف"
+    },
+    "no_category": "بدون تصنيف",
+    "restricted": "محتوى مقيّد (+{age} سنة)",
+    "reference": "المرجع",
+    "pages_count": "{count, plural, =0 {الصفحات: ؟} one {صفحة واحدة} two {صفحتان} few {# صفحات} many {# صفحة} other {# صفحة}}",
+    "added_on": "أُضيف في",
+    "updated_on": "عُدّل في",
+    "no_summary": "لا يوجد ملخص.",
+    "age_required": "عذراً، لم تبلغ السن المطلوبة لهذا الكتاب.",
+    "borrow_duration": "مدة الإعارة",
+    "days": "{count, plural, one {يوم واحد} two {يومان} few {# أيام} many {# يوماً} other {# يوم}}",
+    "borrow_date": "الإعارة",
+    "return_date": "الإرجاع",
+    "borrow_cta": "استعارة",
+    "out_of_stock": "هذا الكتاب غير متاح حالياً.",
+    "login_to_borrow": "سجّل الدخول لاستعارة هذا الكتاب.",
+    "borrowed": "تمت الاستعارة! ستجده في «إعاراتي».",
+    "borrow_error": "تعذّرت الاستعارة.",
+    "languages": {
+      "ar": "العربية",
+      "fr": "الفرنسية",
+      "en": "الإنجليزية"
+    }
   },
   "contact": {
     "title": "اتصل بنا",
@@ -175,7 +215,11 @@
     "back": "رجوع",
     "consent_link": "(سياسة الخصوصية)",
     "optional": "اختياري",
-    "cin_hint": "إلزامي ابتداءً من 18 سنة."
+    "cin_hint": "إلزامي ابتداءً من 18 سنة.",
+    "register_success": "تم إنشاء الحساب. مرحباً بك!",
+    "validation_error": "بعض الحقول غير صحيحة",
+    "validation_hint": "راجع الحقول المظلّلة بالأحمر.",
+    "server_error": "خطأ في الخادم"
   },
   "account": {
     "title": "حسابي",
@@ -196,7 +240,14 @@
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
     "role_reader": "قارئ",
-    "role_admin": "مدير"
+    "role_admin": "مدير",
+    "loans_title": "إعاراتي",
+    "favorites_title": "مفضّلتي",
+    "due_on": "تاريخ الإرجاع",
+    "late": "{count, plural, one {متأخر بيوم واحد} two {متأخر بيومين} few {متأخر بـ# أيام} many {متأخر بـ# يوماً} other {متأخر بـ# يوم}}",
+    "remaining": "{count, plural, =0 {يُرجع اليوم} one {يبقى يوم واحد} two {يبقى يومان} few {تبقى # أيام} many {يبقى # يوماً} other {يبقى # يوم}}",
+    "returned": "تم الإرجاع",
+    "no_loans_any": "لم تستعر أي كتاب بعد."
   },
   "admin": {
     "dashboard": "لوحة التحكم",
@@ -285,7 +336,29 @@
     "stat_late_loans": "الإعارات المتأخرة",
     "stat_users": "المستخدمون",
     "recent_loans": "أحدث الإعارات",
-    "no_recent_loans": "لا توجد إعارات حديثة"
+    "no_recent_loans": "لا توجد إعارات حديثة",
+    "panel": "لوحة الإدارة",
+    "load_books_error": "تعذّر تحميل الكتب",
+    "load_categories_error": "تعذّر تحميل التصنيفات",
+    "book_added": "تمت إضافة الكتاب",
+    "book_updated": "تم تعديل الكتاب",
+    "book_archived": "تمت أرشفة الكتاب",
+    "book_deleted": "تم حذف الكتاب",
+    "book_restored": "تمت إعادة تفعيل الكتاب: أصبح ظاهراً من جديد",
+    "confirm_archive_book": "أرشفة هذا الكتاب؟ لن يظهر بعد ذلك في الموقع.",
+    "confirm_delete_book": "حذف هذا الكتاب نهائياً؟",
+    "confirm_restore_book": "إعادة تفعيل هذا الكتاب؟ سيظهر من جديد للقرّاء.",
+    "edit_book": "تعديل الكتاب",
+    "book_details": "تفاصيل الكتاب",
+    "not_provided": "غير محدد",
+    "full_summary": "الملخص الكامل",
+    "max_borrow_days": "أقصى مدة للإعارة (بالأيام)",
+    "min_age": "السن الأدنى",
+    "title_placeholder": "مثال: الأمير الصغير",
+    "age_placeholder": "مثال: 18",
+    "archived_books": "الكتب المؤرشفة",
+    "no_archived_books": "لا توجد كتب مؤرشفة",
+    "book": "الكتاب"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",
@@ -297,7 +370,10 @@
     "about_text": "مكتبة الحظيكي العامة بتفراوت — فضاء للقراءة والمعرفة في خدمة المجتمع",
     "privacy": "سياسة الخصوصية",
     "terms": "شروط الاستخدام",
-    "legal": "إشعار قانوني"
+    "legal": "إشعار قانوني",
+    "brand": "مكتبة الحظيكي",
+    "copyright": "© {year} مكتبة الحظيكي — جميع الحقوق محفوظة",
+    "city": "تافراوت، المغرب"
   },
   "common": {
     "loading": "جارٍ التحميل...",
@@ -316,7 +392,10 @@
     "all": "الكل",
     "none": "لا شيء",
     "required": "مطلوب",
-    "optional": "اختياري"
+    "optional": "اختياري",
+    "not_found_title": "الصفحة غير موجودة",
+    "not_found_text": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "back_home": "العودة إلى الرئيسية"
   },
   "errors": {
     "404_title": "الصفحة غير موجودة",
@@ -445,5 +524,14 @@
     "invalid_link": "هذا الرابط ناقص أو منتهي الصلاحية.",
     "request_new": "طلب رابط جديد",
     "error": "حدث خطأ. حاول مرة أخرى."
+  },
+  "meta": {
+    "title": "مكتبة الحظيكي — تافراوت",
+    "description": "الفهرس والإعارة والقراءة في مكتبة الحظيكي العمومية بتافراوت."
+  },
+  "categories_page": {
+    "subtitle": "تصفّح رصيدنا الوثائقي حسب المواضيع.",
+    "default_description": "اكتشف مختاراتنا في هذا التصنيف.",
+    "empty": "لا توجد تصنيفات حالياً"
   }
 }

@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminSidebar() {
   const t = useTranslations('admin');
+  const tFooter = useTranslations('footer');
   const pathname = usePathname();
   // 👇 Jbedna loading mn useAuth 3iwed mounted
   const { logout, user, loading } = useAuth();
@@ -43,8 +44,8 @@ export default function AdminSidebar() {
     </nav>
     <aside className="w-64 bg-night text-white min-h-screen flex flex-col shrink-0 hidden md:flex">
       <div className="p-6 border-b border-white/10">
-        <div className="text-[10px] font-bold text-gold-400 tracking-[0.2em]">ADMIN PANEL</div>
-        <div className="text-sm font-bold mt-1">مكتبة الحظيكي</div>
+        <div className="text-[10px] font-bold text-gold-400 tracking-[0.2em] uppercase">{t('panel')}</div>
+        <div className="text-sm font-bold mt-1">{tFooter('brand')}</div>
       </div>
 
       <div className="p-4 border-b border-white/10 h-[72px]">

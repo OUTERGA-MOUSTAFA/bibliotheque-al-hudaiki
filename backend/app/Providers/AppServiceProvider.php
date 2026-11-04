@@ -30,7 +30,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Le lien de réinitialisation pointe vers le frontend Next.js, pas vers Laravel
         ResetPassword::createUrlUsing(function ($user, string $token) {
-            $locale = app()->bound('reset_locale') ? app('reset_locale') : 'fr';
+            // Langue de la demande (en-tête Accept-Language ou champ « locale ») : le lien ouvre la même langue
+            $locale = app()->bound('reset_locale') ? app('reset_locale') : app()->getLocale();
 
             return rtrim(config('app.frontend_url'), '/') . "/{$locale}/reinitialiser-mot-de-passe?" . http_build_query([
                 'token' => $token,
@@ -42,13 +43,13 @@ class AppServiceProvider extends ServiceProvider
             $url = call_user_func(ResetPassword::$createUrlCallback, $user, $token);
 
             return (new MailMessage)
-                ->subject('Réinitialisation de votre mot de passe')
-                ->greeting("Bonjour {$user->prenom},")
-                ->line('Vous avez demandé à changer le mot de passe de votre compte à la bibliothèque.')
-                ->action('Choisir un nouveau mot de passe', $url)
-                ->line('Ce lien est valable 60 minutes.')
-                ->line("Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé.")
-                ->salutation(config('app.name'));
+                ->subject(__('Réinitialisation de votre mot de passe'))
+                ->greeting(__('Bonjour :prenom,', ['prenom' => $user->prenom]))
+                ->line(__('Vous avez demandé à changer le mot de passe de votre compte à la bibliothèque.'))
+                ->action(__('Choisir un nouveau mot de passe'), $url)
+                ->line(__('Ce lien est valable 60 minutes.'))
+                ->line(__("Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé."))
+                ->salutation(__('Bibliothèque Al Hudaiki'));
         });
     }
 }

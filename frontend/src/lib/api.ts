@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { unstable_rethrow } from 'next/navigation';
 import type { Category } from '@/types';
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api',
@@ -10,6 +11,8 @@ api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('auth_token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
+    const locale = window.location.pathname.split('/')[1];
+    config.headers['Accept-Language'] = locale === 'ar' ? 'ar' : 'fr';
   }
   return config;
 });
@@ -66,7 +69,8 @@ export async function fetchBook(slug: string) {
   return res.json();
 }
 
-// 👇 HNA FIN KAN L'MOCHKIL (Laravel kayrje3 data f chi 7aja khra, 7na kanakhdo li kayn)
+// unstable_rethrow : laisse passer le signal interne de Next.js (« rendu dynamique »).
+// L'avaler figeait la page au build avec une liste vide.
 export async function fetchCategories(): Promise<Category[]> {
   try {
     const res = await fetch(`${API_URL}/categories`, { cache: 'no-store' });
@@ -74,7 +78,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const data = await res.json();
     return Array.isArray(data) ? data : (data.data || []);
   } catch (error) {
-    console.error("Erreur fetchCategories:", error);
+    unstable_rethrow(error);
+    console.error('Erreur fetchCategories:', error);
     return [];
   }
 }
@@ -85,7 +90,8 @@ export async function fetchSponsors() {
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : (data.data || []);
-  } catch {
+  } catch (error) {
+    unstable_rethrow(error);
     return [];
   }
 }

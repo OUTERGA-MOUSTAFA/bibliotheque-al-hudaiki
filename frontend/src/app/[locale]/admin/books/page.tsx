@@ -1,18 +1,32 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react'; // 👈 Zid useCallback
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { api, apiErrorMessage } from '@/lib/api';
 import Image from 'next/image';
 import { Loader2, Trash2, Archive, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { api, apiErrorMessage } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Book, Category } from '@/types';
 import BookDetailsModal from '@/components/admin/BookDetailsModal';
+
+const EMPTY_FORM = {
+  titre: '',
+  description: '',
+  resume: '',
+  nombre_pages: '',
+  langue: 'ar',
+  stock: 1,
+  categorie_id: '',
+  max_borrow_days: 14,
+  age_restriction: '',
+};
+
 export default function AdminBooksPage() {
   const t = useTranslations('admin');
+  const tBook = useTranslations('book');
 
   const [books, setBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -20,52 +34,29 @@ export default function AdminBooksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
-  const [formData, setFormData] = useState({
-    titre: '',
-    description: '',
-    resume: '',
-    nombre_pages: '',
-    langue: 'ar',
-    stock: 1,
-    categorie_id: '',
-    max_borrow_days: 14,
-    age_restriction: ''
-  });
-
-  // 👇 1. N7ETO fetchBooks f useCallback bach React y3refha mzyan
+  // Livres non archivés (les archivés sont dans la page Archives)
   const fetchBooks = useCallback(() => {
     api.get('/books', { params: { per_page: 50 } })
       .then(({ data }) => setBooks(data.data || []))
-      .catch((err) => {
-        console.error(err);
-        toast.error("Erreur de chargement des livres");
-      })
+      .catch((err) => toast.error(apiErrorMessage(err, t('load_books_error'))))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
-  // 👇 2. N7ETO fetchCategories f useCallback
   const fetchCategories = useCallback(() => {
     api.get('/admin/categories')
-      .then(({ data }) => {
-        const catList = Array.isArray(data) ? data : (data.data || []);
-        setCategories(catList);
-      })
-      .catch((error) => {
-        console.error("Erreur API categories:", error);
-        toast.error("Impossible de charger les catégories");
-      });
-  }, []);
+      .then(({ data }) => setCategories(Array.isArray(data) ? data : (data.data || [])))
+      .catch((err) => toast.error(apiErrorMessage(err, t('load_categories_error'))));
+  }, [t]);
 
-  // 👇 3. Daba useEffect ghadi ykoun n9i 100% bla ay warning
   useEffect(() => {
     fetchBooks();
     fetchCategories();
   }, [fetchBooks, fetchCategories]);
 
-  // 👇 2. L'Fonction dial l'Ajout (M3a Cloudinary Image)
+  // Envoi multipart : la couverture part sur Cloudinary côté API
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormLoading(true);
@@ -78,72 +69,57 @@ export default function AdminBooksPage() {
       if (formData.nombre_pages) data.append('nombre_pages', formData.nombre_pages);
       data.append('langue', formData.langue);
       data.append('stock', formData.stock.toString());
-      data.append('max_borrow_days', formData.max_borrow_days.toString()); // 👈 Zid hadi
-      if (formData.age_restriction) data.append('age_restriction', formData.age_restriction); // 👈 Zid hadi
-
+      data.append('max_borrow_days', formData.max_borrow_days.toString());
+      if (formData.age_restriction) data.append('age_restriction', formData.age_restriction);
       if (formData.categorie_id) data.append('categorie_id', formData.categorie_id);
       if (imageFile) data.append('image', imageFile);
 
-      await api.post('/admin/books', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await api.post('/admin/books', data, { headers: { 'Content-Type': 'multipart/form-data' } });
 
-      toast.success("Livre ajouté avec succès !");
+      toast.success(t('book_added'));
       setIsModalOpen(false);
-
-      // 👇 Zid l'champs l'jdad f reset dial l'form
-      setFormData({
-        titre: '', description: '', resume: '', nombre_pages: '', langue: 'ar',
-        stock: 1, categorie_id: '', max_borrow_days: 14, age_restriction: ''
-      });
+      setFormData(EMPTY_FORM);
       setImageFile(null);
-
       setLoading(true);
       fetchBooks();
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      toast.error(error.response?.data?.message || "Erreur lors de l'ajout");
+      toast.error(apiErrorMessage(err, t('save_error')));
     } finally {
       setFormLoading(false);
     }
   };
 
-  // 👇 3. Actions (Archiver & Supprimer)
   const archiveBook = async (id: number) => {
-    if (!confirm(t('archive') + ' ?')) return;
+    if (!confirm(t('confirm_archive_book'))) return;
     try {
       await api.post(`/admin/books/${id}/archive`);
       fetchBooks();
-      toast.success("Livre archivé");
-    } catch (err) { toast.error(apiErrorMessage(err, "Erreur d'archivage")); }
+      toast.success(t('book_archived'));
+    } catch (err) { toast.error(apiErrorMessage(err, t('save_error'))); }
   };
 
   const deleteBook = async (id: number) => {
-    if (!confirm(t('delete') + ' ?')) return;
+    if (!confirm(t('confirm_delete_book'))) return;
     try {
       await api.delete(`/admin/books/${id}`);
       fetchBooks();
-      toast.success("Livre supprimé");
-    } catch (err) { toast.error(apiErrorMessage(err, "Erreur de suppression")); }
+      toast.success(t('book_deleted'));
+    } catch (err) { toast.error(apiErrorMessage(err, t('delete_error'))); }
   };
+
+  const selectClass = 'w-full h-10 px-3 border border-stone-200 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500';
+  const textareaClass = 'w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none';
 
   return (
     <div>
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-stone-900">
-          {t('books')} ({books.length})
-        </h1>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-6"
-        >
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <h1 className="text-3xl font-bold text-stone-900">{t('books')} ({books.length})</h1>
+        <Button onClick={() => setIsModalOpen(true)} className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-6">
           {t('add_book')}
         </Button>
       </div>
 
-      {/* TABLEAU DIAL L'BOOKS */}
-      <div className="bg-white rounded-2xl shadow-soft border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-soft border border-stone-200 overflow-x-auto">
         <table className="w-full">
           <thead className="bg-sand border-b border-stone-200">
             <tr>
@@ -160,34 +136,31 @@ export default function AdminBooksPage() {
               <tr><td colSpan={4} className="text-center py-8 text-stone-500">{t('no_books')}</td></tr>
             ) : (
               books.map((book) => (
-                <tr key={book.id}
-                  onClick={() => setSelectedBook(book)}
-                  className="border-b border-stone-100 hover:bg-sand/50 transition cursor-pointer">
+                <tr key={book.id} onClick={() => setSelectedBook(book)} className="border-b border-stone-100 hover:bg-sand/50 transition cursor-pointer">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-14 rounded bg-stone-100 overflow-hidden shrink-0">
-                        {book.image && (
-                          <Image src={book.image} alt={book.titre} width={40} height={56} className="object-cover w-full h-full" />
-                        )}
+                        {book.image && <Image src={book.image} alt={book.titre} width={40} height={56} className="object-cover w-full h-full" />}
                       </div>
                       <div>
                         <div className="font-semibold text-sm line-clamp-1">{book.titre}</div>
-                        <div className="text-xs text-stone-500">{book.categorie?.nom || 'Sans catégorie'}</div>
+                        <div className="text-xs text-stone-500">{book.categorie?.nom || tBook('no_category')}</div>
                       </div>
                     </div>
                   </td>
                   <td className="p-4 text-sm font-medium">{book.stock}</td>
                   <td className="p-4">
                     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${book.statut === 'disponible' ? 'bg-brand-50 text-brand-700' : 'bg-coral-50 text-coral-700'}`}>
-                      {book.statut}
+                      {tBook(`status.${book.statut}`)}
                     </span>
                   </td>
                   <td className="p-4">
+                    {/* stopPropagation : ces boutons ne doivent pas ouvrir la fiche du livre */}
                     <div className="flex gap-2 justify-end">
-                      <button onClick={() => archiveBook(book.id)} className="p-2 rounded-lg hover:bg-gold-50 text-gold-600 transition" title="Archiver">
+                      <button onClick={(e) => { e.stopPropagation(); archiveBook(book.id); }} className="p-2 rounded-lg hover:bg-gold-50 text-gold-600 transition" title={t('archive')} aria-label={t('archive')}>
                         <Archive size={16} />
                       </button>
-                      <button onClick={() => deleteBook(book.id)} className="p-2 rounded-lg hover:bg-coral-50 text-coral-600 transition" title="Supprimer">
+                      <button onClick={(e) => { e.stopPropagation(); deleteBook(book.id); }} className="p-2 rounded-lg hover:bg-coral-50 text-coral-600 transition" title={t('delete')} aria-label={t('delete')}>
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -197,108 +170,78 @@ export default function AdminBooksPage() {
             )}
           </tbody>
         </table>
-
       </div>
-      <BookDetailsModal
-        book={selectedBook}
-        isOpen={!!selectedBook}
-        onClose={() => setSelectedBook(null)}
-        onRefresh={fetchBooks}
-      />
-      {/* 👇 MODAL DIAL L'AJOUT (NOUVEAU LIVRE) */}
+
+      <BookDetailsModal book={selectedBook} isOpen={!!selectedBook} onClose={() => setSelectedBook(null)} onRefresh={fetchBooks} />
+
       {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm"
-          onClick={() => setIsModalOpen(false)} // 👈 Ferme le modal en cliquant dehors
-        >
-          <div
-            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()} // 👈 Empêche la fermeture si on clique dedans
-          >
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
             <h2 className="text-2xl font-bold mb-6">{t('new_book')}</h2>
 
             <form onSubmit={handleAddBook} className="space-y-5">
-              {/* Titre */}
               <div className="space-y-2">
-                <Label>{t('book_title')}</Label>
-                <Input required value={formData.titre} onChange={(e) => setFormData({ ...formData, titre: e.target.value })} placeholder="Ex: Le Petit Prince..." />
+                <Label htmlFor="new-titre">{t('book_title')} *</Label>
+                <Input id="new-titre" required value={formData.titre} onChange={(e) => setFormData({ ...formData, titre: e.target.value })} placeholder={t('title_placeholder')} />
               </div>
 
-              {/* Catégorie & Langue */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t('category')}</Label>
-                  <select
-                    className="w-full h-10 px-3 border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    value={formData.categorie_id}
-                    onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}
-                  >
+                  <Label htmlFor="new-cat">{t('category')}</Label>
+                  <select id="new-cat" className={selectClass} value={formData.categorie_id} onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}>
                     <option value="">{t('no_category')}</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.nom}</option>
-                    ))}
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t('language')}</Label>
-                  <select
-                    className="w-full h-10 px-3 border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    value={formData.langue}
-                    onChange={(e) => setFormData({ ...formData, langue: e.target.value })}
-                  >
-                    <option value="ar">العربية</option>
-                    <option value="fr">Français</option>
-                    <option value="en">English</option>
+                  <Label htmlFor="new-lang">{t('language')}</Label>
+                  <select id="new-lang" className={selectClass} value={formData.langue} onChange={(e) => setFormData({ ...formData, langue: e.target.value })}>
+                    {(['ar', 'fr', 'en'] as const).map((l) => <option key={l} value={l}>{tBook(`languages.${l}`)}</option>)}
                   </select>
                 </div>
               </div>
 
-              {/* Pages & Stock */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t('pages')}</Label>
-                  <Input type="number" value={formData.nombre_pages} onChange={(e) => setFormData({ ...formData, nombre_pages: e.target.value })} />
+                  <Label htmlFor="new-pages">{t('pages')}</Label>
+                  <Input id="new-pages" type="number" min={1} value={formData.nombre_pages} onChange={(e) => setFormData({ ...formData, nombre_pages: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t('stock')}</Label>
-                  <Input type="number" required min={0} value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })} />
+                  <Label htmlFor="new-stock">{t('stock')} *</Label>
+                  <Input id="new-stock" type="number" required min={0} value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })} />
                 </div>
               </div>
 
-              {/* Description */}
               <div className="space-y-2">
-                <Label>{t('description')}</Label>
-                <textarea className="w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none" rows={2} maxLength={555} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                <Label htmlFor="new-desc">{t('description')}</Label>
+                <textarea id="new-desc" className={textareaClass} rows={2} maxLength={555} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
               </div>
 
-              {/* Résumé */}
               <div className="space-y-2">
-                <Label>{t('summary')}</Label>
-                <textarea className="w-full border border-stone-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none" rows={4} maxLength={1200} value={formData.resume} onChange={(e) => setFormData({ ...formData, resume: e.target.value })} />
+                <Label htmlFor="new-resume">{t('summary')}</Label>
+                <textarea id="new-resume" className={textareaClass} rows={4} maxLength={1200} value={formData.resume} onChange={(e) => setFormData({ ...formData, resume: e.target.value })} />
               </div>
 
-              {/* Image */}
               <div className="space-y-2">
                 <Label>{t('cover_image')}</Label>
                 <label className="cursor-pointer bg-stone-50 hover:bg-stone-100 border-2 border-stone-200 border-dashed rounded-xl p-6 flex flex-col items-center justify-center w-full transition mt-1">
                   <ImageIcon className="text-stone-400 mb-2" size={28} />
-                  <span className="text-sm font-medium text-stone-600">
-                    {imageFile ? imageFile.name : t('click_upload')}
-                  </span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files && e.target.files[0]) setImageFile(e.target.files[0]); }} />
+                  <span className="text-sm font-medium text-stone-600">{imageFile ? imageFile.name : t('click_upload')}</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) setImageFile(e.target.files[0]); }} />
                 </label>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Durée max d&apos;emprunt (Jours) *</Label>
-                  <Input type="number" required min={1} value={formData.max_borrow_days} onChange={(e) => setFormData({ ...formData, max_borrow_days: parseInt(e.target.value) || 14 })} />
+                  <Label htmlFor="new-max">{t('max_borrow_days')} *</Label>
+                  <Input id="new-max" type="number" required min={1} max={365} value={formData.max_borrow_days} onChange={(e) => setFormData({ ...formData, max_borrow_days: parseInt(e.target.value) || 14 })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Âge minimum (Optionnel)</Label>
-                  <Input type="number" placeholder="Ex: 18" value={formData.age_restriction} onChange={(e) => setFormData({ ...formData, age_restriction: e.target.value })} />
+                  <Label htmlFor="new-age">{t('min_age')}</Label>
+                  <Input id="new-age" type="number" min={0} max={120} placeholder={t('age_placeholder')} value={formData.age_restriction} onChange={(e) => setFormData({ ...formData, age_restriction: e.target.value })} />
                 </div>
               </div>
+
               <div className="flex justify-end gap-3 pt-6 border-t border-stone-100">
                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('cancel')}</Button>
                 <Button type="submit" disabled={formLoading} className="bg-brand-600 hover:bg-brand-700 text-white min-w-[120px]">

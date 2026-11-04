@@ -16,7 +16,7 @@ class ReviewController extends Controller
 
         // On ne note que ce qu'on a réellement emprunté
         if (!$user->loans()->where('book_id', $book->id)->exists()) {
-            abort(403, "Vous devez avoir emprunté ce livre pour le noter.");
+            abort(403, __("Vous devez avoir emprunté ce livre pour le noter."));
         }
 
         $validated = $request->validate([
