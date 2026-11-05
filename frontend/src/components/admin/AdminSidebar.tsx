@@ -2,7 +2,7 @@
 
 import { Link, usePathname } from '@/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, BookOpen, Users, BookMarked, LogOut, Store, Archive, Handshake, Mail, Tags } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, BookMarked, LogOut, Store, Archive, Handshake, Mail, Tags, LayoutTemplate } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminSidebar() {
@@ -14,6 +14,7 @@ export default function AdminSidebar() {
 
   const LINKS = [
     { href: '/admin', label: t('dashboard'), icon: LayoutDashboard },
+    { href: '/admin/accueil', label: t('home_page'), icon: LayoutTemplate },
     { href: '/admin/books', label: t('books'), icon: BookOpen },
     { href: '/admin/categories', label: t('categories'), icon: Tags },
     { href: '/admin/loans', label: t('loans'), icon: BookMarked },

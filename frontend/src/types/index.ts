@@ -117,3 +117,45 @@ export interface DashboardData {
     book?: { titre: string } | null;
   }[];
 }
+
+// ── Bannière de la page d'accueil (hero) ──
+export type HeroModele = 'classique' | 'carrousel' | 'image';
+
+export interface HeroReglages {
+  modele: HeroModele;
+  defilement: number; // secondes
+  afficher_stats: boolean;
+}
+
+// Version publique : textes déjà dans la langue de la page
+export interface HeroSlide {
+  id: number;
+  image: string;
+  lien: string | null;
+  badge: string | null;
+  titre: string | null;
+  sous_titre: string | null;
+  bouton: string | null;
+}
+
+// Version admin : les deux langues
+export interface AdminHeroSlide {
+  id: number;
+  image: string;
+  lien: string | null;
+  ordre: number;
+  actif: boolean;
+  badge_fr: string | null;
+  badge_ar: string | null;
+  titre_fr: string | null;
+  titre_ar: string | null;
+  sous_titre_fr: string | null;
+  sous_titre_ar: string | null;
+  bouton_fr: string | null;
+  bouton_ar: string | null;
+}
+
+export interface HeroData {
+  reglages: HeroReglages;
+  slides: HeroSlide[];
+}

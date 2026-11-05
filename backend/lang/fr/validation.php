@@ -44,6 +44,18 @@ return [
 
     // Noms des champs tels que le lecteur les voit
     'attributes' => [
+        'image_file' => 'fichier image',
+        'badge_fr' => 'badge en français',
+        'badge_ar' => 'badge en arabe',
+        'titre_fr' => 'titre en français',
+        'titre_ar' => 'titre en arabe',
+        'sous_titre_fr' => 'sous-titre en français',
+        'sous_titre_ar' => 'sous-titre en arabe',
+        'bouton_fr' => 'texte du bouton en français',
+        'bouton_ar' => 'texte du bouton en arabe',
+        'lien' => 'lien',
+        'modele' => 'modèle',
+        'defilement' => 'vitesse de défilement',
         'nom_fr' => 'nom en français',
         'nom_ar' => 'nom en arabe',
         'description_fr' => 'description en français',

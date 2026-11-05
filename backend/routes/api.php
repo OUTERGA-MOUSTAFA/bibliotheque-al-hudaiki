@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\TwoFactorController;
+use App\Http\Controllers\Api\HeroController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok', 'time' => now()]));
 
@@ -20,6 +21,7 @@ Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book:slug}', [BookController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/sponsors', [SponsorController::class, 'index']);
+Route::get('/hero', [HeroController::class, 'show']);
 
 // 🛡️ Auth (protégé par rate limiter)
 Route::middleware('throttle:auth')->group(function () {
@@ -86,6 +88,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
 
     // Sponsors
     Route::apiResource('sponsors', SponsorController::class)->except(['index', 'show']);
+
+    // Bannière de la page d'accueil
+    Route::get('/hero', [HeroController::class, 'adminIndex']);
+    Route::put('/hero/settings', [HeroController::class, 'updateSettings']);
+    Route::post('/hero/slides/reorder', [HeroController::class, 'reorder']);
+    Route::post('/hero/slides', [HeroController::class, 'store']);
+    Route::put('/hero/slides/{heroSlide}', [HeroController::class, 'update']);
+    Route::delete('/hero/slides/{heroSlide}', [HeroController::class, 'destroy']);
 
     // Messages de contact
     Route::get('/contacts', [ContactController::class, 'index']);

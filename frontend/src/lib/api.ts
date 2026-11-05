@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { unstable_rethrow } from 'next/navigation';
-import type { Category } from '@/types';
+import type { Category, HeroData } from '@/types';
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api',
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -98,5 +98,17 @@ export async function fetchSponsors(locale = 'fr') {
   } catch (error) {
     unstable_rethrow(error);
     return [];
+  }
+}
+// Bannière d'accueil : modèle choisi par l'admin + diapositives dans la langue de la page
+export async function fetchHero(locale = 'fr'): Promise<HeroData> {
+  const vide: HeroData = { reglages: { modele: 'classique', defilement: 6, afficher_stats: true }, slides: [] };
+  try {
+    const res = await fetch(withLocale('/hero', locale), { cache: 'no-store' });
+    if (!res.ok) return vide;
+    return await res.json();
+  } catch (error) {
+    unstable_rethrow(error);
+    return vide;
   }
 }

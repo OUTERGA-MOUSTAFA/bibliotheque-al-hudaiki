@@ -1,5 +1,5 @@
 // src/app/[locale]/page.tsx
-import { fetchBooks, fetchCategories, fetchSponsors } from '@/lib/api';
+import { fetchBooks, fetchCategories, fetchHero, fetchSponsors } from '@/lib/api';
 import Hero from '@/components/home/Hero';
 import PopularCarousel from '@/components/home/PopularCarousel';
 import Categories from '@/components/home/Categories';
@@ -13,7 +13,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('home');
 
   // La langue est transmise à l'API : noms de catégories traduits
-  const [popular, recent, categories, sponsors] = await Promise.all([
+  const [hero, popular, recent, categories, sponsors] = await Promise.all([
+    fetchHero(locale),
     fetchBooks({ tri: 'populaire', per_page: 10 }, locale).catch(() => ({ data: [] })),
     fetchBooks({ tri: 'recent', per_page: 8 }, locale).catch(() => ({ data: [] })),
     fetchCategories(locale),
@@ -22,7 +23,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-       <Hero />
+       <Hero data={hero} />
       <PopularCarousel books={popular.data || []} />
       <Categories categories={categories || []} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">

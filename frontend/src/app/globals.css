@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ============================================
    DESIGN TOKENS — Tailwind v4 @theme
@@ -158,4 +159,14 @@ button:focus-visible,
 a:focus-visible {
   outline: 2px solid #059669;
   outline-offset: 2px;
+}
+
+/* Barre de progression des onglets du hero (modèle carrousel) */
+@keyframes hero-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="hero-progress"] { animation: none !important; transform: scaleX(1); }
 }
