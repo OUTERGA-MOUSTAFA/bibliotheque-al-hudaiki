@@ -159,8 +159,8 @@ class AuthController extends Controller
         $user = User::whereRaw('LOWER(email) = ?', [strtolower($validated['email'])])->first();
 
         if ($user && $user->statut === 'actif') {
-            // La langue sert à construire le lien vers la bonne page du frontend
-            app()->instance('reset_locale', $validated['locale'] ?? app()->getLocale());
+            // L'e-mail et le lien qu'il contient partent dans la langue de la demande
+            $user->forceFill(['locale' => $validated['locale'] ?? app()->getLocale()])->saveQuietly();
             Password::sendResetLink(['email' => $user->email]);
         }
 
@@ -304,6 +304,11 @@ class AuthController extends Controller
     // Réponse commune après inscription / connexion réussie
     private function sessionPayload(User $user): array
     {
+        // Langue utilisée à la connexion / inscription : celle des futurs e-mails
+        if ($user->locale !== app()->getLocale()) {
+            $user->forceFill(['locale' => app()->getLocale()])->saveQuietly();
+        }
+
         return [
             'user' => $user->only(['id', 'nom', 'prenom', 'email', 'statut', 'date_naissance', 'telephone', 'adresse', 'etablissement', 'photo']),
             'roles' => $user->getRoleNames(),

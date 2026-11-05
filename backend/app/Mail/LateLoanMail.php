@@ -20,7 +20,7 @@ class LateLoanMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Rappel : livre à rendre — ' . $this->loan->book->titre,
+            subject: __('Rappel : livre à rendre — :titre', ['titre' => $this->loan->book->titre]),
         );
     }
 

@@ -80,7 +80,8 @@ class SecurityAndPasswordTest extends TestCase
         $this->postJson('/api/forgot-password', ['email' => 'Sara@Example.com', 'locale' => 'ar'])->assertOk();
 
         Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
-            $url = $notification->toMail($user)->actionUrl;
+            // fresh() : la demande a enregistré la langue « ar » sur le compte
+            $url = $notification->toMail($user->fresh())->actionUrl;
             return str_starts_with($url, 'https://bibliotheque.test/ar/reinitialiser-mot-de-passe?token=');
         });
     }

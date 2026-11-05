@@ -9,19 +9,25 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
+        // [slug, nom FR, nom AR, description FR, description AR]
         $categories = [
-            ['nom' => 'أدب عربي',       'slug' => 'adab-arabi',      'description' => 'روايات وأشعار عربية'],
-            ['nom' => 'أدب فرنسي',       'slug' => 'adab-faransi',    'description' => 'Littérature française'],
-            ['nom' => 'كتب الأطفال',     'slug' => 'kotob-atfal',     'description' => 'قصص وحكايات للصغار'],
-            ['nom' => 'تاريخ',           'slug' => 'tarikh',          'description' => 'كتب تاريخية'],
-            ['nom' => 'علوم',            'slug' => 'oloum',           'description' => 'Sciences et techniques'],
-            ['nom' => 'فلسفة',           'slug' => 'falsafa',         'description' => 'Philosophie et pensée'],
-            ['nom' => 'دين',             'slug' => 'din',             'description' => 'كتب دينية'],
-            ['nom' => 'تنمية ذاتية',     'slug' => 'tanmiya-datiya',  'description' => 'Développement personnel'],
+            ['adab-arabi', 'Littérature arabe', 'أدب عربي', 'Romans et poésie arabes', 'روايات وأشعار عربية'],
+            ['adab-faransi', 'Littérature française', 'أدب فرنسي', 'Romans et œuvres de la littérature française', 'روايات وأعمال من الأدب الفرنسي'],
+            ['kotob-atfal', 'Livres pour enfants', 'كتب الأطفال', 'Contes et histoires pour les petits', 'قصص وحكايات للصغار'],
+            ['tarikh', 'Histoire', 'تاريخ', 'Livres d’histoire', 'كتب تاريخية'],
+            ['oloum', 'Sciences', 'علوم', 'Sciences et techniques', 'علوم وتقنيات'],
+            ['falsafa', 'Philosophie', 'فلسفة', 'Philosophie et pensée', 'فلسفة وفكر'],
+            ['din', 'Religion', 'دين', 'Livres religieux', 'كتب دينية'],
+            ['tanmiya-datiya', 'Développement personnel', 'تنمية ذاتية', 'Développement personnel', 'تنمية ذاتية وتطوير الذات'],
         ];
 
-        foreach ($categories as $cat) {
-            Category::firstOrCreate(['slug' => $cat['slug']], $cat);
+        foreach ($categories as [$slug, $nomFr, $nomAr, $descFr, $descAr]) {
+            Category::firstOrCreate(['slug' => $slug], [
+                'nom_fr' => $nomFr,
+                'nom_ar' => $nomAr,
+                'description_fr' => $descFr,
+                'description_ar' => $descAr,
+            ]);
         }
     }
 }

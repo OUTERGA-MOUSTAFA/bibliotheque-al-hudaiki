@@ -23,7 +23,8 @@ class NotifyLateLoans extends Command
                     if (!$loan->user?->email || !$loan->book) {
                         continue;
                     }
-                    Mail::to($loan->user->email)->queue(new LateLoanMail($loan));
+                    // Mail::to($user) : l'e-mail part dans la langue préférée du lecteur
+                    Mail::to($loan->user)->queue(new LateLoanMail($loan));
                     $count++;
                 }
             });

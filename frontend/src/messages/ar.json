@@ -358,7 +358,13 @@
     "age_placeholder": "مثال: 18",
     "archived_books": "الكتب المؤرشفة",
     "no_archived_books": "لا توجد كتب مؤرشفة",
-    "book": "الكتاب"
+    "book": "الكتاب",
+    "name_fr": "الاسم بالفرنسية",
+    "name_ar": "الاسم بالعربية",
+    "description_fr": "الوصف بالفرنسية",
+    "description_ar": "الوصف بالعربية",
+    "category_both_languages": "املأ اللغتين: يعرض الموقع الاسم باللغة التي يختارها الزائر. اسم واحد على الأقل إلزامي.",
+    "translation_missing": "ترجمة ناقصة"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",

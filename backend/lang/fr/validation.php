@@ -44,6 +44,10 @@ return [
 
     // Noms des champs tels que le lecteur les voit
     'attributes' => [
+        'nom_fr' => 'nom en français',
+        'nom_ar' => 'nom en arabe',
+        'description_fr' => 'description en français',
+        'description_ar' => 'description en arabe',
         'nom' => 'nom',
         'prenom' => 'prénom',
         'email' => 'e-mail',

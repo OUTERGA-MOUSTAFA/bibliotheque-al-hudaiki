@@ -31,9 +31,9 @@ export default async function CataloguePage({
   const page = Math.max(1, parseInt(query.page || '1', 10) || 1);
 
   const [books, categories] = await Promise.all([
-    fetchBooks({ ...Object.fromEntries(FILTER_KEYS.map((k) => [k, query[k]])), page, per_page: 12 })
+    fetchBooks({ ...Object.fromEntries(FILTER_KEYS.map((k) => [k, query[k]])), page, per_page: 12 }, locale)
       .catch(() => ({ data: [], total: 0, last_page: 1 })),
-    fetchCategories(),
+    fetchCategories(locale),
   ]);
 
   const list: Book[] = books.data ?? [];

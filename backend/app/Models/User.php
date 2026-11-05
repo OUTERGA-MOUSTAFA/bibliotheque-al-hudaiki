@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;   // 👈 ZID HADI
+use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     use HasApiTokens, HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
 
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'password',
         'statut',
         'consentement_at',
+        'locale',
     ];
 
     protected $hidden = [
@@ -65,6 +67,12 @@ class User extends Authenticatable
     public function getEstMajeurAttribute(): bool
     {
         return $this->age >= 18;
+    }
+
+    // Langue des e-mails et notifications envoyés à ce lecteur (Laravel l'utilise automatiquement)
+    public function preferredLocale(): string
+    {
+        return in_array($this->locale, ['fr', 'ar'], true) ? $this->locale : 'fr';
     }
 
     public function loans()

@@ -23,7 +23,12 @@ export default function Header() {
     setMenuOpen(false);
   }
 
-  const switchLocale = (newLocale: 'fr' | 'ar') => router.replace(pathname, { locale: newLocale });
+  // Change de langue en restant sur la même page, filtres compris (ex. /catalogue?categorie=5).
+  // next-intl mémorise le choix (cookie NEXT_LOCALE) : la prochaine visite s'ouvre dans cette langue.
+  const switchLocale = (newLocale: 'fr' | 'ar') => {
+    if (newLocale === locale) return;
+    router.replace(`${pathname}${window.location.search}`, { locale: newLocale });
+  };
 
   const links = [
     { href: '/', label: t('home') },
@@ -64,8 +69,8 @@ export default function Header() {
 
           <div className="flex items-center gap-2">
             <div className="flex items-center bg-stone-100 rounded-full p-0.5">
-              <button onClick={() => switchLocale('fr')} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'fr' ? 'bg-brand-600 text-white' : 'text-stone-500'}`}>FR</button>
-              <button onClick={() => switchLocale('ar')} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'ar' ? 'bg-brand-600 text-white' : 'text-stone-500'}`}>ع</button>
+              <button onClick={() => switchLocale('fr')} lang="fr" aria-label="Français" aria-pressed={locale === 'fr'} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'fr' ? 'bg-brand-600 text-white' : 'text-stone-500'}`}>FR</button>
+              <button onClick={() => switchLocale('ar')} lang="ar" aria-label="العربية" aria-pressed={locale === 'ar'} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'ar' ? 'bg-brand-600 text-white' : 'text-stone-500'}`}>ع</button>
             </div>
 
             {loading ? (

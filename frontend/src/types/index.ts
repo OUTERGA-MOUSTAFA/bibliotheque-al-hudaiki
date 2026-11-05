@@ -1,9 +1,13 @@
 export interface Category {
   id: number;
-  nom: string;
+  nom: string; // dans la langue de la requête
+  nom_fr?: string | null;
+  nom_ar?: string | null;
   slug: string;
   visuel?: string;
   description?: string;
+  description_fr?: string | null;
+  description_ar?: string | null;
   books_count?: number;
   statut?: 'actif' | 'archive';
 }

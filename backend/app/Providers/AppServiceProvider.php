@@ -30,8 +30,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Le lien de réinitialisation pointe vers le frontend Next.js, pas vers Laravel
         ResetPassword::createUrlUsing(function ($user, string $token) {
-            // Langue de la demande (en-tête Accept-Language ou champ « locale ») : le lien ouvre la même langue
-            $locale = app()->bound('reset_locale') ? app('reset_locale') : app()->getLocale();
+            // La page s'ouvre dans la langue du lecteur (mise à jour lors de sa demande)
+            $locale = $user->preferredLocale();
 
             return rtrim(config('app.frontend_url'), '/') . "/{$locale}/reinitialiser-mot-de-passe?" . http_build_query([
                 'token' => $token,

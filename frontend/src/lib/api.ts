@@ -48,32 +48,37 @@ export function apiErrorMessage(error: unknown, fallback: string): string {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
-// 👇 Zidna had l'Type bach n7aydo l'warning dial "any"
 type BookQueryParams = Record<string, string | number | boolean | null | undefined>;
 
-export async function fetchBooks(params: BookQueryParams = {}) {
+// Requêtes faites par le serveur Next.js : la langue va dans l'URL (?locale=ar).
+// L'API renvoie alors les noms de catégories dans cette langue, et le cache de Next.js
+// garde une version par langue (la clé de cache est l'URL).
+const withLocale = (path: string, locale: string, params: BookQueryParams = {}) => {
   const qs = new URLSearchParams(
-    Object.entries(params)
+    Object.entries({ ...params, locale: locale === 'ar' ? 'ar' : 'fr' })
       .filter(([, v]) => v != null && v !== '')
-      .map(([k, v]) => [k, String(v)]) // 👈 N7awlo kolchi l'string 9bel l'URLSearchParams
+      .map(([k, v]) => [k, String(v)])
   ).toString();
+  return `${API_URL}${path}?${qs}`;
+};
 
-  const res = await fetch(`${API_URL}/books?${qs}`, { next: { revalidate: 60 } });
+export async function fetchBooks(params: BookQueryParams = {}, locale = 'fr') {
+  const res = await fetch(withLocale('/books', locale, params), { next: { revalidate: 60 } });
   if (!res.ok) throw new Error('Failed to fetch books');
   return res.json();
 }
 
-export async function fetchBook(slug: string) {
-  const res = await fetch(`${API_URL}/books/${slug}`, { next: { revalidate: 120 } });
+export async function fetchBook(slug: string, locale = 'fr') {
+  const res = await fetch(withLocale(`/books/${slug}`, locale), { next: { revalidate: 120 } });
   if (!res.ok) throw new Error('Book not found');
   return res.json();
 }
 
 // unstable_rethrow : laisse passer le signal interne de Next.js (« rendu dynamique »).
 // L'avaler figeait la page au build avec une liste vide.
-export async function fetchCategories(): Promise<Category[]> {
+export async function fetchCategories(locale = 'fr'): Promise<Category[]> {
   try {
-    const res = await fetch(`${API_URL}/categories`, { cache: 'no-store' });
+    const res = await fetch(withLocale('/categories', locale), { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : (data.data || []);
@@ -84,9 +89,9 @@ export async function fetchCategories(): Promise<Category[]> {
   }
 }
 
-export async function fetchSponsors() {
+export async function fetchSponsors(locale = 'fr') {
   try {
-    const res = await fetch(`${API_URL}/sponsors`, { cache: 'no-store' });
+    const res = await fetch(withLocale('/sponsors', locale), { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : (data.data || []);

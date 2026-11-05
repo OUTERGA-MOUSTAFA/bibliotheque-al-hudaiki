@@ -5,16 +5,19 @@ import PopularCarousel from '@/components/home/PopularCarousel';
 import Categories from '@/components/home/Categories';
 import Sponsors from '@/components/home/Sponsors';
 import BookGrid from '@/components/books/BookGrid';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-export default async function HomePage() {
-    const t = await getTranslations('home');   // 👈 Server-side
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('home');
 
+  // La langue est transmise à l'API : noms de catégories traduits
   const [popular, recent, categories, sponsors] = await Promise.all([
-    fetchBooks({ tri: 'populaire', per_page: 10 }).catch(() => ({ data: [] })),
-    fetchBooks({ tri: 'recent', per_page: 8 }).catch(() => ({ data: [] })),
-    fetchCategories().catch(() => []),
-    fetchSponsors().catch(() => []),
+    fetchBooks({ tri: 'populaire', per_page: 10 }, locale).catch(() => ({ data: [] })),
+    fetchBooks({ tri: 'recent', per_page: 8 }, locale).catch(() => ({ data: [] })),
+    fetchCategories(locale),
+    fetchSponsors(locale),
   ]);
 
   return (

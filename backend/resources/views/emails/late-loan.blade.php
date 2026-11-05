@@ -1,16 +1,20 @@
+{{-- Rendu dans la langue du lecteur (User::preferredLocale) --}}
+@php($locale = app()->getLocale() === 'ar' ? 'ar' : 'fr')
 <x-mail::message>
-# Bonjour {{ $loan->user->prenom }},
+# {{ __('Bonjour :prenom,', ['prenom' => $loan->user->prenom]) }}
 
-Le livre **{{ $loan->book->titre }}** devait être rendu le
-**{{ $loan->date_retour_prevue->format('d/m/Y') }}**
-({{ (int) $loan->date_retour_prevue->diffInDays(today()) }} jour(s) de retard).
+{{ __('Le livre « :titre » devait être rendu le :date.', [
+    'titre' => $loan->book->titre,
+    'date' => $loan->date_retour_prevue->format('d/m/Y'),
+]) }}
 
-Merci de le rapporter à la bibliothèque dès que possible.
+{{ __('Nombre de jours de retard : :count.', ['count' => max(1, (int) $loan->date_retour_prevue->diffInDays(today()))]) }}
 
-<x-mail::button :url="rtrim(config('app.frontend_url'), '/') . '/compte/emprunts'">
-Voir mes emprunts
+{{ __('Merci de le rapporter à la bibliothèque dès que possible.') }}
+
+<x-mail::button :url="rtrim(config('app.frontend_url'), '/') . '/' . $locale . '/compte/emprunts'">
+{{ __('Voir mes emprunts') }}
 </x-mail::button>
 
-Merci,<br>
-{{ config('app.name') }}
+{{ __('Bibliothèque Al Hudaiki') }}
 </x-mail::message>

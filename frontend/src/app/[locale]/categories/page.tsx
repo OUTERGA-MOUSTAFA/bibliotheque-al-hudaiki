@@ -10,7 +10,7 @@ export default async function CategoriesPage({ params }: { params: Promise<{ loc
   const t = await getTranslations('categories_page');
   const tNav = await getTranslations('nav');
   const tHome = await getTranslations('home');
-  const categories = await fetchCategories().catch(() => []);
+  const categories = await fetchCategories(locale);
 
   return (
     <div className="bg-cream min-h-screen py-16">

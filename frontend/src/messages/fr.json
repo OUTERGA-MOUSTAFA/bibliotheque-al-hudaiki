@@ -358,7 +358,13 @@
     "age_placeholder": "Ex. : 18",
     "archived_books": "Livres archivés",
     "no_archived_books": "Aucun livre archivé",
-    "book": "Livre"
+    "book": "Livre",
+    "name_fr": "Nom en français",
+    "name_ar": "Nom en arabe",
+    "description_fr": "Description en français",
+    "description_ar": "Description en arabe",
+    "category_both_languages": "Remplissez les deux langues : le site affiche le nom dans la langue choisie par le visiteur. Au moins un nom est obligatoire.",
+    "translation_missing": "Traduction manquante"
   },
   "footer": {
     "rights": "Tous droits réservés",
