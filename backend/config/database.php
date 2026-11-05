@@ -85,18 +85,21 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', 'ep-fancy-rice-zaw0kk5r.c-2.eu-west-2.aws.neon.tech'),
+            // Aucune valeur par défaut secrète : tout vient de .env / des variables Railway
+            'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'neondb'),
-            'username' => env('DB_USERNAME', 'neondb_owner'),
-            'password' => env('DB_PASSWORD', 'pg_kTWOL0u8AXFG'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
 
-            // 👇 ZID HADI 👇
+            // Requêtes préparées émulées : nécessaire avec le pooler de Neon (PgBouncer).
+            // Effet de bord : les booléens partent comme 1/0, refusés par PostgreSQL pour une
+            // colonne boolean. App\Database\PostgresConnection les envoie donc en 'true'/'false'.
             'options' => extension_loaded('pdo_pgsql') ? array_filter([
                 PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Database\PostgresConnection;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Database\Connection;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -13,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Booléens compatibles avec les requêtes préparées émulées (voir App\Database\PostgresConnection)
+        Connection::resolverFor('pgsql', fn($pdo, $database, $prefix, $config) =>
+            new PostgresConnection($pdo, $database, $prefix, $config));
     }
 
     public function boot(): void
