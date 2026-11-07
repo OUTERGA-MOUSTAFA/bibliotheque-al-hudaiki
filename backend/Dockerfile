@@ -42,6 +42,13 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # 9. SCRIPT DIAL L'BIDAYA
 RUN echo '#!/bin/bash' > /usr/local/bin/start.sh
+# Rôle du conteneur (variable Railway ROLE) :
+#  - absent / « web » : site + API (Apache), lance aussi les migrations
+#  - « scheduler »     : tâches planifiées (rappels de retard, nettoyage des tokens), sans Apache
+#  - « worker »        : file d'attente (e-mails en arrière-plan), si QUEUE_CONNECTION=database
+RUN echo 'php artisan config:clear >/dev/null' >> /usr/local/bin/start.sh
+RUN echo 'if [ "$ROLE" = "scheduler" ]; then echo "Rôle : scheduler"; exec php artisan schedule:work; fi' >> /usr/local/bin/start.sh
+RUN echo 'if [ "$ROLE" = "worker" ]; then echo "Rôle : worker"; exec php artisan queue:work --sleep=3 --tries=3 --max-time=3600; fi' >> /usr/local/bin/start.sh
 # Même nettoyage au démarrage : garantit un seul MPM quoi qu'il arrive à l'image, et l'affiche dans les logs
 RUN echo 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' >> /usr/local/bin/start.sh
 RUN echo 'ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load' >> /usr/local/bin/start.sh

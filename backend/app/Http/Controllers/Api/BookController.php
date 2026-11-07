@@ -32,6 +32,9 @@ class BookController extends Controller
 
         if (in_array($request->statut, ['disponible', 'emprunte', 'archive'], true)) {
             $query->where('statut', $request->statut);
+        } elseif ($request->statut === 'actifs') {
+            // Page « Livres » de l'admin : tout sauf les archivés (qui ont leur propre page)
+            $query->where('statut', '!=', 'archive');
         }
 
         return response()->json($this->filtrer($query, $request)->paginate($this->perPage($request)));

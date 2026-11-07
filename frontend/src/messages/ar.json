@@ -412,7 +412,14 @@
     "hero_button": "نص الزر",
     "hero_link": "رابط الزر",
     "hero_link_hint": "صفحة من الموقع (مثلاً ‎/catalogue‎) أو رابط https://…",
-    "hero_visible": "ظاهرة في الموقع"
+    "hero_visible": "ظاهرة في الموقع",
+    "pagination": "التنقّل بين الصفحات",
+    "page_of": "الصفحة {page} من {last} · {total} نتيجة",
+    "previous": "السابق",
+    "next": "التالي",
+    "search_books": "البحث عن كتاب…",
+    "search_users": "الاسم أو البريد أو الهاتف…",
+    "no_results": "لا توجد نتائج"
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",

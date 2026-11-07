@@ -7,6 +7,7 @@ import { Loader2, Archive, RotateCcw, Trash2, Mail, Phone, ShieldCheck } from 'l
 import { api, apiErrorMessage } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { AdminUser, PaginatedResponse } from '@/types';
+import { AdminPagination, AdminSearch, useDebounced } from '@/components/admin/AdminPagination';
 
 export default function AdminUsersPage() {
   const t = useTranslations('admin');
@@ -15,16 +16,22 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [statut, setStatut] = useState<'' | 'actif' | 'archive'>('');
+  const q = useDebounced(search.trim());
 
   const fetchUsers = useCallback(() => {
-    api.get<PaginatedResponse<AdminUser>>('/admin/users')
+    api.get<PaginatedResponse<AdminUser>>('/admin/users', { params: { page, per_page: 24, q: q || undefined, statut: statut || undefined } })
       .then(({ data }) => {
         setUsers(data.data || []);
         setTotal(data.total ?? data.data?.length ?? 0);
+        setLastPage(data.last_page ?? 1);
       })
       .catch((err) => toast.error(apiErrorMessage(err, t('load_error'))))
       .finally(() => setLoading(false));
-  }, [t]);
+  }, [t, page, q, statut]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
@@ -55,10 +62,29 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-stone-900 mb-1">{t('users')}</h1>
-        <p className="text-stone-500 text-sm">{t('users_count', { count: total })}</p>
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-stone-900 mb-1">{t('users')}</h1>
+          <p className="text-stone-500 text-sm">{t('users_count', { count: total })}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <AdminSearch value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder={t('search_users')} />
+          <select
+            value={statut}
+            onChange={(e) => { setStatut(e.target.value as typeof statut); setPage(1); }}
+            aria-label={t('status')}
+            className="h-10 px-3 rounded-xl border border-stone-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="">{t('filter_all')}</option>
+            <option value="actif">{t('status_active')}</option>
+            <option value="archive">{t('status_archived')}</option>
+          </select>
+        </div>
       </div>
+
+      {users.length === 0 && (
+        <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-12 text-center text-stone-500">{t('no_results')}</div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {users.map((u) => {
@@ -114,6 +140,8 @@ export default function AdminUsersPage() {
           );
         })}
       </div>
+
+      <AdminPagination page={page} lastPage={lastPage} total={total} onChange={setPage} />
     </div>
   );
 }

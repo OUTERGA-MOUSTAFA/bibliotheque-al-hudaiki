@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Book, Category } from '@/types';
 import BookDetailsModal from '@/components/admin/BookDetailsModal';
+import { AdminPagination, AdminSearch, useDebounced } from '@/components/admin/AdminPagination';
 
 const EMPTY_FORM = {
   titre: '',
@@ -36,14 +37,23 @@ export default function AdminBooksPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
+  const q = useDebounced(search.trim());
 
-  // Livres non archivés (les archivés sont dans la page Archives)
+  // Livres non archivés (les archivés sont dans la page Archives), 20 par page, avec recherche
   const fetchBooks = useCallback(() => {
-    api.get('/books', { params: { per_page: 50 } })
-      .then(({ data }) => setBooks(data.data || []))
+    api.get('/admin/books', { params: { statut: 'actifs', per_page: 20, page, q: q || undefined } })
+      .then(({ data }) => {
+        setBooks(data.data || []);
+        setLastPage(data.last_page ?? 1);
+        setTotal(data.total ?? 0);
+      })
       .catch((err) => toast.error(apiErrorMessage(err, t('load_books_error'))))
       .finally(() => setLoading(false));
-  }, [t]);
+  }, [t, page, q]);
 
   const fetchCategories = useCallback(() => {
     api.get('/admin/categories')
@@ -113,10 +123,13 @@ export default function AdminBooksPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-stone-900">{t('books')} ({books.length})</h1>
-        <Button onClick={() => setIsModalOpen(true)} className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-6">
-          {t('add_book')}
-        </Button>
+        <h1 className="text-3xl font-bold text-stone-900">{t('books')} ({total})</h1>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <AdminSearch value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder={t('search_books')} />
+          <Button onClick={() => setIsModalOpen(true)} className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-6">
+            {t('add_book')}
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-soft border border-stone-200 overflow-x-auto">
@@ -171,6 +184,8 @@ export default function AdminBooksPage() {
           </tbody>
         </table>
       </div>
+
+      <AdminPagination page={page} lastPage={lastPage} total={total} onChange={setPage} />
 
       <BookDetailsModal book={selectedBook} isOpen={!!selectedBook} onClose={() => setSelectedBook(null)} onRefresh={fetchBooks} />
 

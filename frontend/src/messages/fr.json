@@ -412,7 +412,14 @@
     "hero_button": "Texte du bouton",
     "hero_link": "Lien du bouton",
     "hero_link_hint": "Une page du site (ex. /catalogue ou /catalogue?categorie=3) ou une adresse https://…",
-    "hero_visible": "Visible sur le site"
+    "hero_visible": "Visible sur le site",
+    "pagination": "Pagination",
+    "page_of": "Page {page} sur {last} · {total} résultats",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "search_books": "Rechercher un livre…",
+    "search_users": "Nom, e-mail ou téléphone…",
+    "no_results": "Aucun résultat"
   },
   "footer": {
     "rights": "Tous droits réservés",

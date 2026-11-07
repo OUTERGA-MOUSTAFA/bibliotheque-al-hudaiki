@@ -32,13 +32,28 @@ class AdminController extends Controller
         ]);
     }
 
-    public function users()
+    // Liste paginée, avec recherche (nom, prénom, e-mail, téléphone) et filtre de statut
+    public function users(Request $request)
     {
-        $users = User::with('roles')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $query = User::with('roles')->orderBy('created_at', 'desc');
 
-        return response()->json($users);
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where(function ($w) use ($q) {
+                $w->whereLike('nom', "%{$q}%")
+                    ->orWhereLike('prenom', "%{$q}%")
+                    ->orWhereLike('email', "%{$q}%")
+                    ->orWhereLike('telephone', "%{$q}%");
+            });
+        }
+
+        if (in_array($request->statut, ['actif', 'archive'], true)) {
+            $query->where('statut', $request->statut);
+        }
+
+        $perPage = min(max((int) ($request->per_page ?: 24), 1), 100);
+
+        return response()->json($query->paginate($perPage));
     }
 
     public function archiveUser(Request $request, User $user)

@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { api, apiErrorMessage } from '@/lib/api';
 import type { Book } from '@/types';
 import BookDetailsModal from '@/components/admin/BookDetailsModal';
+import { AdminPagination, AdminSearch, useDebounced } from '@/components/admin/AdminPagination';
 
 export default function AdminArchivesPage() {
     const t = useTranslations('admin');
@@ -15,13 +16,22 @@ export default function AdminArchivesPage() {
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+    const [page, setPage] = useState(1);
+    const [lastPage, setLastPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [search, setSearch] = useState('');
+    const q = useDebounced(search.trim());
 
     const fetchArchivedBooks = useCallback(() => {
-        api.get('/admin/books', { params: { statut: 'archive', per_page: 50 } })
-            .then(({ data }) => setBooks(data.data || []))
+        api.get('/admin/books', { params: { statut: 'archive', per_page: 20, page, q: q || undefined } })
+            .then(({ data }) => {
+                setBooks(data.data || []);
+                setLastPage(data.last_page ?? 1);
+                setTotal(data.total ?? 0);
+            })
             .catch((err) => toast.error(apiErrorMessage(err, t('load_books_error'))))
             .finally(() => setLoading(false));
-    }, [t]);
+    }, [t, page, q]);
 
     useEffect(() => { fetchArchivedBooks(); }, [fetchArchivedBooks]);
 
@@ -38,8 +48,9 @@ export default function AdminArchivesPage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold text-stone-900">{t('archived_books')} ({books.length})</h1>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+                <h1 className="text-3xl font-bold text-stone-900">{t('archived_books')} ({total})</h1>
+                <AdminSearch value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder={t('search_books')} />
             </div>
 
             <div className="bg-white rounded-2xl shadow-soft border border-stone-200 overflow-x-auto">
@@ -94,6 +105,8 @@ export default function AdminArchivesPage() {
                     </tbody>
                 </table>
             </div>
+
+            <AdminPagination page={page} lastPage={lastPage} total={total} onChange={setPage} />
 
             <BookDetailsModal
                 book={selectedBook}

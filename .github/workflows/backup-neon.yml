@@ -1,0 +1,75 @@
+# Sauvegarde quotidienne de la base Neon.
+# Neon (offre gratuite) ne garde que 6 heures d'historique : cette copie permet de revenir
+# plusieurs jours en arrière. Le fichier est CHIFFRÉ (il contient des données personnelles :
+# CIN, téléphones…) puis conservé 30 jours dans les « artifacts » de GitHub Actions.
+#
+# Secrets à créer : Settings → Secrets and variables → Actions → New repository secret
+#   NEON_DATABASE_URL   chaîne de connexion DIRECTE de Neon (sans « -pooler » dans l'hôte)
+#                       ex. postgresql://neondb_owner:MOT_DE_PASSE@ep-xxx.eu-west-2.aws.neon.tech/neondb?sslmode=require
+#   BACKUP_PASSPHRASE   phrase secrète longue, gardée aussi ailleurs (sans elle, la sauvegarde est illisible)
+#
+# Restaurer :
+#   gpg --batch --passphrase "PHRASE" -d neondb-AAAA-MM-JJ.dump.gpg > neondb.dump
+#   pg_restore --clean --if-exists --no-owner -d "CHAINE_DE_CONNEXION" neondb.dump
+
+name: Sauvegarde Neon
+
+on:
+  schedule:
+    - cron: '30 2 * * *' # chaque nuit à 02:30 UTC (03:30 au Maroc)
+  workflow_dispatch: {}   # bouton « Run workflow » pour une sauvegarde à la demande
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-neon
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Vérifier les secrets
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$NEON_DATABASE_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Secrets NEON_DATABASE_URL et BACKUP_PASSPHRASE requis (voir l'en-tête du fichier)."
+            exit 1
+          fi
+
+      # Neon utilise PostgreSQL 18 : pg_dump doit être de la même version ou plus récent
+      - name: Installer pg_dump 18
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18
+          /usr/lib/postgresql/18/bin/pg_dump --version
+
+      - name: Sauvegarder et chiffrer
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          FICHIER="neondb-$(date -u +%Y-%m-%d).dump"
+          /usr/lib/postgresql/18/bin/pg_dump "$NEON_DATABASE_URL" --format=custom --no-owner --no-privileges --file "$FICHIER"
+          # Contrôle : le fichier doit lister les tables principales
+          /usr/lib/postgresql/18/bin/pg_restore --list "$FICHIER" | grep -E "TABLE DATA public (users|books|loans)" || { echo "::error::Sauvegarde incomplète"; exit 1; }
+          gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$BACKUP_PASSPHRASE" -o "$FICHIER.gpg" "$FICHIER"
+          rm -f "$FICHIER"
+          ls -lh "$FICHIER.gpg"
+          echo "FICHIER=$FICHIER.gpg" >> "$GITHUB_ENV"
+
+      - name: Conserver la sauvegarde (30 jours)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FICHIER }}
+          path: ${{ env.FICHIER }}
+          retention-days: 30
+          if-no-files-found: error
