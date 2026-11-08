@@ -63,6 +63,12 @@ class LocalizationTest extends TestCase
             ->assertJsonPath('message', 'المدة القصوى لإعارة هذا الكتاب بالأيام: 7.');
     }
 
+    public function test_route_protegee_sans_connexion_ni_accept_json_renvoie_401(): void
+    {
+        // Avant : « Route [login] not defined » → 500
+        $this->get('/api/admin/books')->assertStatus(401)->assertJsonPath('message', 'Votre session a expiré. Reconnectez-vous.');
+    }
+
     public function test_les_erreurs_generiques_sont_traduites(): void
     {
         $this->getJson('/api/me', ['Accept-Language' => 'ar'])

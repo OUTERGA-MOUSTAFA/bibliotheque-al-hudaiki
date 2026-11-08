@@ -28,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Langue de la réponse (fr / ar) choisie d'après l'en-tête Accept-Language
         $middleware->api(prepend: [SetLocaleFromHeader::class]);
+
+        // Pas de page de connexion côté Laravel (c'est Next.js) : sans cela, une requête non
+        // connectée sans « Accept: application/json » cherchait la route « login » → erreur 500
+        $middleware->redirectGuestsTo(fn(Request $request) => $request->is('api/*') ? null : '/');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Messages génériques du framework, traduits dans la langue de la requête
