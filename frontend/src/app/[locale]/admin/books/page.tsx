@@ -244,6 +244,7 @@ export default function AdminBooksPage() {
                   <span className="text-sm font-medium text-stone-600">{imageFile ? imageFile.name : t('click_upload')}</span>
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) setImageFile(e.target.files[0]); }} />
                 </label>
+                <p className="text-xs text-stone-500">{t('cover_hint')}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

@@ -61,7 +61,9 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
     if (!isOpen || !book) return null;
 
     const userAge = ageFrom(user?.date_naissance);
-    const isRestricted = !!book.age_restriction && userAge < book.age_restriction;
+    // Flouté seulement pour un lecteur connecté trop jeune. Un visiteur (âge inconnu) voit la fiche ;
+    // l'emprunt reste contrôlé par l'API (connexion + âge).
+    const isRestricted = isAuthenticated && !!book.age_restriction && userAge < book.age_restriction;
 
     const today = new Date();
     const returnDate = new Date();
@@ -100,11 +102,30 @@ export default function PublicBookModal({ book, isOpen, onClose, onRefresh }: { 
                     <X size={20} />
                 </button>
 
-                <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-stone-100 shrink-0">
+                {/* Couverture ENTIÈRE (object-contain, plus de recadrage), en haute qualité,
+                    posée sur un fond flou tiré de la même image */}
+                <div className="group/cover w-full md:w-2/5 h-80 md:h-auto md:min-h-[520px] relative bg-stone-900 shrink-0 overflow-hidden">
                     {book.image ? (
-                        <Image src={book.image} alt={book.titre} fill className={`object-cover ${isRestricted ? 'blur-xl' : ''}`} />
+                        <>
+                            <Image src={book.image} alt="" aria-hidden fill sizes="200px" quality={40}
+                                className="object-cover scale-125 blur-2xl opacity-60" />
+                            <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/0 to-black/40" />
+                            <div className="absolute inset-0 p-6 sm:p-8 md:p-10">
+                                <div className="relative h-full w-full">
+                                    <Image
+                                        src={book.image}
+                                        alt={book.titre}
+                                        fill
+                                        priority
+                                        quality={90}
+                                        sizes="(max-width: 768px) 80vw, 420px"
+                                        className={`object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.55)] transition-transform duration-500 ease-out motion-safe:group-hover/cover:scale-[1.04] ${isRestricted ? 'blur-xl' : ''}`}
+                                    />
+                                </div>
+                            </div>
+                        </>
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-stone-300"><BookOpen size={64} /></div>
+                        <div className="w-full h-full flex items-center justify-center text-stone-500"><BookOpen size={64} /></div>
                     )}
                     {isRestricted && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/40">

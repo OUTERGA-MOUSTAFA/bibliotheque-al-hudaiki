@@ -14,13 +14,14 @@ export default function BookGrid({ books }: { books: Book[] }) {
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {books.map((book) => (
-          <div
+          <button
             key={book.id}
+            type="button"
             onClick={() => setSelectedBook(book)}
-            className="cursor-pointer transition-transform duration-300 hover:-translate-y-1"
+            className="text-start rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-4"
           >
             <BookCard book={book} />
-          </div>
+          </button>
         ))}
       </div>
 

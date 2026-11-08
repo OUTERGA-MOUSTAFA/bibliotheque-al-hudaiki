@@ -43,7 +43,8 @@
     "search": "Rechercher...",
     "search_placeholder": "Rechercher par titre, auteur ou thème",
     "menu": "Menu",
-    "admin": "Admin"
+    "admin": "Admin",
+    "main_menu": "Menu principal"
   },
   "home": {
     "hero_title": "Plonge dans un océan d'histoires",
@@ -120,7 +121,8 @@
       "ar": "Arabe",
       "fr": "Français",
       "en": "Anglais"
-    }
+    },
+    "view": "Voir le livre"
   },
   "contact": {
     "name": "Nom complet",
@@ -419,7 +421,8 @@
     "next": "Suivant",
     "search_books": "Rechercher un livre…",
     "search_users": "Nom, e-mail ou téléphone…",
-    "no_results": "Aucun résultat"
+    "no_results": "Aucun résultat",
+    "cover_hint": "Pour une couverture nette : image en portrait d’au moins 800 px de large (une image de 300 px paraîtra floue en grand)."
   },
   "footer": {
     "rights": "Tous droits réservés",

@@ -48,14 +48,14 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex gap-4 sm:gap-6">
             {books.map((book) => (
-              <div
+              <button
                 key={book.id}
-                /* 👇 Responsive Widths */
-                className="flex-[0_0_85%] sm:flex-[0_0_45%] md:flex-[0_0_35%] lg:flex-[0_0_23%] min-w-0 cursor-pointer pb-4"
+                type="button"
+                className="flex-[0_0_70%] sm:flex-[0_0_40%] md:flex-[0_0_30%] lg:flex-[0_0_23%] min-w-0 text-start pt-2 pb-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 onClick={() => setSelectedBook(book)}
               >
                 <BookCard book={book} />
-              </div>
+              </button>
             ))}
           </div>
         </div>

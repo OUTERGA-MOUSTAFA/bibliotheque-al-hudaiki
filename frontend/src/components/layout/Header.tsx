@@ -55,55 +55,56 @@ export default function Header() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`px-3 py-2 text-sm font-medium rounded-lg transition ${isActive(l.href) ? 'bg-brand-50 text-brand-700' : 'text-stone-700 hover:bg-brand-50 hover:text-brand-700'}`}
-              >
-                {l.label}
-              </Link>
-            ))}
+          {/* Menu principal : de vrais boutons regroupés dans une barre, la page active remplie en vert */}
+          <nav className="hidden lg:flex items-center gap-1 rounded-full bg-white border border-stone-200 p-1 shadow-sm" aria-label={t('main_menu')}>
+            {links.map((l) => {
+              const actif = isActive(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  aria-current={actif ? 'page' : undefined}
+                  className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${actif
+                    ? 'bg-brand-600 text-white shadow-brand-glow'
+                    : 'text-stone-700 hover:bg-brand-50 hover:text-brand-700 active:scale-95'}`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center bg-stone-100 rounded-full p-0.5">
-              <button onClick={() => switchLocale('fr')} lang="fr" aria-label="Français" aria-pressed={locale === 'fr'} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'fr' ? 'bg-brand-600 text-white' : 'text-stone-500'}`}>FR</button>
-              <button onClick={() => switchLocale('ar')} lang="ar" aria-label="العربية" aria-pressed={locale === 'ar'} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'ar' ? 'bg-brand-600 text-white' : 'text-stone-500'}`}>ع</button>
+            <div className="flex items-center bg-white border border-stone-200 rounded-full p-0.5 shadow-sm">
+              <button onClick={() => switchLocale('fr')} lang="fr" aria-label="Français" aria-pressed={locale === 'fr'} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'fr' ? 'bg-brand-600 text-white' : 'text-stone-500 hover:text-brand-700 hover:bg-brand-50'}`}>FR</button>
+              <button onClick={() => switchLocale('ar')} lang="ar" aria-label="العربية" aria-pressed={locale === 'ar'} className={`px-3 py-1 rounded-full text-xs font-bold transition ${locale === 'ar' ? 'bg-brand-600 text-white' : 'text-stone-500 hover:text-brand-700 hover:bg-brand-50'}`}>ع</button>
             </div>
 
             {loading ? (
-              <div className="w-24 h-8 bg-stone-200 animate-pulse rounded-full hidden md:block" />
+              <div className="w-24 h-8 bg-stone-200 animate-pulse rounded-full hidden lg:block" />
             ) : isAuthenticated ? (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2">
                 {isAdmin && (
-                  <Link href="/admin">
-                    <Button size="sm" className="bg-gold-500 hover:bg-gold-600 text-white rounded-full px-4 font-bold">
-                      <ShieldCheck size={16} className="me-2" /> {t('admin')}
-                    </Button>
+                  <Link href="/admin" className="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-gold-500 hover:bg-gold-600 text-white text-sm font-bold shadow-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2">
+                    <ShieldCheck size={16} /> {t('admin')}
                   </Link>
                 )}
-                <Link href="/compte">
-                  <Button size="sm" variant="outline" className="rounded-full px-4 border-stone-300">
-                    <UserIcon size={16} className="me-2" /> {user?.prenom}
-                  </Button>
+                <Link href="/compte" className="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-white border border-stone-300 hover:border-brand-400 hover:text-brand-700 text-sm font-semibold text-stone-800 shadow-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2">
+                  <UserIcon size={16} /> {user?.prenom}
                 </Link>
-                <Button size="sm" variant="ghost" onClick={logout} className="text-coral-600 hover:bg-coral-50 rounded-full" title={t('logout')} aria-label={t('logout')}>
+                <Button size="sm" variant="ghost" onClick={logout} className="text-coral-600 hover:bg-coral-50 border border-transparent hover:border-coral-200 rounded-full" title={t('logout')} aria-label={t('logout')}>
                   <LogOut size={16} />
                 </Button>
               </div>
             ) : (
-              <Link href="/login" className="hidden md:block">
-                <Button size="sm" className="bg-brand-600 hover:bg-brand-700 text-white rounded-full px-6">
-                  {t('login')}
-                </Button>
+              <Link href="/login" className="hidden lg:inline-flex items-center h-9 px-6 rounded-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold shadow-brand-glow transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2">
+                {t('login')}
               </Link>
             )}
 
             <button
               onClick={() => setMenuOpen((o) => !o)}
-              className="md:hidden p-2 rounded-full hover:bg-stone-100"
+              className="lg:hidden p-2 rounded-full border border-stone-200 bg-white hover:bg-stone-100"
               aria-label={t('menu')}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
@@ -114,9 +115,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Menu mobile : navigation + compte, invisible à partir de md */}
+      {/* Menu mobile : navigation + compte, invisible à partir de lg */}
       {menuOpen && (
-        <div id="mobile-menu" className="md:hidden border-t border-stone-200/60 bg-cream">
+        <div id="mobile-menu" className="lg:hidden border-t border-stone-200/60 bg-cream">
           <nav className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-1">
             {links.map((l) => (
               <Link
@@ -146,11 +147,11 @@ export default function Header() {
               </>
             ) : (
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/login">
-                  <Button className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-xl">{t('login')}</Button>
+                <Link href="/login" className="flex items-center justify-center h-10 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition active:scale-95">
+                  {t('login')}
                 </Link>
-                <Link href="/register">
-                  <Button variant="outline" className="w-full rounded-xl">{t('register')}</Button>
+                <Link href="/register" className="flex items-center justify-center h-10 rounded-xl border border-stone-300 bg-white hover:border-brand-400 hover:text-brand-700 text-sm font-semibold transition active:scale-95">
+                  {t('register')}
                 </Link>
               </div>
             )}
