@@ -28,7 +28,9 @@ concurrency:
 
 jobs:
   backup:
-    runs-on: ubuntu-latest
+    # Version figée : « ubuntu-latest » passe à Ubuntu 26 le 19/10/2026, et le dépôt
+    # apt de PostgreSQL n'est pas toujours prêt dès la sortie d'une nouvelle version
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Vérifier les secrets

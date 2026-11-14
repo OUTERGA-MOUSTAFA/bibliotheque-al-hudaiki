@@ -23,14 +23,32 @@ RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.c
     && apache2ctl -t
 
 # 4. Installer Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 5. 7et l'projet f l'dossier l'asasi
+# Téléchargements plus sûrs depuis le réseau du builder Railway :
+#  - moins de téléchargements en parallèle (les 105 en même temps expiraient, puis PHP plantait : erreur 139)
+#  - délais plus longs, et Composer exécuté en root sans avertissement
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MAX_PARALLEL_HTTP=4 \
+    COMPOSER_PROCESS_TIMEOUT=900 \
+    COMPOSER_NO_INTERACTION=1
+
 WORKDIR /var/www/html
-COPY . .
 
-# 6. Installer les packages dial Laravel
-RUN composer install --no-dev --optimize-autoloader
+# 5. Dépendances d'abord, SEULES : cette couche reste en cache tant que composer.lock ne change pas.
+#    Avant, « COPY . . » venait avant : chaque modification du code retéléchargeait les 105 paquets.
+#    3 tentatives si GitHub ne répond pas (timeouts, 504).
+COPY composer.json composer.lock ./
+RUN for essai in 1 2 3; do \
+        composer install --no-dev --no-scripts --no-autoloader --prefer-dist && break; \
+        echo "composer install : échec de la tentative $essai, nouvel essai dans 20 s"; \
+        [ "$essai" = 3 ] && exit 1; \
+        sleep 20; \
+    done
+
+# 6. Code de l'application, puis autoloader optimisé (+ package:discover)
+COPY . .
+RUN composer dump-autoload --optimize --no-dev
 
 # 7. Bddel l'configuration dial Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
