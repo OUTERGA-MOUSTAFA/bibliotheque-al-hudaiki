@@ -1,6 +1,5 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Handshake } from 'lucide-react';
 import type { Sponsor } from '@/types';
 
 export default function Sponsors({ sponsors }: { sponsors: Sponsor[] }) {
@@ -8,12 +7,9 @@ export default function Sponsors({ sponsors }: { sponsors: Sponsor[] }) {
   if (!sponsors?.length) return null;
 
   return (
-    <section className="py-16 bg-sand border-t border-stone-200">
+    <section className="py-16 bg-cream border-t border-sand">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <Handshake size={20} className="text-brand-600" />
-          <h2 className="text-xl font-bold text-stone-700">{t('sponsors')}</h2>
-        </div>
+        <h2 className="text-xl text-center text-indigo-night-700 mb-10">{t('sponsors')}</h2>
 
         <div className="flex flex-wrap items-center justify-center gap-12">
           {sponsors.map((s) => (

@@ -1,18 +1,14 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
-import { BookOpen, Sparkles, History, FlaskConical, Heart, Users, Baby, Palette } from 'lucide-react';
 import type { Category } from '@/types';
 
-// Icon + color mapping
-const CATEGORY_STYLES = [
-  { icon: BookOpen,       color: 'emerald', bg: 'from-brand-50 to-brand-100',     text: 'text-brand-700',   ring: 'ring-brand-200' },
-  { icon: Baby,           color: 'gold',    bg: 'from-gold-50 to-gold-100',       text: 'text-gold-700',    ring: 'ring-gold-200' },
-  { icon: History,        color: 'coral',   bg: 'from-coral-50 to-coral-100',     text: 'text-coral-700',   ring: 'ring-coral-200' },
-  { icon: FlaskConical,   color: 'sky',     bg: 'from-sky-50 to-sky-100',         text: 'text-sky-700',     ring: 'ring-sky-200' },
-  { icon: Heart,          color: 'rose',    bg: 'from-rose-50 to-rose-100',       text: 'text-rose-700',    ring: 'ring-rose-200' },
-  { icon: Users,          color: 'violet',  bg: 'from-violet-50 to-violet-100',   text: 'text-violet-700',  ring: 'ring-violet-200' },
-  { icon: Sparkles,       color: 'gold',    bg: 'from-gold-50 to-gold-100',       text: 'text-gold-700',    ring: 'ring-gold-200' },
-  { icon: Palette,        color: 'emerald', bg: 'from-brand-50 to-brand-100',     text: 'text-brand-700',   ring: 'ring-brand-200' },
+// Les portes peintes des maisons de Tafraout : indigo, vert palmeraie, safran, granit.
+// Chaque catégorie est une porte en arc, avec ses clous de métal et un losange au-dessus du linteau.
+const PORTES = [
+  { bg: 'bg-night', clou: 'rgba(229,168,51,0.55)', texte: 'text-cream', sous: 'text-cream/70' },
+  { bg: 'bg-brand-600', clou: 'rgba(251,245,242,0.45)', texte: 'text-cream', sous: 'text-cream/75' },
+  { bg: 'bg-gold-500', clou: 'rgba(29,39,71,0.35)', texte: 'text-night', sous: 'text-night/70' },
+  { bg: 'bg-granite-600', clou: 'rgba(251,245,242,0.4)', texte: 'text-cream', sous: 'text-cream/75' },
 ];
 
 export default function Categories({ categories }: { categories: Category[] }) {
@@ -22,50 +18,46 @@ export default function Categories({ categories }: { categories: Category[] }) {
   return (
     <section className="py-20 bg-sand">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12">
-          <div className="divider-gold mb-4" />
-          <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-2">
-            📂 {t('categories')}
-          </h2>
-          <p className="text-stone-600">{t('categories_subtitle')}</p>
+        <div className="mb-12 max-w-2xl">
+          <h2 className="text-3xl sm:text-4xl text-night mb-3">{t('categories')}</h2>
+          <p className="text-indigo-night-700/80">{t('categories_subtitle')}</p>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-5">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8 sm:gap-x-8">
           {categories.slice(0, 8).map((cat, index) => {
-            const style = CATEGORY_STYLES[index % CATEGORY_STYLES.length];
-            const Icon = style.icon;
-
+            const p = PORTES[index % PORTES.length];
             return (
-              <Link
-                key={cat.id}
-                href={`/catalogue?categorie=${cat.id}`}
-                className={`
-                  group relative overflow-hidden rounded-2xl p-6
-                  bg-gradient-to-br ${style.bg}
-                  ring-1 ${style.ring}
-                  hover:shadow-soft-lg hover:-translate-y-1
-                  transition-all duration-300
-                `}
-              >
-                {/* Icon */}
-                <div className={`w-12 h-12 rounded-xl bg-white/80 backdrop-blur flex items-center justify-center mb-4 shadow-sm`}>
-                  <Icon size={24} className={style.text} strokeWidth={2} />
-                </div>
-
-                {/* Text */}
-                <h3 className={`font-bold text-lg ${style.text} mb-1`}>{cat.nom}</h3>
-                {cat.books_count !== undefined && (
-                  <p className="text-xs text-stone-600 font-medium">{t('books_count', { count: cat.books_count })}</p>
-                )}
-
-                {/* Decorative element */}
-                <div className={`absolute -bottom-4 -right-4 w-20 h-20 rounded-full ${style.text} opacity-5 group-hover:opacity-10 transition`} />
-              </Link>
+              <li key={cat.id}>
+                <Link
+                  href={`/catalogue?categorie=${cat.id}`}
+                  className="group block rounded-t-[999px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
+                >
+                  {/* Encadrement blanchi à la chaux autour de la porte */}
+                  <div className="rounded-t-[999px] bg-cream p-2 shadow-soft transition duration-300 group-hover:-translate-y-1 group-hover:shadow-soft-lg">
+                    <div
+                      className={`relative aspect-[5/6] rounded-t-[999px] ${p.bg} overflow-hidden flex flex-col justify-end p-4 sm:p-5`}
+                      style={{
+                        backgroundImage: `radial-gradient(circle, ${p.clou} 1.6px, transparent 2px)`,
+                        backgroundSize: '22px 22px',
+                        backgroundPosition: '11px 11px',
+                      }}
+                    >
+                      {/* Losange au sommet de l'arc */}
+                      <svg viewBox="0 0 24 24" className="absolute top-[14%] start-1/2 -translate-x-1/2 rtl:translate-x-1/2 w-6 h-6" aria-hidden>
+                        <path d="M12 1 L23 12 L12 23 L1 12 Z" fill="none" stroke="currentColor" strokeWidth="1.6" className={p.texte} />
+                        <path d="M12 7 L17 12 L12 17 L7 12 Z" fill="currentColor" className={p.texte} />
+                      </svg>
+                      <h3 className={`relative text-lg sm:text-xl leading-snug ${p.texte}`}>{cat.nom}</h3>
+                      {cat.books_count !== undefined && (
+                        <p className={`relative mt-1 text-sm ${p.sous}`}>{t('books_count', { count: cat.books_count })}</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </section>
   );

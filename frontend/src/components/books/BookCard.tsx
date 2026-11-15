@@ -88,10 +88,10 @@ export default function BookCard({ book }: { book: Book }) {
       </div>
 
       <div className="mt-4 space-y-1">
-        <h3 className="font-semibold text-stone-900 line-clamp-2 group-hover:text-brand-700 transition text-sm sm:text-base leading-snug">
+        <h3 className="font-semibold text-night line-clamp-2 group-hover:text-brand-700 transition text-sm sm:text-base leading-snug">
           {book.titre}
         </h3>
-        {book.categorie && <p className="text-xs text-stone-500 line-clamp-1">{book.categorie.nom}</p>}
+        {book.categorie && <p className="text-xs text-indigo-night-500 line-clamp-1">{book.categorie.nom}</p>}
       </div>
     </div>
   );

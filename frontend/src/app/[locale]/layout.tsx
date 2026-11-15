@@ -1,6 +1,6 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { Cairo, Tajawal, IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
+import { IBM_Plex_Sans_Arabic, Reem_Kufi } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import Providers from '@/components/providers/Providers';
@@ -9,35 +9,20 @@ import Footer from '@/components/layout/Footer';
 import '../globals.css';
 import { Toaster } from '@/components/ui/sonner';
 
-
-// Latin (FR/EN)
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-latin',
+// Titres : Reem Kufi, un kufi géométrique (angles et losanges proches des motifs amazighs),
+// dessiné pour l'arabe ET le latin : la même voix dans les deux langues.
+const reemKufi = Reem_Kufi({
+  subsets: ['arabic', 'latin', 'latin-ext'],
+  weight: ['500', '600', '700'],
+  variable: '--font-reem-kufi',
   display: 'swap',
 });
 
-// Arabic principal — Cairo (modern, clean)
-const cairo = Cairo({
-  subsets: ['arabic', 'latin'],
-  variable: '--font-arabic',
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-  display: 'swap',
-});
-
-// Arabic alternative — Tajawal
-const tajawal = Tajawal({
-  subsets: ['arabic'],
-  variable: '--font-arabic-alt',
-  weight: ['300', '400', '500', '700', '800'],
-  display: 'swap',
-});
-
-// Arabic tech — IBM Plex Sans Arabic (style kima f l'image)
-const ibmArabic = IBM_Plex_Sans_Arabic({
-  subsets: ['arabic'],
-  variable: '--font-arabic-tech',
-  weight: ['300', '400', '500', '600', '700'],
+// Texte courant : IBM Plex Sans Arabic, lisible en arabe comme en français
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic', 'latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plex-arabic',
   display: 'swap',
 });
 
@@ -69,22 +54,15 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
-  const isArabic = locale === 'ar';
 
   return (
     <html
       lang={locale}
       dir={dir}
-      className={`
-        ${inter.variable}
-        ${cairo.variable}
-        ${tajawal.variable}
-        ${ibmArabic.variable}
-        ${isArabic ? 'font-arabic' : 'font-latin'}
-      `}
+      className={`${reemKufi.variable} ${plexArabic.variable} font-body`}
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-screen bg-stone-50 text-stone-900 antialiased">
+      <body className="min-h-screen bg-cream text-night antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <Header />
@@ -92,7 +70,7 @@ export default async function LocaleLayout({
             <Footer />
           </Providers>
         </NextIntlClientProvider>
-        <Toaster position="top-center" richColors /> {/* 👈 ZID HADI */}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

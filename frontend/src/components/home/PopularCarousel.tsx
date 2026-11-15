@@ -6,7 +6,6 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import BookCard from '@/components/books/BookCard';
 import PublicBookModal from '@/components/books/PublicBookModal';
-import { TrendingUp } from 'lucide-react';
 import type { Book } from '@/types';
 
 export default function PopularCarousel({ books }: { books: Book[] }) {
@@ -31,33 +30,25 @@ export default function PopularCarousel({ books }: { books: Book[] }) {
     <section className="py-20 bg-cream overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-12 h-12 rounded-2xl bg-gold-500 flex items-center justify-center shadow-gold-glow">
-            <TrendingUp className="text-white" size={22} strokeWidth={2.5} />
-          </div>
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-stone-900">
-              {t('popular')}
-            </h2>
-            <div className="mt-1 h-1 w-16 bg-gold-500 rounded-full" />
-          </div>
-        </div>
+        <h2 className="text-3xl sm:text-4xl text-night mb-10">{t('popular')}</h2>
 
-        {/* Carousel Container */}
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-4 sm:gap-6">
-            {books.map((book) => (
-              <button
-                key={book.id}
-                type="button"
-                className="flex-[0_0_70%] sm:flex-[0_0_40%] md:flex-[0_0_30%] lg:flex-[0_0_23%] min-w-0 text-start pt-2 pb-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                onClick={() => setSelectedBook(book)}
-              >
-                <BookCard book={book} />
-              </button>
-            ))}
+        {/* Les livres posés sur une étagère en bois de palmier */}
+        <div className="relative">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-4 sm:gap-6">
+              {books.map((book) => (
+                <button
+                  key={book.id}
+                  type="button"
+                  className="flex-[0_0_70%] sm:flex-[0_0_40%] md:flex-[0_0_30%] lg:flex-[0_0_23%] min-w-0 text-start pt-2 pb-6 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  onClick={() => setSelectedBook(book)}
+                >
+                  <BookCard book={book} />
+                </button>
+              ))}
+            </div>
           </div>
+          <div className="h-3 rounded-sm bg-gradient-to-b from-granite-600 to-granite-900 shadow-[0_14px_24px_-12px_rgba(86,48,38,0.6)]" aria-hidden />
         </div>
       </div>
 

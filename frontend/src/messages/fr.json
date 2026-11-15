@@ -47,8 +47,8 @@
     "main_menu": "Menu principal"
   },
   "home": {
-    "hero_title": "Plonge dans un océan d'histoires",
-    "hero_subtitle": "Des milliers de livres vous attendent à la Bibliothèque Al Hudaiki",
+    "hero_title": "Des livres pour toute la vallée des Ameln",
+    "hero_subtitle": "Cherchez un titre en français ou en arabe, puis venez l’emprunter à la bibliothèque de Tafraout.",
     "hero_cta": "Explorer le catalogue",
     "hero_cta_secondary": "Se connecter",
     "popular": "Les plus lus ce mois-ci",
@@ -58,7 +58,7 @@
     "reading_prompt": "La lecture est un voyage sans fin",
     "kids_section": "Coin enfants",
     "kids_description": "Des histoires amusantes pour les petits",
-    "badge": "Bibliothèque publique Al Hudaiki — Tafraout",
+    "badge": "Bibliothèque publique Al Hudaiki, Tafraout",
     "stat_books": "livres",
     "stat_readers": "lecteurs",
     "stat_access": "accès en ligne",
@@ -69,7 +69,10 @@
     "hero_pause": "Mettre le défilement en pause",
     "hero_play": "Reprendre le défilement",
     "hero_prev": "Image précédente",
-    "hero_next": "Image suivante"
+    "hero_next": "Image suivante",
+    "search_label": "Chercher un livre",
+    "search_placeholder": "Titre ou auteur",
+    "search_button": "Chercher"
   },
   "book": {
     "available": "Disponible",
@@ -152,7 +155,25 @@
     "form_message": "Message *",
     "form_message_placeholder": "Écrivez votre message ici...",
     "form_submit": "Envoyer le message",
-    "form_submitting": "Envoi en cours..."
+    "form_submitting": "Envoi en cours...",
+    "sent_title": "Message envoyé !",
+    "new_message": "Écrire un autre message",
+    "code_title": "Vérifiez votre e-mail",
+    "code_sent_to": "Nous avons envoyé un code à 6 chiffres à",
+    "code_hint": "Saisissez-le ci-dessous (valable 15 minutes). Pensez aux courriers indésirables.",
+    "code_label": "Code de vérification",
+    "code_verify": "Vérifier et envoyer",
+    "code_error": "Code invalide.",
+    "code_resent": "Un nouveau code vous a été envoyé.",
+    "change_email": "Modifier l’adresse",
+    "resend": "Renvoyer le code",
+    "resend_in": "Renvoyer dans {seconds} s",
+    "email_will_be_verified": "Un code de vérification vous sera envoyé à cette adresse.",
+    "verifying": "Vérification de votre adresse…",
+    "verify_failed": "La vérification a échoué",
+    "link_invalid": "Ce lien est incomplet.",
+    "back_home": "Retour à l’accueil",
+    "back_to_form": "Revenir au formulaire"
   },
   "history": {
     "title": "Notre histoire",

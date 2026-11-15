@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/navigation';
-import { ArrowLeft, ArrowRight, Sparkles, BookOpen, Users, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
+import GraniteLandscape from '@/components/tafraout/GraniteLandscape';
 import type { HeroData, HeroSlide } from '@/types';
 import HeroCarousel from './hero/HeroCarousel';
 import HeroSplit from './hero/HeroSplit';
@@ -26,13 +27,13 @@ export default function Hero({ data }: { data?: HeroData }) {
 
 function HeroClassique({ slide, afficherStats }: { slide?: HeroSlide; afficherStats: boolean }) {
   const t = useTranslations('home');
-  const isArabic = useLocale() === 'ar';
-  const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
+  const locale = useLocale();
+  const ArrowIcon = locale === 'ar' ? ArrowLeft : ArrowRight;
 
   const stats = [
-    { value: '+500', label: t('stat_books'), icon: BookOpen },
-    { value: '+200', label: t('stat_readers'), icon: Users },
-    { value: '24/7', label: t('stat_access'), icon: Clock },
+    { value: '+500', label: t('stat_books') },
+    { value: '+200', label: t('stat_readers') },
+    { value: '24/7', label: t('stat_access') },
   ];
 
   // Textes de la 1re diapositive s'il y en a une, sinon textes par défaut du site
@@ -41,74 +42,74 @@ function HeroClassique({ slide, afficherStats }: { slide?: HeroSlide; afficherSt
   const sousTitre = slide?.sous_titre || t('hero_subtitle');
 
   return (
-    <section className="relative bg-night overflow-hidden">
+    // Ciel du soir sur la vallée des Ameln : nuit indigo en haut, granit rosé à l'horizon
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#1d2747_0%,#28325e_40%,#6b5577_72%,#d99a86_100%)]">
       {slide?.image && (
         <>
-          <Image src={slide.image} alt="" fill priority sizes="100vw" unoptimized={imageNonOptimisee(slide.image)} className="object-cover opacity-30" />
-          <div className="absolute inset-0 bg-gradient-to-b from-night/70 via-night/60 to-night" />
+          <Image src={slide.image} alt="" fill priority sizes="100vw" unoptimized={imageNonOptimisee(slide.image)} className="object-cover opacity-25 mix-blend-luminosity" />
+          <div className="absolute inset-0 bg-gradient-to-b from-night/80 via-night/50 to-transparent" />
         </>
       )}
 
-      <div className="absolute inset-0" aria-hidden>
-        <div className="absolute top-0 end-0 w-[500px] h-[500px] bg-brand-600/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 start-0 w-[500px] h-[500px] bg-gold-500/15 rounded-full blur-[120px]" />
-      </div>
-
+      {/* Soleil safran qui se couche derrière les rochers */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="hidden sm:block absolute end-[12%] sm:bottom-[190px] lg:bottom-[230px] sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gold-400 shadow-[0_0_120px_40px_rgba(229,168,51,0.35)]"
         aria-hidden
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-sm font-medium mb-8 backdrop-blur-sm">
-            <Sparkles size={14} />
-            <span>{badge}</span>
-          </div>
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-[230px] sm:pb-[290px] lg:pb-[330px]">
+        <div className="max-w-2xl">
+          <p className="text-granite-300 text-sm sm:text-base font-medium mb-5">{badge}</p>
 
-          <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] mb-6 text-white ${isArabic ? 'font-arabic-tech' : ''}`}>
+          <h1 className="text-[2.6rem] leading-[1.15] sm:text-6xl lg:text-7xl font-semibold text-cream mb-6">
             {titre}
-            <span className="text-gold-400">.</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-stone-300 mb-10 max-w-2xl mx-auto leading-relaxed">{sousTitre}</p>
+          <p className="text-lg sm:text-xl text-indigo-night-50/80 mb-10 max-w-xl">{sousTitre}</p>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
-            {slide?.bouton && slide.lien ? (
-              <HeroLink href={slide.lien} className="inline-flex items-center bg-brand-600 hover:bg-brand-500 text-white rounded-full px-8 h-12 text-base font-semibold shadow-brand-glow transition">
-                {slide.bouton} <ArrowIcon className="ms-2" size={18} />
-              </HeroLink>
-            ) : (
-              <Link href="/catalogue" className="inline-flex items-center bg-brand-600 hover:bg-brand-500 text-white rounded-full px-8 h-12 text-base font-semibold shadow-brand-glow transition">
-                {t('hero_cta')} <ArrowIcon className="ms-2" size={18} />
+          {slide?.bouton && slide.lien ? (
+            <HeroLink href={slide.lien} className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-500 text-night rounded-full px-8 h-13 text-base font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-400">
+              {slide.bouton} <ArrowIcon size={18} />
+            </HeroLink>
+          ) : (
+            // Formulaire GET classique : la recherche marche même avant le chargement du JavaScript
+            <form action={`/${locale}/catalogue`} method="get" role="search" className="max-w-xl">
+              <label htmlFor="hero-search" className="sr-only">{t('search_label')}</label>
+              <div className="flex items-center gap-2 rounded-full bg-cream p-1.5 shadow-[0_20px_50px_-20px_rgba(8,12,30,0.7)] focus-within:ring-4 focus-within:ring-gold-400/60">
+                <Search className="ms-4 shrink-0 text-indigo-night-500" size={20} aria-hidden />
+                <input
+                  id="hero-search"
+                  name="q"
+                  type="search"
+                  autoComplete="off"
+                  placeholder={t('search_placeholder')}
+                  className="min-w-0 flex-1 bg-transparent py-3 text-base text-night placeholder:text-indigo-night-500/80 outline-none"
+                />
+                <button type="submit" className="shrink-0 rounded-full bg-brand-600 hover:bg-brand-700 text-cream px-5 sm:px-7 h-12 text-base font-semibold transition active:scale-95">
+                  {t('search_button')}
+                </button>
+              </div>
+              <Link href="/catalogue" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-cream/80 hover:text-gold-400 underline-offset-4 hover:underline">
+                {t('hero_cta')} <ArrowIcon size={15} />
               </Link>
-            )}
-            <Link href="/login" className="inline-flex items-center border border-white/20 text-white hover:bg-white/5 rounded-full px-8 h-12 text-base backdrop-blur-sm transition">
-              {t('hero_cta_secondary')}
-            </Link>
-          </div>
+            </form>
+          )}
 
           {afficherStats && (
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-              {stats.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <div key={stat.label} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center hover:bg-white/10 transition">
-                    <Icon className="mx-auto text-gold-400 mb-2" size={22} />
-                    <div className="text-2xl sm:text-3xl font-bold text-white leading-none">{stat.value}</div>
-                    <div className="text-xs sm:text-sm text-stone-400 mt-2">{stat.label}</div>
-                  </div>
-                );
-              })}
-            </div>
+            <dl className="mt-12 flex flex-wrap gap-x-10 gap-y-4">
+              {stats.map((stat) => (
+                <div key={stat.label} className="flex items-baseline gap-2">
+                  <dt className="sr-only">{stat.label}</dt>
+                  <dd className="font-display text-3xl text-gold-400" dir="ltr">{stat.value}</dd>
+                  <dd className="text-sm text-cream/75">{stat.label}</dd>
+                </div>
+              ))}
+            </dl>
           )}
         </div>
       </div>
+
+      <GraniteLandscape className="absolute inset-x-0 bottom-0 w-full h-[220px] sm:h-[280px] lg:h-[330px]" />
     </section>
   );
 }

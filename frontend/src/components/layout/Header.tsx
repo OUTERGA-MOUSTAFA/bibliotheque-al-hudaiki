@@ -6,6 +6,7 @@ import { Link, usePathname, useRouter } from '@/navigation';
 import { Menu, X, User as UserIcon, LogOut, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import LibraryMark from '@/components/tafraout/LibraryMark';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -41,17 +42,15 @@ export default function Header() {
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur-md border-b border-stone-200/60">
+    <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur-md border-b border-sand">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
 
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shadow-brand-glow group-hover:scale-105 transition">
-              <span className="text-white font-bold text-lg">📚</span>
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600">
+            <LibraryMark className="w-10 h-10 transition-transform duration-300 group-hover:rotate-45" />
             <div className="hidden sm:flex flex-col leading-tight">
-              <span className="font-bold text-stone-900 text-sm">مكتبة الحظيكي</span>
-              <span className="text-[10px] text-brand-700 font-semibold tracking-wide">AL HUDAIKI LIBRARY</span>
+              <span className="font-display font-semibold text-night text-base" lang="ar">مكتبة الحظيكي</span>
+              <span className="text-xs text-granite-700 font-medium" lang="fr">Bibliothèque Al Hudaiki</span>
             </div>
           </Link>
 

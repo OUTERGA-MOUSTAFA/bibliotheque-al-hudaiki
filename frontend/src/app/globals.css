@@ -5,32 +5,55 @@
    DESIGN TOKENS — Tailwind v4 @theme
    ============================================ */
 @theme {
-  /* ===== BRAND (Emerald refined) ===== */
-  --color-brand-50:  #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-200: #a7f3d0;
-  --color-brand-300: #6ee7b7;
-  --color-brand-400: #34d399;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-800: #065f46;
-  --color-brand-900: #064e3b;
-  --color-brand-950: #022c22;
+  /* Palette « Tafraout » :
+     amandier (fond), granit rose (rochers), nuit d'Ameln (indigo), palmeraie (actions), safran (lumière) */
 
-  /* ===== GOLD (Kids/Warm) ===== */
-  --color-gold-50:  #fffbeb;
-  --color-gold-100: #fef3c7;
-  --color-gold-200: #fde68a;
-  --color-gold-300: #fcd34d;
-  --color-gold-400: #fbbf24;
-  --color-gold-500: #f59e0b;
-  --color-gold-600: #d97706;
-  --color-gold-700: #b45309;
-  --color-gold-800: #92400e;
-  --color-gold-900: #78350f;
+  /* ===== PALMERAIE — actions, liens, état actif ===== */
+  --color-brand-50:  #eef6f2;
+  --color-brand-100: #d5ebe1;
+  --color-brand-200: #acd6c4;
+  --color-brand-300: #7bbaa1;
+  --color-brand-400: #4c9a7e;
+  --color-brand-500: #2d8065;
+  --color-brand-600: #1e6b55;
+  --color-brand-700: #185745;
+  --color-brand-800: #144537;
+  --color-brand-900: #10382d;
+  --color-brand-950: #08201a;
 
-  /* ===== CORAL (Playful) ===== */
+  /* ===== SAFRAN — étoiles, soleil, mises en avant ===== */
+  --color-gold-50:  #fdf7e8;
+  --color-gold-100: #faebc4;
+  --color-gold-200: #f5d88c;
+  --color-gold-300: #efc35a;
+  --color-gold-400: #e5a833;
+  --color-gold-500: #d18f1e;
+  --color-gold-600: #b07316;
+  --color-gold-700: #8c5914;
+  --color-gold-800: #6e4614;
+  --color-gold-900: #5a3a13;
+
+  /* ===== GRANIT ROSE — rochers de Tafraout (grandes surfaces, illustrations) ===== */
+  --color-granite-50:  #fcf1ed;
+  --color-granite-100: #f8e0d7;
+  --color-granite-200: #f1c4b5;
+  --color-granite-300: #e8a890;
+  --color-granite-400: #dc8b6f;
+  --color-granite-500: #c87157;
+  --color-granite-600: #a85a44;
+  --color-granite-700: #8a4837;
+  --color-granite-800: #6d3a2e;
+  --color-granite-900: #563026;
+
+  /* ===== NUIT D'AMELN — surfaces sombres, titres ===== */
+  --color-indigo-night-50:  #eef0f7;
+  --color-indigo-night-100: #d6dbeb;
+  --color-indigo-night-300: #8d97bf;
+  --color-indigo-night-500: #45507e;
+  --color-indigo-night-700: #2a3460;
+  --color-indigo-night-900: #1d2747;
+
+  /* ===== CORAIL — erreurs uniquement ===== */
   --color-coral-50:  #fff1f2;
   --color-coral-100: #ffe4e6;
   --color-coral-200: #fecdd3;
@@ -42,42 +65,44 @@
   --color-coral-800: #9f1239;
   --color-coral-900: #881337;
 
-  /* ===== SKY (Students) ===== */
   --color-sky-50:  #f0f9ff;
-  --color-sky-100: #e0f2fe;
-  --color-sky-200: #bae6fd;
-  --color-sky-300: #7dd3fc;
-  --color-sky-400: #38bdf8;
-  --color-sky-500: #0ea5e9;
   --color-sky-600: #0284c7;
-  --color-sky-700: #0369a1;
-  --color-sky-800: #075985;
-  --color-sky-900: #0c4a6e;
 
-  /* ===== CUSTOM NEUTRALS ===== */
-  --color-cream: #faf8f5;
-  --color-sand:  #f5f1e8;
-  --color-ink:   #1c1917;
-  --color-night: #0c0a09;
+  /* ===== FONDS ===== */
+  --color-cream: #fbf5f2;   /* fleur d'amandier */
+  --color-sand:  #f4e9e3;   /* poussière de granit */
+  --color-ink:   #1d2747;
+  --color-night: #1d2747;   /* nuit d'Ameln (indigo, pas un noir) */
 
-  /* ===== FONTS ===== */
-  --font-latin: var(--font-latin), system-ui, sans-serif;
-  --font-arabic: var(--font-arabic), system-ui, sans-serif;
-  --font-arabic-alt: var(--font-arabic-alt), system-ui, sans-serif;
-  --font-arabic-tech: var(--font-arabic-tech), system-ui, sans-serif;
+  /* ===== POLICES ===== */
+  --font-display: var(--font-reem-kufi), var(--font-plex-arabic), system-ui, sans-serif;
+  --font-body: var(--font-plex-arabic), system-ui, sans-serif;
+  /* Anciens noms, conservés pour les pages existantes */
+  --font-latin: var(--font-plex-arabic), system-ui, sans-serif;
+  --font-arabic: var(--font-plex-arabic), system-ui, sans-serif;
+  --font-arabic-tech: var(--font-reem-kufi), var(--font-plex-arabic), system-ui, sans-serif;
 
-  /* ===== SHADOWS ===== */
-  --shadow-soft: 0 4px 20px -4px rgb(28 25 23 / 0.08);
-  --shadow-soft-lg: 0 10px 40px -8px rgb(28 25 23 / 0.12);
-  --shadow-brand-glow: 0 8px 24px -6px rgb(5 150 105 / 0.35);
-  --shadow-gold-glow: 0 8px 24px -6px rgb(245 158 11 / 0.35);
+  /* ===== OMBRES (teintées indigo, pas grises) ===== */
+  --shadow-soft: 0 4px 20px -6px rgb(29 39 71 / 0.10);
+  --shadow-soft-lg: 0 14px 40px -12px rgb(29 39 71 / 0.18);
+  --shadow-brand-glow: 0 10px 24px -8px rgb(30 107 85 / 0.45);
+  --shadow-gold-glow: 0 10px 24px -8px rgb(209 143 30 / 0.45);
+
+  /* ===== ANIMATION ===== */
+  --animate-rock-rise: rock-rise 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Le paysage de granit se lève une seule fois au chargement (seule animation automatique du site) */
+@keyframes rock-rise {
+  from { transform: translateY(28px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* ============================================
    BASE STYLES
    ============================================ */
 * {
-  border-color: #e7e5e4;
+  border-color: #eadbd3;
 }
 
 html {
@@ -85,35 +110,34 @@ html {
 }
 
 body {
-  background-color: #faf8f5;
-  color: #1c1917;
+  background-color: #fbf5f2;
+  color: #1d2747;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Arabic typography */
-html[dir="rtl"] {
-  font-family: var(--font-arabic, system-ui, sans-serif);
+/* Titres : Reem Kufi (kufi géométrique, proche des motifs amazighs), dans les deux langues */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
 }
 
-html[dir="rtl"] h1,
+h1 { line-height: 1.08; }
+h2, h3 { line-height: 1.2; }
+
+/* L'arabe a besoin de plus d'interligne (signes au-dessus et en dessous de la ligne) */
+html[dir="rtl"] h1 { line-height: 1.35; }
 html[dir="rtl"] h2,
-html[dir="rtl"] h3,
-html[dir="rtl"] h4 {
-  font-family: var(--font-arabic-tech, var(--font-arabic), system-ui, sans-serif);
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-}
+html[dir="rtl"] h3 { line-height: 1.45; }
+
+p { text-wrap: pretty; }
 
 html[dir="rtl"] p,
 html[dir="rtl"] li {
   line-height: 1.9;
-}
-
-/* Latin typography */
-html[dir="ltr"] {
-  font-family: var(--font-latin, system-ui, sans-serif);
 }
 
 /* ============================================
@@ -125,16 +149,16 @@ html[dir="ltr"] {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f1e8;
+  background: #f4e9e3;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d6d3d1;
+  background: #dcc3b8;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a29e;
+  background: #c87157;
 }
 
 /* ============================================
@@ -143,21 +167,21 @@ html[dir="ltr"] {
 .divider-gold {
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, #f59e0b, #d97706);
+  background: linear-gradient(90deg, #e5a833, #c87157);
   border-radius: 2px;
 }
 
 .divider-brand {
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, #2d8065, #1e6b55);
   border-radius: 2px;
 }
 
 /* Disable default focus rings, use custom */
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid #059669;
+  outline: 2px solid #1e6b55;
   outline-offset: 2px;
 }
 
@@ -169,4 +193,8 @@ a:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   [style*="hero-progress"] { animation: none !important; transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rock-rise { animation: none !important; }
 }
