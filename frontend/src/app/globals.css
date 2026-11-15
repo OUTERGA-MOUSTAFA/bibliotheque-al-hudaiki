@@ -74,6 +74,27 @@
   --color-ink:   #1d2747;
   --color-night: #1d2747;   /* nuit d'Ameln (indigo, pas un noir) */
 
+  /* Couleurs attendues par les composants ui/ (boutons, menus, champs…) */
+  --color-background: #fbf5f2;
+  --color-foreground: #1d2747;
+  --color-primary: #1e6b55;
+  --color-primary-foreground: #fbf5f2;
+  --color-secondary: #f4e9e3;
+  --color-secondary-foreground: #1d2747;
+  --color-muted: #f4e9e3;
+  --color-muted-foreground: #5b6489;
+  --color-accent: #f4e9e3;
+  --color-accent-foreground: #1d2747;
+  --color-destructive: #e11d48;
+  --color-destructive-foreground: #ffffff;
+  --color-card: #ffffff;
+  --color-card-foreground: #1d2747;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1d2747;
+  --color-border: #eadbd3;
+  --color-input: #eadbd3;
+  --color-ring: #1e6b55;
+
   /* ===== POLICES ===== */
   --font-display: var(--font-reem-kufi), var(--font-plex-arabic), system-ui, sans-serif;
   --font-body: var(--font-plex-arabic), system-ui, sans-serif;
