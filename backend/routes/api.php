@@ -17,6 +17,8 @@ Route::get('/health', fn() => response()->json(['status' => 'ok', 'time' => now(
 
 // Public
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:auth');
+Route::post('/contact/verify', [ContactController::class, 'verify'])->middleware('throttle:contact-code');
+Route::post('/contact/resend', [ContactController::class, 'resend'])->middleware('throttle:contact-code');
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book:slug}', [BookController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);

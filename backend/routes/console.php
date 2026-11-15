@@ -18,3 +18,9 @@ Schedule::command('sanctum:prune-expired --hours=24')
     ->dailyAt('03:00')
     ->timezone('Africa/Casablanca')
     ->onOneServer();
+
+// Supprime les messages de contact jamais vérifiés depuis plus de 24 h
+Schedule::command('model:prune', ['--model' => [App\Models\ContactRequest::class]])
+    ->dailyAt('04:00')
+    ->timezone('Africa/Casablanca')
+    ->onOneServer();

@@ -140,9 +140,17 @@ class SecurityAndPasswordTest extends TestCase
         Mail::fake();
         config(['mail.admin_address' => 'admin@bibliotheque.test']);
 
-        $this->postJson('/api/contact', [
+        $token = $this->postJson('/api/contact', [
             'nom' => 'Sara', 'email' => 'sara@example.com', 'sujet' => 'Horaires', 'message' => 'Bonjour',
-        ])->assertCreated();
+        ])->assertCreated()->json('token');
+
+        // Transmis à l'admin seulement après la vérification de l'adresse (voir ContactVerificationTest)
+        $code = null;
+        Mail::assertSent(\App\Mail\ContactVerificationMail::class, function ($m) use (&$code) {
+            $code = $m->code;
+            return true;
+        });
+        $this->postJson('/api/contact/verify', ['token' => $token, 'code' => $code])->assertOk();
 
         Mail::assertSent(ContactRequestMail::class, fn($mail) =>
             $mail->hasTo('admin@bibliotheque.test') && $mail->hasReplyTo('sara@example.com'));

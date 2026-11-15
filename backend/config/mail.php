@@ -111,6 +111,9 @@ return [
     // Adresse qui reçoit les messages du formulaire de contact
     'admin_address' => env('ADMIN_EMAIL'),
 
+    // Formulaire de contact : refuser les domaines sans serveur de messagerie (requête DNS MX)
+    'verify_dns' => (bool) env('MAIL_VERIFY_DNS', true),
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', 'Example'),

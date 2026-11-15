@@ -1,32 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl'; // 👈 Zidna hada
-import { api, apiErrorMessage } from '@/lib/api';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, Mail, MapPin, Send, Phone } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Mail, MapPin, Phone } from 'lucide-react';
+import ContactForm from '@/components/contact/ContactForm';
 
 export default function ContactPage() {
-    const t = useTranslations('contact'); // 👈 Zidna hada
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({ nom: '', email: '', sujet: '', message: '' });
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            await api.post('/contact', formData);
-            toast.success(t('success'));
-            setFormData({ nom: '', email: '', sujet: '', message: '' });
-        } catch (err: unknown) {
-            toast.error(apiErrorMessage(err, t('error')));
-        } finally {
-            setLoading(false);
-        }
-    };
+    const t = useTranslations('contact');
 
     return (
         <div className="bg-cream min-h-screen py-16">
@@ -82,40 +61,9 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Formulaire */}
+                    {/* Formulaire avec vérification de l'adresse e-mail (code à 6 chiffres) */}
                     <div className="lg:col-span-3">
-                        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-soft border border-stone-200 space-y-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label>{t('form_name')}</Label>
-                                    <Input required placeholder={t('form_name_placeholder')} value={formData.nom} onChange={e => setFormData({ ...formData, nom: e.target.value })} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('form_email')}</Label>
-                                    <Input type="email" required placeholder={t('form_email_placeholder')} value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} dir="ltr" />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>{t('form_subject')}</Label>
-                                <Input required placeholder={t('form_subject_placeholder')} value={formData.sujet} onChange={e => setFormData({ ...formData, sujet: e.target.value })} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>{t('form_message')}</Label>
-                                <textarea
-                                    required rows={6}
-                                    placeholder={t('form_message_placeholder')}
-                                    className="w-full border border-stone-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none bg-stone-50"
-                                    value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
-                                />
-                            </div>
-
-                            <Button type="submit" disabled={loading} className="w-full bg-brand-600 hover:bg-brand-700 text-white h-12 rounded-xl text-base">
-                                {loading ? <Loader2 className="animate-spin mr-2" size={20} /> : <Send size={20} className="mr-2" />}
-                                {loading ? t('form_submitting') : t('form_submit')}
-                            </Button>
-                        </form>
+                        <ContactForm />
                     </div>
 
                 </div>

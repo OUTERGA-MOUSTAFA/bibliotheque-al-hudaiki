@@ -9,6 +9,7 @@ return [
     'confirmed' => 'تأكيد حقل :attribute غير مطابق.',
     'current_password' => 'كلمة المرور غير صحيحة.',
     'date' => 'حقل :attribute ليس تاريخاً صالحاً.',
+    'digits' => 'يجب أن يتكوّن حقل :attribute من :digits أرقام.',
     'email' => 'يجب أن يكون حقل :attribute عنوان بريد إلكتروني صالحاً.',
     'exists' => 'قيمة حقل :attribute غير صالحة.',
     'image' => 'يجب أن يكون حقل :attribute صورة.',

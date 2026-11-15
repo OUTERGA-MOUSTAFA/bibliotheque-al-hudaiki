@@ -215,7 +215,7 @@ class AccountFeaturesTest extends TestCase
 
     public function test_admin_gere_les_messages_de_contact(): void
     {
-        $message = ContactRequest::create(['nom' => 'Ali', 'email' => 'ali@example.com', 'sujet' => 'Livre', 'message' => 'Bonjour']);
+        $message = ContactRequest::create(['nom' => 'Ali', 'email' => 'ali@example.com', 'sujet' => 'Livre', 'message' => 'Bonjour', 'verified_at' => now()]);
         Sanctum::actingAs($this->admin());
 
         $this->getJson('/api/admin/contacts')->assertOk()->assertJsonPath('non_lus', 1)->assertJsonCount(1, 'data');

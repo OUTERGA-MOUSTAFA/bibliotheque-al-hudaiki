@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(6)->by($request->ip());
         });
 
+        // Saisie du code de vérification du formulaire de contact (le code lui-même est limité à 5 essais)
+        RateLimiter::for('contact-code', fn(Request $request) => Limit::perMinute(10)->by($request->ip()));
+
         // Le lien de réinitialisation pointe vers le frontend Next.js, pas vers Laravel
         ResetPassword::createUrlUsing(function ($user, string $token) {
             // La page s'ouvre dans la langue du lecteur (mise à jour lors de sa demande)

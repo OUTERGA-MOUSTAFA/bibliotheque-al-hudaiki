@@ -9,6 +9,7 @@ return [
     'confirmed' => 'La confirmation du champ :attribute ne correspond pas.',
     'current_password' => 'Le mot de passe est incorrect.',
     'date' => 'Le champ :attribute n’est pas une date valide.',
+    'digits' => 'Le champ :attribute doit contenir :digits chiffres.',
     'email' => 'Le champ :attribute doit être une adresse e-mail valide.',
     'exists' => 'La valeur du champ :attribute est invalide.',
     'image' => 'Le champ :attribute doit être une image.',
