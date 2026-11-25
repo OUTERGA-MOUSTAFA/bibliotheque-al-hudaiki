@@ -42,6 +42,15 @@ jobs:
             echo "::error::Secrets NEON_DATABASE_URL et BACKUP_PASSPHRASE requis (voir l'en-tête du fichier)."
             exit 1
           fi
+          # Erreur fréquente : copier la version « psql 'postgresql://…' » de Neon, ou ajouter des guillemets.
+          # pg_dump ne reconnaît alors pas l'adresse et cherche une base locale (/var/run/postgresql).
+          case "$NEON_DATABASE_URL" in
+            postgresql://*|postgres://*) ;;
+            *) echo "::error::NEON_DATABASE_URL doit commencer par postgresql:// (sans « psql », sans guillemets ni espaces)."; exit 1 ;;
+          esac
+          case "$NEON_DATABASE_URL" in
+            *-pooler.*) echo "::warning::Hôte « -pooler » : préférez la connexion directe de Neon pour pg_dump." ;;
+          esac
 
       # Neon utilise PostgreSQL 18 : pg_dump doit être de la même version ou plus récent
       - name: Installer pg_dump 18

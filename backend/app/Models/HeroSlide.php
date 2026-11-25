@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LibereImageCloudinary;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 // Diapositive de la bannière d'accueil : une image et ses textes en français et en arabe
 class HeroSlide extends Model
 {
-    use HasFactory;
+    use HasFactory, LibereImageCloudinary;
+
+    protected function champImageCloudinary(): string
+    {
+        return 'image';
+    }
 
     public const CHAMPS_TRADUITS = ['badge', 'titre', 'sous_titre', 'bouton'];
 

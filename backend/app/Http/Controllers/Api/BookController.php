@@ -11,7 +11,6 @@ use App\Services\ImageUploader;
 
 class BookController extends Controller
 {
-    private const IMAGE_PAR_DEFAUT = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop';
 
     // Public : les livres archivés ne sont jamais visibles
     public function index(Request $request)
@@ -82,7 +81,7 @@ class BookController extends Controller
         $validated['statut'] = $validated['stock'] > 0 ? 'disponible' : 'emprunte';
         $validated['image'] = $request->hasFile('image')
             ? $this->uploadImage($request->file('image'))
-            : self::IMAGE_PAR_DEFAUT;
+            : Book::IMAGE_PAR_DEFAUT;
 
         $book = Book::create($validated);
 
