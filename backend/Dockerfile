@@ -42,6 +42,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 
 WORKDIR /var/www/html
 
+# Logs Laravel sur la sortie d'erreur du conteneur : ils apparaissent dans Railway → Deploy Logs.
+# Avant, ils partaient dans storage/logs/laravel.log, invisible depuis Railway.
+# (Une variable LOG_CHANNEL / LOG_STACK définie dans Railway reste prioritaire.)
+ENV LOG_CHANNEL=stderr \
+    LOG_STACK=stderr
+
 # 5. Dépendances d'abord, SEULES : cette couche reste en cache tant que composer.lock ne change pas.
 #    Avant, « COPY . . » venait avant : chaque modification du code retéléchargeait les 105 paquets.
 #    3 tentatives si GitHub ne répond pas (timeouts, 504).

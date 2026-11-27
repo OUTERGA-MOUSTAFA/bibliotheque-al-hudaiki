@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Mail\ContactRequestMail;
 use App\Mail\ContactVerificationMail;
+use App\Console\Commands\SendTestMail;
 use App\Models\ContactRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -113,7 +114,12 @@ class ContactController extends Controller
             Mail::to($contact->email)->send(new ContactVerificationMail($contact, $contact->nouveauCode()));
             return true;
         } catch (\Throwable $e) {
-            Log::error('Envoi du code de vérification échoué', ['contact' => $contact->id, 'error' => $e->getMessage()]);
+            Log::error('Envoi du code de vérification échoué', [
+                'contact' => $contact->id,
+                'error' => $e->getMessage(),
+                // Que faire, pour les refus Brevo les plus fréquents (visible dans Railway → Deploy Logs)
+                'conseil' => SendTestMail::conseil($e->getMessage()),
+            ]);
             return false;
         }
     }
