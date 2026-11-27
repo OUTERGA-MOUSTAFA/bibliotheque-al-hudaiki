@@ -14,7 +14,7 @@
         "laravel/tinker": "^2.10.1",
         "resend/resend-laravel": "^1.7",
         "spatie/laravel-permission": "^8.3",
-        "symfony/brevo-mailer": "^7.4",
+        "symfony/brevo-mailer": "^8.1",
         "symfony/http-client": "^7.4"
     },
     "require-dev": {
