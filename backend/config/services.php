@@ -28,6 +28,11 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    // Brevo : SMTP & API → Clés API (clé « xkeysib-… »)
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

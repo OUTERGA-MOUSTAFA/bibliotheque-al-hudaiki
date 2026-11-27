@@ -65,6 +65,11 @@ return [
             'transport' => 'resend',
         ],
 
+        // Brevo par son API HTTPS (pas de SMTP : Railway bloque les ports SMTP sortants)
+        'brevo' => [
+            'transport' => 'brevo',
+        ],
+
         'sendmail' => [
             'transport' => 'sendmail',
             'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),

@@ -8,7 +8,10 @@ use Illuminate\Database\Connection;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // MAIL_MAILER=brevo : envoi par l'API HTTPS de Brevo
+        Mail::extend('brevo', fn () => (new BrevoTransportFactory())->create(
+            new Dsn('brevo+api', 'default', (string) config('services.brevo.key'))
+        ));
+
         // 🛡️ Rate Limiting (يمنع تخمين كلمة السر)
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
