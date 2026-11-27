@@ -11,7 +11,7 @@
         "laravel/fortify": "^1.40",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.10.1",
+        "laravel/tinker": "^3.2.0",
         "resend/resend-laravel": "^1.7",
         "spatie/laravel-permission": "^8.3",
         "symfony/brevo-mailer": "^7.4",
