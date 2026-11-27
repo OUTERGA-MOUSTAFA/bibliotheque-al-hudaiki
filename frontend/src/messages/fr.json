@@ -559,7 +559,8 @@
     "delete_warning": "Cette action est définitive : votre profil, votre historique d’emprunts, vos favoris et vos avis seront effacés.",
     "delete_confirm": "Supprimer définitivement",
     "cancel": "Annuler",
-    "account_deleted": "Votre compte a été supprimé."
+    "account_deleted": "Votre compte a été supprimé.",
+    "email_change_hint": "Pour changer d’adresse e-mail, confirmez avec votre mot de passe actuel."
   },
   "privacy": {
     "title": "Politique de confidentialité",

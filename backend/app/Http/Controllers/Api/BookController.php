@@ -150,8 +150,8 @@ class BookController extends Controller
 
     private function filtrer($query, Request $request)
     {
-        if ($request->filled('q')) {
-            $search = $request->q;
+        // Paramètres lus comme du texte : un tableau (?q[]=x) est ignoré au lieu de faire planter la requête
+        if ($search = $this->texte($request, 'q', 100)) {
             // whereLike = insensible à la casse (ILIKE sur PostgreSQL)
             $query->where(function ($q) use ($search) {
                 $q->whereLike('titre', "%{$search}%")
@@ -159,8 +159,8 @@ class BookController extends Controller
                     ->orWhereLike('description', "%{$search}%");
             });
         }
-        if ($request->filled('categorie')) $query->where('categorie_id', $request->categorie);
-        if ($request->filled('langue')) $query->where('langue', $request->langue);
+        if ($categorie = $this->texte($request, 'categorie', 10)) $query->where('categorie_id', (int) $categorie);
+        if ($langue = $this->texte($request, 'langue', 5)) $query->where('langue', $langue);
         if ($request->disponible === 'true') $query->where('stock', '>', 0);
         if ($request->disponible === 'false') $query->where('stock', '<=', 0);
 
@@ -171,6 +171,14 @@ class BookController extends Controller
         };
 
         return $query;
+    }
+
+    // Valeur texte d'un paramètre, coupée à $max caractères ; null si absente, vide ou envoyée en tableau
+    private function texte(Request $request, string $cle, int $max): ?string
+    {
+        $valeur = $request->input($cle);
+
+        return is_string($valeur) && trim($valeur) !== '' ? mb_substr(trim($valeur), 0, $max) : null;
     }
 
     private function perPage(Request $request): int

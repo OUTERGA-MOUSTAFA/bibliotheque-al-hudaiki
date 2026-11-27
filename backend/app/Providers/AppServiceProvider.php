@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rules\Password;
 use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Illuminate\Support\ServiceProvider;
@@ -25,14 +26,26 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Mot de passe : 8 caractères minimum avec lettres et chiffres.
+        // En production, on refuse aussi ceux qui ont fuité sur Internet (base Have I Been Pwned,
+        // seuls les 5 premiers caractères du hash SHA-1 sont envoyés : le mot de passe ne sort pas).
+        Password::defaults(fn () => $this->app->isProduction()
+            ? Password::min(8)->letters()->numbers()->uncompromised()
+            : Password::min(8)->letters()->numbers());
+
         // MAIL_MAILER=brevo : envoi par l'API HTTPS de Brevo
         Mail::extend('brevo', fn () => (new BrevoTransportFactory())->create(
             new Dsn('brevo+api', 'default', (string) config('services.brevo.key'))
         ));
 
         // 🛡️ Rate Limiting (يمنع تخمين كلمة السر)
+        // Limite générale : contre l'aspiration du catalogue et les requêtes en rafale.
+        // Les visiteurs anonymes ont plus de marge : les pages du site rendues par le serveur
+        // Next.js (Vercel) appellent l'API depuis quelques adresses partagées.
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return $request->user()
+                ? Limit::perMinute(120)->by('user:' . $request->user()->id)
+                : Limit::perMinute(300)->by('ip:' . $request->ip());
         });
 
         // 🛡️ Rate Limiting 9assi l'Login w Register (6 attempts f d9i9a)

@@ -92,8 +92,10 @@ class HeroController extends Controller
             'titre_fr' => $texte, 'titre_ar' => $texte,
             'sous_titre_fr' => 'nullable|string|max:600', 'sous_titre_ar' => 'nullable|string|max:600',
             'bouton_fr' => 'nullable|string|max:60', 'bouton_ar' => 'nullable|string|max:60',
-            // Lien interne (/catalogue…) ou externe (https://…)
-            'lien' => ['nullable', 'string', 'max:500', 'regex:#^(/|https?://)#'],
+            // Lien interne (/catalogue…) ou externe (https://…).
+            // « //site.com » et « /\site.com » sont refusés : le navigateur les ouvre comme un AUTRE site
+            // (redirection piégée). \x5C = antislash.
+            'lien' => ['nullable', 'string', 'max:500', 'regex:#^(/$|/[^/\x5C]|https?://)#'],
             'ordre' => 'nullable|integer|min:0',
             'actif' => 'sometimes|boolean',
         ], [

@@ -19,8 +19,15 @@ RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.c
     && a2enmod rewrite \
     && echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername \
+    && printf 'ServerTokens Prod\nServerSignature Off\nTraceEnable Off\n<Directory /var/www/html/public>\n    Options -Indexes\n</Directory>\n' > /etc/apache2/conf-available/securite.conf \
+    && a2enconf securite \
     && ls /etc/apache2/mods-enabled | grep mpm \
     && apache2ctl -t
+
+# 3. Sécurité de PHP en production : ne pas annoncer sa version, ne jamais afficher les erreurs aux visiteurs,
+#    taille des envois limitée (les images font 5 Mo au plus), cookies de session protégés
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && printf 'expose_php = Off\ndisplay_errors = Off\nlog_errors = On\nupload_max_filesize = 6M\npost_max_size = 8M\nsession.cookie_httponly = 1\nsession.cookie_secure = 1\nsession.use_strict_mode = 1\n' > "$PHP_INI_DIR/conf.d/zz-securite.ini"
 
 # 4. Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -51,7 +58,7 @@ COPY . .
 RUN composer dump-autoload --optimize --no-dev
 
 # 7. Bddel l'configuration dial Apache
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 

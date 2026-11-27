@@ -72,5 +72,6 @@
     "Vous devez avoir emprunté ce livre pour le noter.": "يجب أن تكون قد استعرت هذا الكتاب لتقييمه.",
     "Vous n'avez pas l'âge requis pour emprunter ce livre.": "لم تبلغ السن المطلوبة لاستعارة هذا الكتاب.",
     "Vous ne pouvez pas effectuer cette action sur votre propre compte.": "لا يمكنك القيام بهذا الإجراء على حسابك الخاص.",
-    "Whoops!": "عذراً!"
+    "Whoops!": "عذراً!",
+    "Trop de tentatives. Réessayez dans :minutes minutes.": "محاولات كثيرة. أعد المحاولة بعد :minutes دقيقة."
 }

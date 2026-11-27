@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromHeader;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -26,8 +27,20 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
 
+        // Railway place l'app derrière son proxy : sans cela, $request->ip() est l'IP du proxy pour TOUS
+        // les visiteurs → les limites de tentatives (connexion…) étaient partagées par tout le monde,
+        // et un seul attaquant pouvait bloquer la connexion de tous les lecteurs.
+        // « * » = on fait confiance au proxy qui nous parle directement (le seul chemin d'accès à l'app).
+        $middleware->trustProxies(at: '*');
+
         // Langue de la réponse (fr / ar) choisie d'après l'en-tête Accept-Language
         $middleware->api(prepend: [SetLocaleFromHeader::class]);
+
+        // Limite générale sur toute l'API (limiteur « api » dans AppServiceProvider)
+        $middleware->throttleApi();
+
+        // En-têtes de sécurité sur toutes les réponses
+        $middleware->append(SecurityHeaders::class);
 
         // Pas de page de connexion côté Laravel (c'est Next.js) : sans cela, une requête non
         // connectée sans « Accept: application/json » cherchait la route « login » → erreur 500

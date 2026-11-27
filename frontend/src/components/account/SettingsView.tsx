@@ -27,13 +27,17 @@ function ProfileForm() {
     etablissement: user?.etablissement ?? '',
   });
   const [saving, setSaving] = useState(false);
+  // Changer d'e-mail demande le mot de passe actuel (protection si quelqu'un a volé la session)
+  const [currentPassword, setCurrentPassword] = useState('');
+  const emailChange = form.email.trim().toLowerCase() !== (user?.email ?? '').toLowerCase();
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const { data } = await api.put('/profile', form);
+      const { data } = await api.put('/profile', emailChange ? { ...form, current_password: currentPassword } : form);
       updateUser(data.user);
+      setCurrentPassword('');
       toast.success(t('saved'));
     } catch (err) {
       toast.error(apiErrorMessage(err, t('error')));
@@ -59,6 +63,20 @@ function ProfileForm() {
         {field('telephone', t('telephone'), 'tel', true)}
         {field('adresse', t('adresse'))}
         {field('etablissement', t('etablissement'))}
+        {emailChange && (
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="email-current-password">{t('current_password')} *</Label>
+            <Input
+              id="email-current-password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+            <p className="text-xs text-stone-500">{t('email_change_hint')}</p>
+          </div>
+        )}
       </div>
       <Button type="submit" disabled={saving} className="bg-brand-600 hover:bg-brand-700 rounded-xl">
         {saving ? <Loader2 size={16} className="animate-spin" /> : t('save')}

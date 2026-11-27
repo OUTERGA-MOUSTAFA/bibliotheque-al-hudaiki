@@ -45,8 +45,10 @@ class LoanController extends Controller
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
+            // Le lecteur est verrouillé lui aussi : deux demandes envoyées en même temps ne peuvent
+            // pas dépasser ensemble la limite d'emprunts, ni emprunter deux fois le même livre
+            $user = $request->user()->newQuery()->lockForUpdate()->findOrFail($request->user()->id);
             $book = Book::lockForUpdate()->findOrFail($validated['book_id']);
-            $user = $request->user();
 
             if ($user->statut !== 'actif') {
                 abort(403, __("Votre compte est archivé."));

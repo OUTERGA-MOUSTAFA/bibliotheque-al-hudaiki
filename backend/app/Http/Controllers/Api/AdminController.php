@@ -37,8 +37,9 @@ class AdminController extends Controller
     {
         $query = User::with('roles')->orderBy('created_at', 'desc');
 
-        if ($request->filled('q')) {
-            $q = trim($request->q);
+        // Un tableau (?q[]=x) est ignoré au lieu de faire planter la requête
+        if (is_string($request->input('q')) && trim($request->input('q')) !== '') {
+            $q = mb_substr(trim($request->input('q')), 0, 100);
             $query->where(function ($w) use ($q) {
                 $w->whereLike('nom', "%{$q}%")
                     ->orWhereLike('prenom', "%{$q}%")

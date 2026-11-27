@@ -9,6 +9,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Illuminate\Validation\Rule;
@@ -17,6 +19,13 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+    // Tentatives de connexion ratées autorisées par compte avant blocage temporaire
+    private const ESSAIS_PAR_COMPTE = 10;
+    private const BLOCAGE_SECONDES = 900; // 15 minutes
+
+    // Essais de code de double authentification autorisés pour une même connexion
+    private const ESSAIS_2FA = 5;
+
     // E-mails stockés en minuscules : sans cette étape, « Sara@x.ma » passait la règle unique
     // puis heurtait l'index de la base (erreur 500 au lieu d'un message clair)
     private function normaliserEmail(Request $request): void
@@ -35,7 +44,7 @@ class AuthController extends Controller
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', PasswordRule::defaults()],
             'date_naissance' => 'required|date|before:today',
             'adresse' => 'nullable|string|max:500',
             'telephone' => 'required|string|max:20',
@@ -76,14 +85,33 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        // Limite par compte (en plus de la limite par IP de la route) : un attaquant qui change d'IP
+        // ne peut pas essayer des milliers de mots de passe sur le même compte
+        $cleEssais = 'login:' . sha1(strtolower($credentials['email']));
+        if (RateLimiter::tooManyAttempts($cleEssais, self::ESSAIS_PAR_COMPTE)) {
+            throw ValidationException::withMessages([
+                'email' => [__('Trop de tentatives. Réessayez dans :minutes minutes.', [
+                    'minutes' => (int) ceil(RateLimiter::availableIn($cleEssais) / 60),
+                ])],
+            ])->status(429);
+        }
+
         $user = User::whereRaw('LOWER(email) = ?', [strtolower($credentials['email'])])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        // Le hash est toujours vérifié, même sans compte : le temps de réponse ne révèle pas
+        // si l'adresse est inscrite
+        $hash = $user?->password ?? '$2y$12$v0hcoK9KN8m6M3KQh65iVOSDaai7B62AMDiBh0G3qTAYZXWOQcZLi';
+        $motDePasseValide = Hash::check($credentials['password'], $hash);
+
+        if (!$user || !$motDePasseValide) {
+            RateLimiter::hit($cleEssais, self::BLOCAGE_SECONDES);
             // Message général : on ne dit pas si c'est l'e-mail ou le mot de passe qui est faux
             throw ValidationException::withMessages([
                 'email' => [__('Les identifiants sont incorrects.')],
             ]);
         }
+
+        RateLimiter::clear($cleEssais);
 
         if ($user->statut === 'archive') {
             throw ValidationException::withMessages([
@@ -138,12 +166,19 @@ class AuthController extends Controller
         }
 
         if (!$valide) {
+            // Au-delà de 5 codes faux, cette connexion est annulée : il faut repasser par le mot de passe
+            $essais = Cache::increment("{$cacheKey}:essais");
+            if ($essais >= self::ESSAIS_2FA) {
+                Cache::forget($cacheKey);
+                Cache::forget("{$cacheKey}:essais");
+            }
             throw ValidationException::withMessages([
                 'code' => [__('Code invalide.')],
             ]);
         }
 
         Cache::forget($cacheKey);
+        Cache::forget("{$cacheKey}:essais");
 
         return response()->json($this->sessionPayload($user));
     }
@@ -175,7 +210,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'token' => 'required|string',
             'email' => 'required|email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'confirmed', PasswordRule::defaults()],
         ]);
 
         $user = User::whereRaw('LOWER(email) = ?', [strtolower($validated['email'])])->first();
@@ -279,9 +314,15 @@ class AuthController extends Controller
             'adresse' => 'nullable|string|max:500',
             'telephone' => 'sometimes|required|string|max:20',
             'etablissement' => 'nullable|string|max:255',
-            // Changement de mot de passe : l'ancien est obligatoire
-            'current_password' => 'required_with:password|current_password:sanctum',
-            'password' => 'sometimes|string|min:8|confirmed',
+            // Changer de mot de passe ou d'e-mail demande le mot de passe actuel : sinon, quelqu'un qui
+            // vole une session pourrait mettre son e-mail, puis « mot de passe oublié » → compte volé
+            'current_password' => [
+                Rule::requiredIf(fn () => $request->filled('password')
+                    || ($request->filled('email') && $request->input('email') !== $user->email)),
+                'nullable',
+                'current_password:sanctum',
+            ],
+            'password' => ['sometimes', 'string', 'confirmed', PasswordRule::defaults()],
         ]);
 
         unset($validated['current_password']);
@@ -293,7 +334,13 @@ class AuthController extends Controller
         if ($user->isDirty(['nom', 'prenom'])) {
             $user->name = trim($user->prenom . ' ' . $user->nom);
         }
+        $motDePasseChange = $user->isDirty('password');
         $user->save();
+
+        // Nouveau mot de passe : les autres appareils connectés (peut-être un intrus) sont déconnectés
+        if ($motDePasseChange) {
+            $user->tokens()->where('id', '!=', $user->currentAccessToken()->id)->delete();
+        }
 
         return response()->json([
             'user' => $user->fresh(),
