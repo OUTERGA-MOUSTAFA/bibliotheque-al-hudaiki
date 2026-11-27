@@ -1,0 +1,34 @@
+# Dependabot ouvre automatiquement une pull request quand une dépendance a une mise à jour,
+# en priorité les correctifs de sécurité. La CI vérifie chaque pull request avant fusion.
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Une seule PR pour toutes les mises à jour mineures : moins de bruit
+      mineures:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      mineures:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -28,6 +28,7 @@
 - [Installation locale](#-installation-locale)
 - [Variables d'environnement](#-variables-denvironnement)
 - [Guide de déploiement gratuit](#-guide-de-déploiement-100-gratuit)
+- [CI/CD et sécurité](#-cicd-et-sécurité)
 - [Conformité Loi 09-08 (CNDP)](#-conformité-loi-09-08-cndp)
 - [Roadmap](#-roadmap)
 - [Contributeurs](#-contributeurs)
@@ -110,3 +111,46 @@ des ouvrages — avec une expérience pensée **particulièrement pour les enfan
                                                 └────────────────┘
                                                        ▲
                                               Resend API (emails)
+
+---
+
+## 🔁 CI/CD et sécurité
+
+### Intégration continue (`.github/workflows/ci.yml`)
+
+Chaque push et chaque pull request lance 4 vérifications en parallèle :
+
+| Job | Ce qu'il vérifie |
+|---|---|
+| **Backend** | tests PHPUnit sur un vrai PostgreSQL 18 (même version que Neon), dont les tests d'attaque (`tests/Feature/AttackScenariosTest.php`) ; `composer audit` |
+| **Frontend** | ESLint, TypeScript, `next build` ; `npm audit` (failles graves) |
+| **Docker** | l'image de production Railway se construit |
+| **Secrets** | gitleaks : aucun mot de passe ni clé API dans le code |
+
+S'y ajoutent **CodeQL** (`codeql.yml`, analyse de sécurité du TypeScript et des workflows) et **Dependabot** (`.github/dependabot.yml`, pull requests automatiques pour les dépendances à mettre à jour).
+
+### Déploiement continu
+
+`main` est déployé automatiquement : **Railway** (backend) et **Vercel** (frontend).
+Pour qu'un code cassé n'arrive jamais en production, trois réglages à faire une fois :
+
+1. **Railway** → service backend → *Settings* → *Source* → activer **Wait for CI** : Railway ne déploie un commit que si la CI GitHub est verte.
+2. **GitHub** → *Settings* → *Rules* → *Rulesets* → *New branch ruleset* sur `main` :
+   - *Require a pull request before merging*
+   - *Require status checks to pass* : `Backend (Laravel)`, `Frontend (Next.js)`, `Image Docker du backend`, `Pas de secret dans le code`
+   - *Block force pushes*
+
+   Vercel ne déploie en production que `main` : avec cette règle, rien n'y arrive sans CI verte. Les autres branches obtiennent une URL de prévisualisation.
+3. **GitHub** → *Settings* → *Code security* : activer *Dependabot alerts*, *Dependabot security updates* et *Secret scanning*.
+
+Le flux de travail devient : branche → push → pull request → CI verte → fusion dans `main` → déploiement.
+
+### Protections en place
+
+- Limites de tentatives : connexion (par IP et par compte), code 2FA (5 essais puis retour au mot de passe), formulaire de contact, limite générale de l'API.
+- L'app fait confiance au proxy de Railway : chaque visiteur est compté avec sa vraie adresse IP.
+- Mots de passe : 8 caractères minimum avec lettres et chiffres ; en production, refus des mots de passe ayant fuité (Have I Been Pwned).
+- Changer d'e-mail ou de mot de passe exige le mot de passe actuel ; un nouveau mot de passe déconnecte les autres appareils.
+- En-têtes de sécurité : CSP stricte, HSTS, anti-clickjacking (frontend et API) ; PHP et Apache n'annoncent plus leur version.
+- Images envoyées : jpg/png/gif/webp seulement (SVG refusé), 5 Mo maximum.
+- Données sensibles (CIN, Massar, secrets 2FA) jamais renvoyées par l'API ; sauvegarde quotidienne chiffrée de la base.
